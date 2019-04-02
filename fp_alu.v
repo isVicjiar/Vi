@@ -1,12 +1,13 @@
-# Floating point alu file
+// Floating point alu file
 
 module fp_alu(
 input		clock,
 input		reset,
-input	31:0	instruction,
-input	31:0	data_a,
-input	31:0	data_b,
-output	31:0	data_out);
+input	[31:0]	instruction,
+input	[31:0]	data_a,
+input	[31:0]	data_b,
+
+output	[31:0]	data_out);
 
 case(instruction[31:25])
 	'0000000': fadd;

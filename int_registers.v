@@ -1,4 +1,4 @@
-# Register file
+// Register file
 
 module int_registers(
 input		clock,
@@ -8,22 +8,23 @@ input	[4:0]	read_addr_a,
 input	[4:0]	read_addr_b,
 input	[4:0]	write_addr,
 input		write_enable,
+
 output	[63:0]	read_data_a,
 output	[63:0]	read_data_b);
 
 reg [63:0] registers [31:0]
 
-# Reset 
+// Reset 
 always @(negedge reset)
 begin
 	for (i=0; n<32; i=i+1) registers[i]=0;	
 end
 
-# Read data
+// Read data
 assign read_data_a = registers[read_addr_a];
 assign read_data_b = registers[read_addr_b];
 
-# Write
+// Write
 always @(clock)
 begin
 	if (clock == 1)
