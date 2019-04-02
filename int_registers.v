@@ -1,17 +1,17 @@
-# Floating point register file
+# Register file
 
 module int_registers(
 input		clock,
 input		reset,
-input	[31:0]	write_data,
+input	[63:0]	write_data,
 input	[4:0]	read_addr_a,	
 input	[4:0]	read_addr_b,
 input	[4:0]	write_addr,
 input		write_enable,
-output	[31:0]	read_data_a,
-output	[31:0]	read_data_b);
+output	[63:0]	read_data_a,
+output	[63:0]	read_data_b);
 
-reg [31:0] registers [31:0]
+reg [63:0] registers [31:0]
 
 # Reset 
 always @(negedge reset)
@@ -28,7 +28,7 @@ always @(clock)
 begin
 	if (clock == 1)
 		if (write_enable == 1)
-			registers[write_addr] <= write_data;
+			registers[write_addr] = write_data;
 		end
 	end
 end
