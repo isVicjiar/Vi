@@ -38,6 +38,5 @@ begin
 		reg_int_write_enable = dec_int_write_enable;
 		reg_fp_write_enable = dec_fp_write_enable;
 		reg_instruction = dec_instruction;
-	end
 end
-end module	
+endmodule	

@@ -38,6 +38,5 @@ begin
 		wb_int_write_enable = exe_int_write_enable;
 		wb_fp_write_enable = exe_fp_write_enable;
 		wb_instruction = exe_instruction;
-	end
 end
-end module	
+endmodule	

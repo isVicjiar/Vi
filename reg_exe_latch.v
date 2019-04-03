@@ -37,7 +37,7 @@ end
 // Latch 
 always @(posedge clock)
 begin
-	if (clock == 1)
+	if (clock == 1) 
 		exe_int_data_a = reg_int_data_a;
 		exe_int_data_b = reg_int_data_b;
 		exe_fp_data_a = reg_fp_data_a;
@@ -46,6 +46,5 @@ begin
 		exe_fp_write_enable = reg_fp_write_enable;
 		exe_write_addr = reg_write_addr;
 		exe_instruction = reg_instruction;
-	end
 end
-end module	
+endmodule	

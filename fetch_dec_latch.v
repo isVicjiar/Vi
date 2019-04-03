@@ -18,6 +18,5 @@ always @(posedge clock)
 begin
 	if (clock == 1)
 		dec_instruction = fetch_instruction;
-	end
 end
-end module	
+endmodule	

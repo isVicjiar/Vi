@@ -9,9 +9,25 @@ input	[31:0]	data_b,
 
 output	[31:0]	data_out);
 
-case(instruction[31:25])
-	'0000000': fadd;
-	'0000100': fsub;
-	'0001000': fmul;
-	'0001100': fdiv;
-endcase
+reg [31:0] result;
+
+assign data_out=result;
+
+always @(*)
+begin
+	case(instruction[31:25])
+		7'b0000000: begin
+			result=32'b0; // Fadd
+		end
+		7'b0000100: begin 
+			result=32'b0; // Fsub
+		end
+		7'b0001000: begin
+			result=32'b0; // Fmul
+		end
+		7'b0001100: begin
+			result=32'b0; // Fdiv
+		end
+	endcase
+end
+endmodule

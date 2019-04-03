@@ -4,7 +4,11 @@ module vi_core (
 input		clock,
 input		reset);
 
-// Stage instruction
+// TEMPORARY WIRES
+wire [31:0] fp_alu_out;
+wire [63:0] int_alu_out;
+
+// Stage instructions
 wire [31:0] fetch_instruction;
 wire [31:0] dec_instruction;
 wire [31:0] reg_instruction;
@@ -58,7 +62,7 @@ fetch fetch(
 	.instruction	(fetch_instruction)
 );
 
-fetch_dec_latch(
+fetch_dec_latch fetch_dec_latch(
 	.clock		(clock),
 	.reset		(reset),
 	.fetch_instruction	(fetch_instruction),
@@ -151,7 +155,7 @@ int_alu int_alu(
 	.data_a		(la_int_data_a),
 	.data_b		(la_int_data_b),
 
-	.data_out	()
+	.data_out	(int_alu_out)
 );
 
 fp_alu fp_alu(
@@ -161,7 +165,7 @@ fp_alu fp_alu(
 	.data_a		(la_fp_data_a),
 	.data_b		(la_fp_data_b),
 
-	.data_out	()
+	.data_out	(fp_alu_out)
 );
 
 exe_wb_latch exe_wb_latch(
@@ -181,3 +185,5 @@ exe_wb_latch exe_wb_latch(
 	.wb_fp_write_enable	(lw_fp_write_enable),
 	.wb_instruction		(wb_instruction)
 );
+
+endmodule

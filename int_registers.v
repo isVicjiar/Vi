@@ -12,12 +12,13 @@ input		write_enable,
 output	[63:0]	read_data_a,
 output	[63:0]	read_data_b);
 
-reg [63:0] registers [31:0]
+reg [63:0] registers [31:0];
+integer i;
 
 // Reset 
 always @(negedge reset)
 begin
-	for (i=0; n<32; i=i+1) registers[i]=0;	
+	for (i=0; i<32; i=i+1) registers[i]=0;	
 end
 
 // Read data
@@ -30,7 +31,5 @@ begin
 	if (clock == 1)
 		if (write_enable == 1)
 			registers[write_addr] = write_data;
-		end
-	end
 end
-end module	
+endmodule	
