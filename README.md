@@ -4,7 +4,7 @@ This is my first RISC-V Core, named after LOL's champion Vi (which actually is i
 It will be composed of 5 stages when doing a normal alu operation and 6 when doing a mult/div or memory operation.
 
 | Feature: | Requirements: | Extra comments:|			
----------------------------------------------							
+|---|---|---|							
 | ISA RISCV	| Minimum instructions: ADD, SUB, MUL, LDB, LDW, STB, STW, BEQ, JUMP | - |
 | Memory	| 5 cycles to go to memory	5 cycles to return data from memory to processor | - |
 |Data Cache |	4 lines	128 bits	Replacement policy = LRU	4-way associative	|	Could be direct mapped |
