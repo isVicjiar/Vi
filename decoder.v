@@ -12,8 +12,7 @@ output  [4:0]	rs3,
 output	[6:0]	funct7,
 output	[2:0]	funct3,
 output	[6:0]	opcode,
-output		int_write_enable,
-output		fp_write_enable);
+output		int_write_enable);
 
 assign read_addr_a = instruction[19:15];
 assign read_addr_b = instruction[24:20];
