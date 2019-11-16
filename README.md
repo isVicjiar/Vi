@@ -13,16 +13,16 @@ It will be composed of 5 stages when doing a normal alu operation and 6 when doi
 |Virtual memory	| "4.Adding virtual memory" in project PDF	iTLB + dTLB	Mini OS code + 3 new inst (MOV, TLBWRITE, IRET)	Follow RISCV? | - |
 |BONUS	| Branch predictor | Maybe in the future: Out of order |
 																									
-Module	Stage	Pending	Deadline	Specs																					
-	S1																								
-	S2																								
-	S3																								
-	S4																								
-	S5																								
-	SX																								
-Total			20/12 (without testing)																						
-																									
-																									
-Action	Assignee	Pending	Deadline	Comments																					
-Adapt code	Víctor		17/11																						
-																								
+| Module | Stage | Pending | Deadline | Specs|
+|---|---|---|---|---|
+| - | S1 | - | - | - |
+| - | S2 | - | - | - |
+| - | S3 | - | - | - |
+| - | S4 | - | - | - |
+| - | S5 | - | - | - |
+| - | SX | - | - | - |
+| Total | - | - | 20/12 (without testing) | - |
+
+| Action | Assignee | Pending | Deadline | Comments |
+|---|---|---|---|---|
+| Adapt code | Víctor |	- | 17/11 | - |
