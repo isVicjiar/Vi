@@ -1,9 +1,9 @@
 // Decoder file
 
 module decoder(
-input		clock,
-input		reset,
-input	[31:0]	instruction,
+input		clk_i,
+input		rsn_i,
+input	[31:0]	instr_i,
 
 output	[4:0]	read_addr_a, //rs1
 output	[4:0]	read_addr_b, //rs2
