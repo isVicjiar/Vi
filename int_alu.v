@@ -60,7 +60,7 @@ begin
 		result = data_a_i + store_ext_imm; // Store
 	end
 	7'b1100011: begin
-		result =  (data_a_i == data_b_i) ? pc_i + branch_ext_imm : pc_i; // Beq
+		result =  (data_a_i == data_b_i) ? (pc_i + branch_ext_imm) : pc_i; // Beq
 	end
 	7'b1101111: begin
 		result = pc_i + jal_ext_imm; // Jal
