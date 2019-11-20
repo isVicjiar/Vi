@@ -34,7 +34,6 @@ assign  data_out_o = result;
 
 always@(*)
 begin
-	//  ADD, SUB, MUL, LDB, LDW, STB, STW, BEQ, JUMP RV64I
 	case (opcode)
 	7'b0110011: begin 
 		case (funct3)
