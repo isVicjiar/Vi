@@ -60,7 +60,7 @@ begin
 		result = data_a + store_ext_imm; // Store
 	end
 	7'b1100011: begin
-		result = data_a + branch_ext_imm; // Beq
+		result = pc_i + branch_ext_imm; // Beq
 	end
 	7'b1101111: begin
 		result = pc_i + jal_ext_imm; // Jal
