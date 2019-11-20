@@ -30,6 +30,7 @@ assign  jal_ext_imm = { 43{instr_i[31]}, instr_i[31], instr_i[19:12], instr_i[20
 assign  branch_ext_imm = { 51{instr_i[31]}, instr_i[31], instr_i[7], instr_i[30:25], instr_i[11:8], 1'b0 };
 assign  load_ext_imm = { 52{instr_i[31]}, instr_i[31:25], instr_i[11:7] };
 assign  store_ext_imm = { 52{instr_i[31]}, instr_i[31:20] };
+assign  data_out_o = result;
 
 always@(*)
 begin
