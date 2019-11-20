@@ -24,15 +24,14 @@ assign	unsigned_ext_imm = {52'b0, instr_i[31:20]};
 
 always@(*)
 begin
-	case (inst_group)
+	case (opcode)
 	7'b0110011: begin 
-		case(inst_type)
+		case (funct3)
 		3'b000: begin 
-			if (instruction[31:25]==7'b0000000) begin
-				result = data_a + data_b; // Add
-			end else if (instruction[31:25]==7'b0100000) begin
-				result = data_a - data_b; // Sub
-			end
+			case(funct7)
+			7'b0000000: result = data_a + data_b; // Add
+			7'b0100000: result = data_a - data_b; // Sub
+			endcase
 		end
 		3'b001: begin
 			 result = data_a << data_b; // Sll
