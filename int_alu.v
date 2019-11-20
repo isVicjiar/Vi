@@ -39,9 +39,9 @@ begin
 		case (funct3)
 		3'b000: begin 
 			case(funct7)
-			7'b0000000: result = data_a + data_b; // Add
-			7'b0100000: result = data_a - data_b; // Sub
-			7'b0000001: result = data_a * data_b; // Mul
+			7'b0000000: result = data_a_i + data_b_i; // Add
+			7'b0100000: result = data_a_i - data_b_i; // Sub
+			7'b0000001: result = data_a_i * data_b_i; // Mul
 			endcase
 		end
 		endcase
@@ -49,18 +49,18 @@ begin
 	7'b0010011: begin
 		case(inst_type)
 		3'b000: begin
-			result = data_a + ext_imm; // Addi - NOP
+			result = data_a_i + ext_imm; // Addi - NOP
 		end
 		endcase
 	end
 	7'b0000011: begin
-		result = data_a + load_ext_imm; // Load
+		result = data_a_i + load_ext_imm; // Load
 	end
 	7'b0100011: begin
-		result = data_a + store_ext_imm; // Store
+		result = data_a_i + store_ext_imm; // Store
 	end
 	7'b1100011: begin
-		result = pc_i + branch_ext_imm; // Beq
+		result =  (data_a_i == data_b_i) ? pc_i + branch_ext_imm : pc_i; // Beq
 	end
 	7'b1101111: begin
 		result = pc_i + jal_ext_imm; // Jal
