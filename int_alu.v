@@ -16,6 +16,7 @@ reg	[63:0]	result;
 wire	[63:0]	unsigned_ext_imm;
 wire	[63:0]	ext_imm;
 wire	[63:0] jal_ext_imm;
+wire	[63:0] branch_ext_imm;
 wire	[63:0] store_ext_imm;
 wire	[63:0] load_ext_imm;
 
@@ -25,7 +26,8 @@ assign	funct3 = instr_i[14:12];
 
 assign	ext_imm = {{52{instr_i[31]}}, instr_i[31:20]};
 assign	unsigned_ext_imm = {52'b0, instr_i[31:20]};
-assign  jal_ext_imm = { 44{instr_i[31]}, instr_i[19:12], instr_i[20], instr_i[30:21], 1'b0 };
+assign  jal_ext_imm = { 43{instr_i[31]}, instr_i[31], instr_i[19:12], instr_i[20], instr_i[30:21], 1'b0 };
+assign  branch_ext_imm = { 51{instr_i[31]}, instr_i[31], instr_i[7], instr_i[30:25], instr_i[11:8], 1'b0 };
 assign  load_ext_imm = { 52{instr_i[31]}, instr_i[31:25], instr_i[11:7] };
 assign  store_ext_imm = { 52{instr_i[31]}, instr_i[31:20] };
 
@@ -52,13 +54,13 @@ begin
 		endcase
 	end
 	7'b0000011: begin
-		result = data_a + data_b; // Load
+		result = data_a + load_ext_imm; // Load
 	end
 	7'b0100011: begin
-		result = data_a + data_b; // Store
+		result = data_a + store_ext_imm; // Store
 	end
 	7'b1100011: begin
-		result = data_a + data_b; // Beq
+		result = data_a + branch_ext_imm; // Beq
 	end
 	7'b1101111: begin
 		result = pc_i + jal_ext_imm; // Jal
