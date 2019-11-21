@@ -30,6 +30,6 @@ always @(clock)
 begin
 	if (clock == 1)
 		if (write_enable == 1)
-			if (write_addr > 5'b0) registers[write_addr] = write_data;
+			if (write_addr > 5'b00000) registers[write_addr] = write_data;
 end
 endmodule	
