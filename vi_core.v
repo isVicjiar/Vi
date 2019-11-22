@@ -74,7 +74,6 @@ int_registers int_registers(
 	.read_addr_b_i	(dec_read_addr_b),
 	.write_addr_i	(lw_write_addr),
 	.write_enable_i	(lw_int_write_enable),
-
 	.read_data_a_o	(dl_read_data_a),
 	.read_data_b_o	(dl_read_data_b)
 );
@@ -87,12 +86,13 @@ dec_exe_latch dec_exe_latch(
 	.dec_write_addr_i	(dl_write_addr),
 	.dec_int_write_enable_i	(dl_int_write_enable),
 	.dec_instruction_i	(dec_instruction),
-
+	.dec_pc_i		(dec_pc),
 	.exe_read_addr_a_o	(le_read_addr_a),
 	.exe_read_addr_b_o	(le_read_addr_b),
 	.exe_write_addr_o	(le_write_addr),
 	.exe_int_write_enable_o	(le_int_write_enable),
-	.exe_instruction_o	(exe_instruction)
+	.exe_instruction_o	(exe_instruction),
+	.exe_pc_o		(exe_pc)
 );
 
 int_alu int_alu(
@@ -106,17 +106,18 @@ int_alu int_alu(
 );
 
 exe_wb_latch exe_wb_latch(
-	.clock		(clock),
-	.reset		(reset),
-	.exe_int_write_data	(exe_int_write_data),
-	.exe_write_addr		(exe_write_addr),
-	.exe_int_write_enable	(exe_int_write_enable),
-	.exe_instruction	(exe_instruction),
-
-	.wb_int_write_data	(lw_int_write_data),
-	.wb_write_addr		(lw_write_addr),
-	.wb_int_write_enable	(lw_int_write_enable),
-	.wb_instruction		(wb_instruction)
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.exe_int_write_data_i	(el_int_data_out),
+	.exe_write_addr_i	(le_write_addr),
+	.exe_int_write_enable_i	(le_int_write_enable),
+	.exe_instruction_i	(exe_instruction),
+	.exe_pc_i		(exe_pc),
+	.write_int_write_data_o	(lw_int_write_data),
+	.write_write_addr_o	(lw_write_addr),
+	.write_int_write_enable_o	(lw_int_write_enable),
+	.write_instruction_o	(wb_instruction),
+	.write_pc_o		(wb_pc)
 );
 
 endmodule
