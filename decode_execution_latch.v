@@ -15,25 +15,23 @@ output	[31:0]	exe_write_addr_o,
 output		exe_int_write_enable_o,
 output	[31:0]	exe_instruction_o);
 
-// Reset 
-always @(negedge reset)
-begin
-	reg_read_addr_a = 0;
-	reg_read_addr_b = 0;
-	reg_write_addr = 0;
-	reg_int_write_enable = 0;
-	reg_instruction = 0;
-end
-
 // Latch 
 always @(posedge clock)
 begin
-	if (clock == 1)
+	if (rsn_i) begin
+		exe_read_addr_a = 0;
+		exe_read_addr_b = 0;
+		exe_write_addr = 0;
+		exe_int_write_enable = 0;
+		exe_instruction = 0;
+	end
+	else begin
 		reg_read_addr_a = dec_read_addr_a;
 		reg_read_addr_b = dec_read_addr_b;
 		reg_write_addr = dec_write_addr;
 		reg_int_write_enable = dec_int_write_enable;
 		reg_instruction = dec_instruction;
+	end
 end
 endmodule	
 
