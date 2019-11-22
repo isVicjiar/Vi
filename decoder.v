@@ -8,7 +8,6 @@ input	[31:0]	instr_i,
 output	[4:0]	read_addr_a_o, //rs1
 output	[4:0]	read_addr_b_o, //rs2
 output	[4:0]	write_addr_o,  //rd
-output  [4:0]	rs3_o,
 output		int_write_enable_o);
 
 assign read_addr_a = instruction[19:15];
