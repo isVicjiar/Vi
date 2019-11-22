@@ -10,7 +10,6 @@ wire [63:0] int_alu_out;
 // Stage instructions
 wire [31:0] fetch_instruction;
 wire [31:0] dec_instruction;
-wire [31:0] reg_instruction;
 wire [31:0] exe_instruction;
 wire [31:0] wb_instruction;
 
@@ -20,24 +19,17 @@ wire [4:0] dl_read_addr_b;
 wire [4:0] dl_write_addr;
 wire	   dl_int_write_enable;
 
-// Latch - Reg = LR
-wire [4:0] lr_read_addr_a;
-wire [4:0] lr_read_addr_b;
-wire [4:0] lr_write_addr;
-wire	   lr_int_write_enable;
+// Latch - Exe = LE
+wire [31:0] le_int_data_a;
+wire [31:0] le_int_data_b;
+wire [4:0]  le_write_addr;
+wire 	    le_int_write_enable;
 
-// Reg - Latch = RL
-wire [63:0] rl_int_data_a;
-wire [63:0] rl_int_data_b;
-wire [4:0]  rl_write_addr;
-wire	    rl_int_write_enable;
-
-// Latch - Alu = LA
-wire [63:0] la_int_data_a;
-wire [63:0] la_int_data_b;
-wire [4:0]  la_write_addr;
-wire 	    la_int_write_enable;
-
+// Exe - Latch = EL
+wire [4:0]  el_write_addr;
+wire	    el_int_write_enable;
+wire [31:0] el_int_write_data;
+	
 // Latch - Write back = LW
 wire [4:0]  lw_write_addr;
 wire	    lw_int_write_enable;
