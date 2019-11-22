@@ -15,10 +15,22 @@ output	[31:0]	exe_write_addr_o,
 output		exe_int_write_enable_o,
 output	[31:0]	exe_instruction_o);
 
+reg	[31:0]	exe_read_data_a;
+reg	[31:0]	exe_read_data_b;
+reg	[31:0]	exe_write_addr;
+reg	exe_int_write_enable;
+reg	[31:0]	exe_instruction;
+	
+assign exe_read_data_a_o = exe_read_data_a;
+assign exe_read_data_b_o = exe_read_data_b;
+assign exe_write_addr_o = exe_write_addr;
+assign exe_int_write_enable_o = exe_int_write_enable;
+assign exe_instruction_o = exe_instruction;
+	
 // Latch 
 always @(posedge clock)
 begin
-	if (rsn_i) begin
+	if (!rsn_i) begin
 		exe_read_addr_a = 0;
 		exe_read_addr_b = 0;
 		exe_write_addr = 0;
@@ -26,50 +38,11 @@ begin
 		exe_instruction = 0;
 	end
 	else begin
-		reg_read_addr_a = dec_read_addr_a;
-		reg_read_addr_b = dec_read_addr_b;
-		reg_write_addr = dec_write_addr;
-		reg_int_write_enable = dec_int_write_enable;
-		reg_instruction = dec_instruction;
+		exe_read_addr_a = dec_read_addr_a;
+		exe_read_addr_b = dec_read_addr_b;
+		exe_write_addr = dec_write_addr;
+		exe_int_write_enable = dec_int_write_enable;
+		exe_instruction = dec_instruction;
 	end
 end
-endmodule	
-
-// Latch between registers and exe
-
-module reg_exe_latch(
-input		clock,
-input		reset,
-input	[63:0]	reg_int_data_a,
-input	[63:0]	reg_int_data_b,
-input		reg_int_write_enable,
-input	[4:0]	reg_write_addr,
-input	[31:0]	reg_instruction,
-
-output	[63:0]	exe_int_data_a,
-output	[63:0]	exe_int_data_b,
-output		exe_int_write_enable,
-output	[4:0]	exe_write_addr,
-output	[31:0]	exe_instruction);
-
-// Reset 
-always @(negedge reset)
-begin
-	exe_int_data_a = 0;
-	exe_int_data_b = 0;
-	exe_int_write_enable = 0;
-	exe_write_addr = 0;
-	exe_instruction = 0;
-end
-
-// Latch 
-always @(posedge clock)
-begin
-	if (clock == 1) 
-		exe_int_data_a = reg_int_data_a;
-		exe_int_data_b = reg_int_data_b;
-		exe_int_write_enable = reg_int_write_enable;
-		exe_write_addr = reg_write_addr;
-		exe_instruction = reg_instruction;
-end
-endmodule	
+endmodule
