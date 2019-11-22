@@ -1,19 +1,19 @@
 // Latch between registers and exe
 
 module dec_reg_latch(
-input		clock,
-input		reset,
-input	[4:0]	dec_read_addr_a,
-input	[4:0]	dec_read_addr_b,
-input	[4:0]	dec_write_addr,
-input		dec_int_write_enable,
-input	[31:0]	dec_instruction,
+input		clk_i,
+input		rsn_i,
+input	[31:0]	dec_read_data_a_i,
+input	[31:0]	dec_read_data_b_i,
+input	[31:0]	dec_write_addr_i,
+input		dec_int_write_enable_i,
+input	[31:0]	dec_instruction_i,
 
-output	[4:0]	reg_read_addr_a,
-output	[4:0]	reg_read_addr_b,
-output	[4:0]	reg_write_addr,
-output		reg_int_write_enable,
-output	[31:0]	reg_instruction);
+output	[31:0]	exe_read_data_a_o,
+output	[31:0]	exe_read_data_b_o,
+output	[31:0]	exe_write_addr_o,
+output		exe_int_write_enable_o,
+output	[31:0]	exe_instruction_o);
 
 // Reset 
 always @(negedge reset)
