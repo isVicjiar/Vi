@@ -1,15 +1,15 @@
 // Register file
 
 module int_registers(
-input		clock,
-input		reset,
-input	[31:0]	write_data,
-input	[4:0]	read_addr_a,	
-input	[4:0]	read_addr_b,
-input	[4:0]	write_addr,
-input		write_enable,
-output	[31:0]	read_data_a,
-output	[31:0]	read_data_b);
+input		clk_i,
+input		rsn_i,
+input	[31:0]	write_data_i,
+input	[4:0]	read_addr_a_i,	
+input	[4:0]	read_addr_b_i,
+input	[4:0]	write_addr_i,
+input		write_enable_i,
+output	[31:0]	read_data_a_o,
+output	[31:0]	read_data_b_o);
 
 reg [31:0] registers [31:0];
 integer i;
