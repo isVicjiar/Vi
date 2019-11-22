@@ -5,13 +5,17 @@ input		clk_i,
 input		rsn_i);
 
 // TEMPORARY WIRES
-wire [31:0] int_alu_out;
+wire [31:0] el_int_data_out;
 
-// Stage instructions
+// Stage instructions-pc
 wire [31:0] fetch_instruction;
+wire [31:0] fetch_pc;
 wire [31:0] dec_instruction;
+wire [31:0] dec_pc;
 wire [31:0] exe_instruction;
+wire [31:0] exe_pc;
 wire [31:0] wb_instruction;
+wire [31:0] wb_pc;
 
 // Decode - Latch = DL
 wire [4:0] dl_read_addr_a;
@@ -92,13 +96,13 @@ dec_exe_latch dec_exe_latch(
 );
 
 int_alu int_alu(
-	.clock		(clock),
-	.reset		(reset),
-	.instruction	(exe_instruction),
-	.data_a		(la_int_data_a),
-	.data_b		(la_int_data_b),
-
-	.data_out	(int_alu_out)
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.pc_i		(exe_pc),
+	.instr_i	(exe_instruction),
+	.data_a_i	(le_int_data_a),
+	.data_b_i	(le_int_data_b),
+	.data_out_o	(el_int_data_out)
 );
 
 exe_wb_latch exe_wb_latch(
