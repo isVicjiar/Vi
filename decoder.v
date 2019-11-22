@@ -9,9 +9,6 @@ output	[4:0]	read_addr_a, //rs1
 output	[4:0]	read_addr_b, //rs2
 output	[4:0]	write_addr,  //rd
 output  [4:0]	rs3,
-output	[6:0]	funct7,
-output	[2:0]	funct3,
-output	[6:0]	opcode,
 output		int_write_enable);
 
 assign read_addr_a = instruction[19:15];
