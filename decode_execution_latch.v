@@ -38,11 +38,11 @@ begin
 		exe_instruction = 0;
 	end
 	else begin
-		exe_read_addr_a = dec_read_addr_a;
-		exe_read_addr_b = dec_read_addr_b;
-		exe_write_addr = dec_write_addr;
-		exe_int_write_enable = dec_int_write_enable;
-		exe_instruction = dec_instruction;
+		exe_read_addr_a = dec_read_addr_a_i;
+		exe_read_addr_b = dec_read_addr_b_i;
+		exe_write_addr = dec_write_addr_i;
+		exe_int_write_enable = dec_int_write_enable_i;
+		exe_instruction = dec_instruction_i;
 	end
 end
 endmodule
