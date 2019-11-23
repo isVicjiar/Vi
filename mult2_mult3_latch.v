@@ -1,6 +1,6 @@
 // Latch between mult2 and mult3
 
-module exe_mult1_latch(
+module mult2_mult3_latch(
 input		clk_i,
 input		rsn_i,
 input	[31:0]	mult2_int_write_data_i,
