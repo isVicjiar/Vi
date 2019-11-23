@@ -4,9 +4,6 @@ module vi_core (
 input		clk_i,
 input		rsn_i);
 
-// TEMPORARY WIRES
-wire [31:0] el_int_data_out;
-
 // Stage instructions-pc
 wire [31:0] fetch_instruction;
 wire [31:0] fetch_pc;
@@ -33,6 +30,7 @@ wire 	    le_int_write_enable;
 wire [4:0]  el_write_addr;
 wire	    el_int_write_enable;
 wire [31:0] el_int_write_data;
+wire [31:0] el_int_data_out;
 	
 // Latch - Write back = LW
 wire [4:0]  lw_write_addr;
