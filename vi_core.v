@@ -105,6 +105,81 @@ int_alu int_alu(
 	.data_out_o	(el_int_data_out)
 );
 	
+exe_mult1_latch exe_mult1_latch(
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.exe_int_write_data_i	(el_int_data_out),
+	.exe_write_addr_i	(le_write_addr),
+	.exe_int_write_enable_i	(le_int_write_enable),
+	.exe_instruction_i	(exe_instruction),
+	.exe_pc_i		(exe_pc),
+	.mult1_int_write_data_o	(mult1_int_write_data),
+	.mult1_write_addr_o	(mult1_write_addr),
+	.mult1_int_write_enable_o	(mult1_int_write_enable),
+	.mult1_instruction_o	(mult1_instruction),
+	.mult1_pc_o		(mult1_pc)
+);	
+	
+mult1_mult2_latch mult1_mult2_latch(
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.mult1_int_write_data_i	(mult1_int_data_out),
+	.mult1_write_addr_i	(mult1_write_addr),
+	.mult1_int_write_enable_i	(mult1_int_write_enable),
+	.mult1_instruction_i	(mult1_instruction),
+	.mult1_pc_i		(mult1_pc),
+	.mult2_int_write_data_o	(mult2_int_write_data),
+	.mult2_write_addr_o	(mult2_write_addr),
+	.mult2_int_write_enable_o	(mult2_int_write_enable),
+	.mult2_instruction_o	(mult2_instruction),
+	.mult2_pc_o		(mult2_pc)
+);
+		
+mult2_mult3_latch mult2_mult3_latch(
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.mult2_int_write_data_i	(mult2_int_data_out),
+	.mult2_write_addr_i	(mult2_write_addr),
+	.mult2_int_write_enable_i	(mult2_int_write_enable),
+	.mult2_instruction_i	(mult2_instruction),
+	.mult2_pc_i		(mult2_pc),
+	.mult3_int_write_data_o	(mult3_int_write_data),
+	.mult3_write_addr_o	(mult3_write_addr),
+	.mult3_int_write_enable_o	(mult3_int_write_enable),
+	.mult3_instruction_o	(mult3_instruction),
+	.mult3_pc_o		(mult3_pc)
+);
+		
+mult3_mult4_latch mult3_mult4_latch(
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.mult3_int_write_data_i	(mult3_int_data_out),
+	.mult3_write_addr_i	(mult3_write_addr),
+	.mult3_int_write_enable_i	(mult3_int_write_enable),
+	.mult3_instruction_i	(mult3_instruction),
+	.mult3_pc_i		(mult3_pc),
+	.mult4_int_write_data_o	(mult4_int_write_data),
+	.mult4_write_addr_o	(mult4_write_addr),
+	.mult4_int_write_enable_o	(mult4_int_write_enable),
+	.mult4_instruction_o	(mult4_instruction),
+	.mult4_pc_o		(mult4_pc)
+);	
+	
+mult4_mult5_latch mult4_mult5_latch(
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.mult4_int_write_data_i	(mult4_int_data_out),
+	.mult4_write_addr_i	(mult4_write_addr),
+	.mult4_int_write_enable_i	(mult4_int_write_enable),
+	.mult4_instruction_i	(mult4_instruction),
+	.mult4_pc_i		(mult4_pc),
+	.mult5_int_write_data_o	(mult5_int_write_data),
+	.mult5_write_addr_o	(mult5_write_addr),
+	.mult5_int_write_enable_o	(mult5_int_write_enable),
+	.mult5_instruction_o	(mult5_instruction),
+	.mult5_pc_o		(mult5_pc)
+);
+	
 exe_write_latch exe_write_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
