@@ -11,6 +11,16 @@ wire [31:0] dec_instruction;
 wire [31:0] dec_pc;
 wire [31:0] exe_instruction;
 wire [31:0] exe_pc;
+wire [31:0] mult1_instruction;
+wire [31:0] mult1_pc;
+wire [31:0] mult2_instruction;
+wire [31:0] mult2_pc;
+wire [31:0] mult3_instruction;
+wire [31:0] mult3_pc;
+wire [31:0] mult4_instruction;
+wire [31:0] mult4_pc;
+wire [31:0] mult5_instruction;
+wire [31:0] mult5_pc;
 wire [31:0] wb_instruction;
 wire [31:0] wb_pc;
 
