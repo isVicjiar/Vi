@@ -100,12 +100,12 @@ int_alu int_alu(
 	.rsn_i		(rsn_i),
 	.pc_i		(exe_pc),
 	.instr_i	(exe_instruction),
-	.data_a_i	(le_int_data_a),
-	.data_b_i	(le_int_data_b),
+	.data_a_i	(el_int_data_a),
+	.data_b_i	(el_int_data_b),
 	.data_out_o	(el_int_data_out)
 );
-
-exe_wb_latch exe_wb_latch(
+	
+exe_write_latch exe_write_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
 	.exe_int_write_data_i	(el_int_data_out),
