@@ -20,6 +20,7 @@ module cache(
     input   [19:0]  addr_i,
     input       read_rqst_i,
     input       write_rqst_i,
+    input       rqst_byte_i,
     input       mem_data_ready_i,
     input   [127:0] mem_data_i,
     input   [19:0]  mem_addr_i,
@@ -27,6 +28,7 @@ module cache(
     output  [31:0]  data_o,
     output      rqst_to_mem_o,
     output  [19:0]  addr_to_mem_o,
+    output      unalign_o,
     output      hit_o,
     output      miss_o
 );
@@ -59,6 +61,7 @@ assign hit_array[2] = valid_bit[2] & (addr_i[19:4] == tags_array[2]);
 assign hit_array[3] = valid_bit[3] & (addr_i[19:4] == tags_array[3]);
 
 assign addr_byte = addr_i[3:0];
+assign addr_word = addr_i[3:2];
 
 
 always @(posedge clk_i)
@@ -162,8 +165,11 @@ begin
             end
         endcase
     end
+    assign data_o = rqst_byte_i ? {24'b0, cache_line[7+addr_byte*8:8*addr_byte]}   :
+                                  cache_line[31+addr_word*32:32*addr_word];
+    assign unalign_o = rqst_byte_i ? 0 :
+                       addr_i[1:0] ? 1 : 0;
 
-    assign data_o = cache_line[7+addr_byte*8:8*addr_byte];
     assign hit_o = hit;
     assign miss_o = miss;
     assign rqst_to_mem_o = rqst_to_mem;
