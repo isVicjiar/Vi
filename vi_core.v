@@ -11,18 +11,35 @@ wire [31:0] dec_instruction;
 wire [31:0] dec_pc;
 wire [31:0] exe_instruction;
 wire [31:0] exe_pc;
-wire [31:0] mult1_instruction;
-wire [31:0] mult1_pc;
-wire [31:0] mult2_instruction;
-wire [31:0] mult2_pc;
-wire [31:0] mult3_instruction;
-wire [31:0] mult3_pc;
-wire [31:0] mult4_instruction;
-wire [31:0] mult4_pc;
-wire [31:0] mult5_instruction;
-wire [31:0] mult5_pc;
 wire [31:0] wb_instruction;
 wire [31:0] wb_pc;
+
+// Mult delay
+wire [31:0] mult1_instruction;
+wire [31:0] mult1_pc;
+wire [31:0] mult1_int_data_out;
+wire [4:0] mult1_write_addr;
+wire mult1_int_write_enable;
+wire [31:0] mult2_instruction;
+wire [31:0] mult2_pc;
+wire [31:0] mult2_int_data_out;
+wire [4:0] mult2_write_addr;
+wire mult2_int_write_enable;
+wire [31:0] mult3_instruction;
+wire [31:0] mult3_pc;
+wire [31:0] mult3_int_data_out;
+wire [4:0] mult3_write_addr;
+wire mult3_int_write_enable;
+wire [31:0] mult4_instruction;
+wire [31:0] mult4_pc;
+wire [31:0] mult4_int_data_out;
+wire [4:0] mult4_write_addr;
+wire mult4_int_write_enable;
+wire [31:0] mult5_instruction;
+wire [31:0] mult5_pc;
+wire [31:0] mult5_int_data_out;
+wire [4:0] mult5_write_addr;
+wire mult5_int_write_enable;
 
 // Decode - Latch = DL
 wire [4:0] dl_read_addr_a;
