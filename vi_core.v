@@ -37,7 +37,7 @@ wire [31:0] el_int_write_data;
 // Latch - Write back = LW
 wire [4:0]  lw_write_addr;
 wire	    lw_int_write_enable;
-wire [63:0] lw_int_write_data;
+wire [31:0] lw_int_write_data;
 
 
 fetch fetch(
