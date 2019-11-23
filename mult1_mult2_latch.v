@@ -24,7 +24,7 @@ assign mult2_int_write_data_o = mult2_int_write_data;
 assign mult2_write_addr_o = mult2_write_addr;
 assign mult2_int_write_enable_o = mult2_int_write_enable;
 assign mult2_instruction_o = mult2_instruction;
-assign mult2_pc_o = mult1_pc;
+assign mult2_pc_o = mult2_pc;
 	
 // Latch 
 always @(posedge clock)
