@@ -75,7 +75,8 @@ wire [4:0]  lw_write_addr;
 wire	    lw_int_write_enable;
 wire [31:0] lw_int_write_data;
 
-	assign dl_read_addr_a = () ? frweiuh : reg
+assign dl_read_data_a = (bypass_a_en) ? bypass_data_a : reg_read_data_a;
+assign dl_read_data_b = (bypass_b_en) ? bypass_data_b : reg_read_data_b;
 
 fetch fetch(
 	.clock		(clock),
