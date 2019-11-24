@@ -90,6 +90,19 @@ decoder decoder(
 	.write_addr_o	(dl_write_addr),
 	.int_write_enable_o	(dl_int_write_enable)
 );
+	
+bypass_ctrl bypass_ctrl (
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.read_addr_a_i	(dec_read_addr_a),
+	.read_addr_b_i	(dec_read_addr_b),
+	.exe_data_i	(el_int_data_out),
+	.exe_addr_i	(le_write_addr),
+	.exe_wr_en_i	(le_int_write_enable),
+	.write_data_i	(lw_int_write_data),
+	.write_addr_i	(lw_write_addr),
+	.write_en_i	(lw_int_wrie_enable),
+);
 
 int_registers int_registers(
 	.clk_i		(clk_i),
