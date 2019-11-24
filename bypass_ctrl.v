@@ -31,8 +31,8 @@ input [4:0] write_addr_i,
 input write_en_i,
 output bypass_a_en_o,
 output bypass_b_en_o,
-output bypass_data_a_o,
-output bypass_data_b_o,
+output [31:0] bypass_data_a_o,
+output [31:0] bypass_data_b_o,
 output stall_core_o
 );
 
