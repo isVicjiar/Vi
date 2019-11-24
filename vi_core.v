@@ -135,8 +135,8 @@ int_registers int_registers(
 	.read_addr_b_i	(dec_read_addr_b),
 	.write_addr_i	(lw_write_addr),
 	.write_enable_i	(lw_int_write_enable),
-	.read_data_a_o	(dl_read_data_a),
-	.read_data_b_o	(dl_read_data_b)
+	.read_data_a_o	(reg_read_data_a),
+	.read_data_b_o	(reg_read_data_b)
 );
 	
 dec_exe_latch dec_exe_latch(
