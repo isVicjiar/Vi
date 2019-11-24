@@ -90,7 +90,7 @@ decoder decoder(
 	.write_addr_o	(dl_write_addr),
 	.int_write_enable_o	(dl_int_write_enable)
 );
-	
+
 bypass_ctrl bypass_ctrl (
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
@@ -99,9 +99,32 @@ bypass_ctrl bypass_ctrl (
 	.exe_data_i	(el_int_data_out),
 	.exe_addr_i	(le_write_addr),
 	.exe_wr_en_i	(le_int_write_enable),
+	.mult1_data_i	(mult1_int_data_out),
+	.mult1_addr_i	(mult1_write_addr),
+	.mult1_wr_en_i	(mult1_int_write_enable),
+	.mult2_data_i	(mult2_int_data_out),
+	.mult2_addr_i	(mult2_write_addr),
+	.mult2_wr_en_i	(mult2_int_write_enable),
+	.mult3_data_i	(mult3_int_data_out),
+	.mult3_addr_i	(mult3_write_addr),
+	.mult3_wr_en_i	(mult3_int_write_enable),
+	.mult4_data_i	(mult4_int_data_out),
+	.mult4_addr_i	(mult4_write_addr),
+	.mult4_wr_en_i	(mult4_int_write_enable),
+	.mult5_data_i	(mult5_int_data_out),
+	.mult5_addr_i	(mult5_write_addr),
+	.mult5_wr_en_i	(mult5_int_write_enable),
+	.cache_data_i	(cache_data_out),
+	.cache_addr_i	(cache_write_addr),
+	.cache_wr_en_i	(cache_write_enable),
 	.write_data_i	(lw_int_write_data),
 	.write_addr_i	(lw_write_addr),
 	.write_en_i	(lw_int_wrie_enable),
+	.bypass_a_en_o	(bypass_a_en),
+	.bypass_b_en_o	(bypass_b_en),
+	.bypass_data_a_o (bypass_data_a),
+	.bypass_data_b_o (bypass_data_b),
+	.stall_core_o	(stall_core)
 );
 
 int_registers int_registers(
