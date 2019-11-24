@@ -41,9 +41,20 @@ wire [31:0] mult5_int_data_out;
 wire [4:0] mult5_write_addr;
 wire mult5_int_write_enable;
 
+// Decode
+wire [4:0] dec_read_addr_a;
+wire [4:0] dec_read_addr_b;
+wire [31:0] reg_read_data_a;
+wire [31:0] reg_read_data_b;
+wire bypass_a_en;
+wire bypass_b_en;
+wire [31:0] bypass_data_a;
+wire [31:0] bypass_data_b;
+wire dec_stall_core;
+	
 // Decode - Latch = DL
-wire [4:0] dl_read_addr_a;
-wire [4:0] dl_read_addr_b;
+wire [31:0] dl_read_data_a;
+wire [31:0] dl_read_data_b;
 wire [4:0] dl_write_addr;
 wire	   dl_int_write_enable;
 
@@ -64,6 +75,7 @@ wire [4:0]  lw_write_addr;
 wire	    lw_int_write_enable;
 wire [31:0] lw_int_write_data;
 
+	assign dl_read_addr_a = () ? frweiuh : reg
 
 fetch fetch(
 	.clock		(clock),
@@ -124,7 +136,7 @@ bypass_ctrl bypass_ctrl (
 	.bypass_b_en_o	(bypass_b_en),
 	.bypass_data_a_o (bypass_data_a),
 	.bypass_data_b_o (bypass_data_b),
-	.stall_core_o	(stall_core)
+	.stall_core_o	(dec_stall_core)
 );
 
 int_registers int_registers(
