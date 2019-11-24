@@ -36,4 +36,9 @@ output [31:0] bypass_data_b_o,
 output stall_core_o
 );
 
-wire 
+reg [31:0] bypass_data_a;
+reg [31:0] bypass_data_b;
+ 
+assign stall_core_o = () ?  x : 0;
+assign bypass_data_a_o = (exe_wr_en_i && exe_addr_i == read_addr_a_i) ? exe_data_i : 32'b0;
+  assign bypass_a_en_o = (exe_wr_en_i && exe_addr_i == read_addr_a_i) ? 1'b1 : 1'b0;
