@@ -40,6 +40,19 @@ output stall_core_o
 reg [31:0] bypass_data_a;
 reg [31:0] bypass_data_b;
  
+always @ (posedge clk_i) begin
+    if (!rsn_i) begin
+        bypass_a_en_o = 1'b0;
+        bypass_b_en_o = 1'b0;
+        bypass_data_a_o = 32'b0;
+        bypass_data_b_o = 32'b0;
+        stall_core_o = 1'b0;
+    end
+    else begin
+        if (exe_wr_en_i && exe_addr_i == read_addr_a_i
+    end
+end
+ 
 assign stall_core_o = () ?  x : 0;
-assign bypass_data_a_o = (exe_wr_en_i && exe_addr_i == read_addr_a_i) ? exe_data_i : 32'b0;
-  assign bypass_a_en_o = (exe_wr_en_i && exe_addr_i == read_addr_a_i) ? 1'b1 : 1'b0;
+assign bypass_data_a_o = (exe_wr_en_i && exe_addr_i == read_addr_a_i) ? exe_data_i : ((stall_core_o) ? 32'b0 : (() ? : 32'b0));
+assign bypass_a_en_o = (exe_wr_en_i && exe_addr_i == read_addr_a_i) ? 1'b1 : 1'b0;
