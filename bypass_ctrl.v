@@ -58,7 +58,7 @@ always @ (*) begin
     else begin
         case ({exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,cache_wr_en_i,write_en_i})
             8'b10000000: begin
-                bypass_a_en_o = 
+                
             end
             8'b01000000: begin
                 
