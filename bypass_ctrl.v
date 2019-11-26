@@ -30,17 +30,24 @@ input cache_wr_en_i,
 input [31:0] write_data_i,
 input [4:0] write_addr_i,
 input write_en_i,
-output bypass_a_en_o,
-output bypass_b_en_o,
-output [31:0] bypass_data_a_o,
-output [31:0] bypass_data_b_o,
-output stall_core_o
+output reg bypass_a_en_o,
+output reg bypass_b_en_o,
+output reg [31:0] bypass_data_a_o,
+output reg [31:0] bypass_data_b_o,
+output reg stall_core_o
 );
 
-reg [31:0] bypass_data_a;
-reg [31:0] bypass_data_b;
- 
-always @ (posedge clk_i) begin
+// CASES:
+/* EXE ADDR== + ENABLE + NOT LOAD
+    C  ADDR== + ENABLE + HIT
+    W  ADDR== + ENABLE
+    MULT5 ADDR==
+    
+    if more than one, newest PC
+    if load, if stage is ealrier than C, stall
+    if mult, if stage is ealrier than M5, stall
+*/
+always @ (*) begin
     if (!rsn_i) begin
         bypass_a_en_o = 1'b0;
         bypass_b_en_o = 1'b0;
@@ -49,10 +56,34 @@ always @ (posedge clk_i) begin
         stall_core_o = 1'b0;
     end
     else begin
-        if (exe_wr_en_i && exe_addr_i == read_addr_a_i
+        case ({exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,cache_wr_en_i,write_en_i})
+            8'b10000000: begin
+                bypass_a_en_o = 
+            end
+            8'b01000000: begin
+                
+            end
+            8'b00100000: begin
+                
+            end
+            8'b00010000: begin
+                
+            end
+            8'b00001000: begin
+                
+            end
+            8'b00000100: begin
+                
+            end
+            8'b00000010: begin
+                
+            end
+            8'b00000001: begin
+                
+            end
+            default: begin
+                
+            end
+        endcase
     end
 end
- 
-assign stall_core_o = () ?  x : 0;
-assign bypass_data_a_o = (exe_wr_en_i && exe_addr_i == read_addr_a_i) ? exe_data_i : ((stall_core_o) ? 32'b0 : (() ? : 32'b0));
-assign bypass_a_en_o = (exe_wr_en_i && exe_addr_i == read_addr_a_i) ? 1'b1 : 1'b0;
