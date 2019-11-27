@@ -25,9 +25,11 @@ input mult4_wr_en_i,
 input [31:0] mult5_data_i,
 input [4:0] mult5_addr_i,
 input mult5_wr_en_i,
+input [4:0] tl_addr_i,
+input tl_wr_en_i,
 input [31:0] cache_data_i,
 input [4:0] cache_addr_i,
-input tl_hit_i,
+input cahce_hit_i,
 input cache_wr_en_i,
 input [31:0] write_data_i,
 input [4:0] write_addr_i,
@@ -52,8 +54,8 @@ output reg stall_core_o
 always @ (*) begin
     logic [31:0] newest_pc_a;
     logic [31:0] newest_pc_b;
-    logic [7:0] wr_ens;
-    wr_ens = {exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,cache_wr_en_i,write_en_i};
+    logic [8:0] wr_ens;
+    wr_ens = {exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,tl_wr_en_i,cache_wr_en_i,write_en_i};
     if (!rsn_i) begin
         bypass_a_en_o = 1'b0;
         bypass_b_en_o = 1'b0;
@@ -63,12 +65,19 @@ always @ (*) begin
     end
     else begin
         if (dec_wr_en_i) begin
-            if ((write_en_i && write_addr_i == dec_wr_addr_i) || !(|wr_ens)) stall_core = 1'b0;
-            else begin
-                
-            end
+            case (wr_ens)
+                9'b100000000: stall_core_w = (exe_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
+                9'b010000000: stall_core_w = (mult1_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
+                9'b001000000: stall_core_w = (mult2addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
+                9'b000100000: stall_core_w = (mult3addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
+                9'b000010000: stall_core_w = (mult4addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
+                9'b000001000: stall_core_w = (mult5addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
+                9'b000000100: stall_core_w = (tl_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
+                9'b000000010: stall_core_w = (cache_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
+                default: stall_core_w = 1'b0;
+            endcase 
         end
-        else begin
+        //READ
             case (wr_ens)
                 8'b10000000: begin
                     bypass_a_en_o = 
