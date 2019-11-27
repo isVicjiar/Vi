@@ -77,30 +77,31 @@ always @ (*) begin
                 default: stall_core_w = 1'b0;
             endcase 
         end
-        //READ
+        //READ IT COULD HAPPEN THAT TWO BITS ARE 1 BECAUSE NOT FOR THE SAME ADDR BUT FOR DIFF
             case (wr_ens)
-                8'b10000000: begin
+                9'b100000000: begin
+                    
                     bypass_a_en_o = 
                 end
-                8'b01000000: begin
+                9'b010000000: begin
 
                 end
-                8'b00100000: begin
+                9'b001000000: begin
 
                 end
-                8'b00010000: begin
+                9'b000100000: begin
 
                 end
-                8'b00001000: begin
+                9'b000010000: begin
 
                 end
-                8'b00000100: begin
+                9'b000001000: begin
 
                 end
-                8'b00000010: begin
+                9'b000000100: begin
 
                 end
-                8'b00000001: begin
+                9'b000000010: begin
 
                 end
                 default: begin
