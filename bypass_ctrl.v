@@ -60,19 +60,21 @@ always @ (*) begin
     else begin
         if (exe_wr_en_i) begin
             if (exe_addr_i == read_addr_a_i) begin 
-                if (load || mult) stall_core_o = 1'b1;
+                if (load || mult) stall_core_a = 1'b1;
                 else begin
                     bypass_a_en_o = 1'b1;
                     bypass_data_a_o = exe_data_i;
                     newest_pc_a = exe_pc_i;
+                    stall_core_a = 1'b0;
                 end
             end
             if (exe_addr_i == read_addr_b_i) begin 
-                if (load || mult) stall_core_o = 1'b1;
+                if (load || mult) stall_core_b = 1'b1;
                 else begin
                     bypass_b_en_o = 1'b1;
                     bypass_data_b_o = exe_data_i;
                     newest_pc_b = exe_pc_i;
+                    stall_core_b = 1'b0;
                 end
             end
         end
