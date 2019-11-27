@@ -3,8 +3,9 @@
 module bypass_ctrl (
 input clk_i,
 input rsn_i,
-input [4:0] read_addr_a_i,
-input [4:0] read_addr_b_i,
+input [4:0] dec_read_addr_a_i,
+input [4:0] dec_read_addr_b_i,
+input dec_wr_en_i,
 input [31:0] exe_data_i,
 input [4:0] exe_addr_i,
 input exe_wr_en_i,
@@ -58,6 +59,41 @@ always @ (*) begin
         stall_core_o = 1'b0;
     end
     else begin
+        if (dec_wr_en_i) begin
+            
+        end
+        else begin
+            case ({exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,cache_wr_en_i,write_en_i})
+                8'b10000000: begin
+                    bypass_a_en_o = 
+                end
+                8'b01000000: begin
+
+                end
+                8'b00100000: begin
+
+                end
+                8'b00010000: begin
+
+                end
+                8'b00001000: begin
+
+                end
+                8'b00000100: begin
+
+                end
+                8'b00000010: begin
+
+                end
+                8'b00000001: begin
+
+                end
+                default: begin
+
+                end
+            endcase
+        end
+        
         if (exe_wr_en_i) begin
             if (exe_addr_i == read_addr_a_i) begin 
                 if (load || mult) stall_core_a = 1'b1;
