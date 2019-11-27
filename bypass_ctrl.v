@@ -52,8 +52,8 @@ output reg stall_core_o
     if mult, if stage is ealrier than M5, stall
 */
 always @ (*) begin
-    logic [31:0] newest_pc_a;
-    logic [31:0] newest_pc_b;
+    bit stall_core_a;
+    bit stall_core_b;
     logic [8:0] wr_ens;
     wr_ens = {exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,tl_wr_en_i,cache_wr_en_i,write_en_i};
     if (!rsn_i) begin
@@ -61,9 +61,13 @@ always @ (*) begin
         bypass_b_en_o = 1'b0;
         bypass_data_a_o = 32'b0;
         bypass_data_b_o = 32'b0;
-        stall_core_o = 1'b0;
+        stall_core_a = 1'b0;
+        stall_core_b = 1'b0;
     end
     else begin
+        stall_core_a = 1'b0;
+        stall_core_b = 1'b0;
+        stall_core_w = 1'b0;
         if (dec_wr_en_i) begin
             case (wr_ens)
                 9'b100000000: stall_core_w = (exe_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
@@ -76,40 +80,7 @@ always @ (*) begin
                 9'b000000010: stall_core_w = (cache_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
                 default: stall_core_w = 1'b0;
             endcase 
-        end
-        //READ IT COULD HAPPEN THAT TWO BITS ARE 1 BECAUSE NOT FOR THE SAME ADDR BUT FOR DIFF
-            case (wr_ens)
-                9'b100000000: begin
-                    
-                    bypass_a_en_o = 
-                end
-                9'b010000000: begin
-
-                end
-                9'b001000000: begin
-
-                end
-                9'b000100000: begin
-
-                end
-                9'b000010000: begin
-
-                end
-                9'b000001000: begin
-
-                end
-                9'b000000100: begin
-
-                end
-                9'b000000010: begin
-
-                end
-                default: begin
-
-                end
-            endcase
-        end
-        
+        end        
         if (exe_wr_en_i) begin
             if (exe_addr_i == read_addr_a_i) begin 
                 if (load || mult) stall_core_a = 1'b1;
@@ -129,9 +100,32 @@ always @ (*) begin
                     stall_core_b = 1'b0;
                 end
             end
-        end
-        
-        //exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,cache_wr_en_i,write_en_i
-          
+        end        
+        if (mult1_wr_en_i) begin
+            if (mult1_addr_i == read_addr_a_i) stall_core_a = 1'b1;
+            if (mult1_addr_i == read_addr_b_i) stall_core_b = 1'b1;
+        end           
+        if (mult2_wr_en_i) begin
+            if (mult2_addr_i == read_addr_a_i) stall_core_a = 1'b1;
+            if (mult2_addr_i == read_addr_b_i) stall_core_b = 1'b1;
+        end           
+        if (mult3_wr_en_i) begin
+            if (mult3_addr_i == read_addr_a_i) stall_core_a = 1'b1;
+            if (mult3_addr_i == read_addr_b_i) stall_core_b = 1'b1;
+        end           
+        if (mult4_wr_en_i) begin
+            if (mult4_addr_i == read_addr_a_i) stall_core_a = 1'b1;
+            if (mult4_addr_i == read_addr_b_i) stall_core_b = 1'b1;
+        end        
+        if (mult5_wr_en_i) begin
+            if (mult5_addr_i == read_addr_a_i) begin 
+                bypass_a_en_o = 1'b1;
+                bypass_data_a_o = mult5_data_i;
+            end
+            if (mult5_addr_i == read_addr_b_i) begin 
+                bypass_b_en_o = 1'b1;
+                bypass_data_b_o = mult5_data_i;
+            end
+        end             
     end
 end
