@@ -126,6 +126,25 @@ always @ (*) begin
                 bypass_b_en_o = 1'b1;
                 bypass_data_b_o = mult5_data_i;
             end
-        end             
+        end
+        if (tl_wr_en_i) begin
+            if (tl_addr_i == read_addr_a_i) stall_core_a = 1'b1;
+            if (tl_addr_i == read_addr_b_i) stall_core_b = 1'b1;
+        end 
+        if (cache_wr_en_i) begin
+            if (cache_addr_i == read_addr_a_i) begin
+                if (cache_hit_i) begin
+                    bypass_a_en_o = 1'b1;
+                    bypass_data_a_o = cache_data_i;
+                end
+                else stall_core_a = 1'b1;
+            end
+            if (cache_addr_i == read_addr_b_i) begin
+                if (cache_hit_i) begin
+                    bypass_b_en_o = 1'b1;
+                    bypass_data_b_o = cache_data_i;
+                end
+                else stall_core_b = 1'b1;
+        end
     end
 end
