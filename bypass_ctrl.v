@@ -6,6 +6,7 @@ input rsn_i,
 input [4:0] dec_read_addr_a_i,
 input [4:0] dec_read_addr_b_i,
 input dec_wr_en_i,
+input [4:0] dec_wr_addr_i,
 input [31:0] exe_data_i,
 input [4:0] exe_addr_i,
 input exe_wr_en_i,
@@ -51,6 +52,8 @@ output reg stall_core_o
 always @ (*) begin
     logic [31:0] newest_pc_a;
     logic [31:0] newest_pc_b;
+    logic [7:0] wr_ens;
+    wr_ens = {exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,cache_wr_en_i,write_en_i};
     if (!rsn_i) begin
         bypass_a_en_o = 1'b0;
         bypass_b_en_o = 1'b0;
@@ -60,10 +63,13 @@ always @ (*) begin
     end
     else begin
         if (dec_wr_en_i) begin
-            
+            if ((write_en_i && write_addr_i == dec_wr_addr_i) || !(|wr_ens[7:1])) stall_core = 1'b0;
+            else begin
+                
+            end
         end
         else begin
-            case ({exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,cache_wr_en_i,write_en_i})
+            case ()
                 8'b10000000: begin
                     bypass_a_en_o = 
                 end
