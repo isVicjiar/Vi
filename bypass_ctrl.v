@@ -63,13 +63,13 @@ always @ (*) begin
     end
     else begin
         if (dec_wr_en_i) begin
-            if ((write_en_i && write_addr_i == dec_wr_addr_i) || !(|wr_ens[7:1])) stall_core = 1'b0;
+            if ((write_en_i && write_addr_i == dec_wr_addr_i) || !(|wr_ens)) stall_core = 1'b0;
             else begin
                 
             end
         end
         else begin
-            case ()
+            case (wr_ens)
                 8'b10000000: begin
                     bypass_a_en_o = 
                 end
