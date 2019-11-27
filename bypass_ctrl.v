@@ -38,9 +38,9 @@ output reg bypass_a_en_o,
 output reg bypass_b_en_o,
 output reg [31:0] bypass_data_a_o,
 output reg [31:0] bypass_data_b_o,
-output reg stall_core_o
+output stall_core_o
 );
-
+ 
 // CASES:
 /* EXE ADDR== + ENABLE + NOT LOAD/MULT
     C  ADDR== + ENABLE + HIT
@@ -50,7 +50,8 @@ output reg stall_core_o
     if more than one, newest PC
     if load, if stage is ealrier than C, stall
     if mult, if stage is ealrier than M5, stall
-*/
+*/ 
+
 always @ (*) begin
     bit stall_core_a;
     bit stall_core_b;
