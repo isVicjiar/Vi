@@ -48,6 +48,8 @@ output reg stall_core_o
     if mult, if stage is ealrier than M5, stall
 */
 always @ (*) begin
+    logic [31:0] newest_pc_a;
+    logic [31:0] newest_pc_b;
     if (!rsn_i) begin
         bypass_a_en_o = 1'b0;
         bypass_b_en_o = 1'b0;
@@ -56,34 +58,26 @@ always @ (*) begin
         stall_core_o = 1'b0;
     end
     else begin
-        case ({exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,cache_wr_en_i,write_en_i})
-            8'b10000000: begin
-                
+        if (exe_wr_en_i) begin
+            if (exe_addr_i == read_addr_a_i) begin 
+                if (load || mult) stall_core_o = 1'b1;
+                else begin
+                    bypass_a_en_o = 1'b1;
+                    bypass_data_a_o = exe_data_i;
+                    newest_pc_a = exe_pc_i;
+                end
             end
-            8'b01000000: begin
-                
+            if (exe_addr_i == read_addr_b_i) begin 
+                if (load || mult) stall_core_o = 1'b1;
+                else begin
+                    bypass_b_en_o = 1'b1;
+                    bypass_data_b_o = exe_data_i;
+                    newest_pc_b = exe_pc_i;
+                end
             end
-            8'b00100000: begin
-                
-            end
-            8'b00010000: begin
-                
-            end
-            8'b00001000: begin
-                
-            end
-            8'b00000100: begin
-                
-            end
-            8'b00000010: begin
-                
-            end
-            8'b00000001: begin
-                
-            end
-            default: begin
-                
-            end
-        endcase
+        end
+        
+        //exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,cache_wr_en_i,write_en_i
+          
     end
 end
