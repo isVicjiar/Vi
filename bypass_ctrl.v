@@ -147,5 +147,15 @@ always @ (*) begin
                 end
                 else stall_core_b = 1'b1;
         end
+        if (write_en_i) begin
+            if (write_addr_i == read_addr_a_i) begin 
+                bypass_a_en_o = 1'b1;
+                bypass_data_a_o = write_data_i;
+            end
+            if (write_addr_i == read_addr_b_i) begin 
+                bypass_b_en_o = 1'b1;
+                bypass_data_b_o = write_data_i;
+            end
+        end
     end
 end
