@@ -38,7 +38,7 @@ output reg stall_core_o
 );
 
 // CASES:
-/* EXE ADDR== + ENABLE + NOT LOAD
+/* EXE ADDR== + ENABLE + NOT LOAD/MULT
     C  ADDR== + ENABLE + HIT
     W  ADDR== + ENABLE
     MULT5 ADDR==
