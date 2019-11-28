@@ -8,7 +8,7 @@ input	[31:0]	fetch_instr_i,
 output reg [31:0]	dec_instr_o);
 
 // Latch 
-always @(posedge clock)
+	always @(posedge clk_i)
 begin
 	if (!rsn_i) dec_instr_o = 32'b0;
 	else begin
