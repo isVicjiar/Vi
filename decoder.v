@@ -26,7 +26,7 @@ always @(*) begin
 	opcode = instr_i[6:0];
 	if (!rsn_i) int_write_enable = 1'b0;
 	else begin
-		if (branch || store) int_write_enable = 1'b0;
+		if (opcode == 7'1101111 || opcode == 7'1101111 || opcode == 7'b0100011) int_write_enable = 1'b0;
 		else int_write_enable = 1'b1;
 	end
 end
