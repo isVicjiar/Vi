@@ -11,6 +11,10 @@ wire [31:0] dec_instruction;
 wire [31:0] dec_pc;
 wire [31:0] exe_instruction;
 wire [31:0] exe_pc;
+wire [31:0] tl_instruction;
+wire [31:0] tl_pc;
+wire [31:0] cache_instruction;
+wire [31:0] cache_pc;
 wire [31:0] wb_instruction;
 wire [31:0] wb_pc;
 
