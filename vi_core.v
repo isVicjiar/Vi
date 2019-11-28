@@ -54,7 +54,7 @@ wire bypass_a_en;
 wire bypass_b_en;
 wire [31:0] bypass_data_a;
 wire [31:0] bypass_data_b;
-wire stall_core;
+wire dec_stall_core;
 	
 // Decode - Latch = DL
 wire [31:0] dl_read_data_a;
@@ -85,7 +85,7 @@ assign dl_read_data_b = (bypass_b_en) ? bypass_data_b : reg_read_data_b;
 fetch fetch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
-	.stall_core_i	(stall_core),
+	.stall_core_i	(dec_stall_core),
 
 	.instr_o	(fetch_instruction)
 );
@@ -93,7 +93,7 @@ fetch fetch(
 fetch_dec_latch fetch_dec_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
-	.stall_core_i	(stall_core),
+	.stall_core_i	(dec_stall_core),
 	.fetch_instr_i	(fetch_instruction),
 	
 	.dec_instr_o	(dec_instruction)
@@ -167,7 +167,7 @@ int_registers int_registers(
 dec_exe_latch dec_exe_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
-	.stall_core_i	(stall_core),
+	.stall_core_i	(dec_stall_core),
 	.dec_read_data_a_i	(dl_read_data_a),
 	.dec_read_addr_b_i	(dl_read_data_b),
 	.dec_write_addr_i	(dl_write_addr),
@@ -191,20 +191,39 @@ int_alu int_alu(
 	.data_b_i	(el_int_data_b),
 	.data_out_o	(el_int_data_out)
 );
+
+exe_tl_latch exe_tl_latch (
+	.clk_i 				(clk_i),
+	.rsn_i				(rsn_i),
+	.stall_core_i			(tl_stall_core),
+	.exe_cache_addr_i 		(el_int_data_out),
+	.exe_write_addr_i		(le_write_addr),
+	.exe_int_write_enable_i		(le_int_write_enable),
+	.exe_store_data_i		(el_int_data_b),
+	.exe_instruction_i		(exe_instruction),
+	.exe_pc_i			(exe_pc),
+	.tl_cache_enable_o		(tl_cache_enable),
+	.tl_cache_addr_o		(tl_cache_addr),
+	.tl_write_addr_o		(tl_write_addr),
+	.tl_write_enable_o		(tl_write_enable),
+	.tl_store_data_o		(tl_store_data),
+	.tl_instruction_o		(tl_instruction),
+	.tl_pc_o			(tl_pc)
+);
 	
 exe_mult1_latch exe_mult1_latch(
-	.clk_i		(clk_i),
-	.rsn_i		(rsn_i),
-	.exe_int_write_data_i	(el_int_data_out),
-	.exe_write_addr_i	(le_write_addr),
-	.exe_int_write_enable_i	(le_int_write_enable),
-	.exe_instruction_i	(exe_instruction),
-	.exe_pc_i		(exe_pc),
-	.mult1_int_write_data_o	(mult1_int_write_data),
-	.mult1_write_addr_o	(mult1_write_addr),
+	.clk_i				(clk_i),
+	.rsn_i				(rsn_i),
+	.exe_int_write_data_i		(el_int_data_out),
+	.exe_write_addr_i		(le_write_addr),
+	.exe_int_write_enable_i		(le_int_write_enable),
+	.exe_instruction_i		(exe_instruction),
+	.exe_pc_i			(exe_pc),
+	.mult1_int_write_data_o		(mult1_int_write_data),
+	.mult1_write_addr_o		(mult1_write_addr),
 	.mult1_int_write_enable_o	(mult1_int_write_enable),
-	.mult1_instruction_o	(mult1_instruction),
-	.mult1_pc_o		(mult1_pc)
+	.mult1_instruction_o		(mult1_instruction),
+	.mult1_pc_o			(mult1_pc)
 );	
 	
 mult1_mult2_latch mult1_mult2_latch(
@@ -268,18 +287,28 @@ mult4_mult5_latch mult4_mult5_latch(
 );
 	
 exe_write_latch exe_write_latch(
-	.clk_i		(clk_i),
-	.rsn_i		(rsn_i),
-	.emc_int_write_data_i	(emc_int_data_out),
-	.emc_write_addr_i	(emc_write_addr),
-	.emc_int_write_enable_i	(emc_int_write_enable),
-	.emc_instruction_i	(emc_instruction),
-	.emc_pc_i		(emc_pc),
-	.write_int_write_data_o	(lw_int_write_data),
-	.write_write_addr_o	(lw_write_addr),
+	.clk_i				(clk_i),
+	.rsn_i				(rsn_i),
+	.exe_int_write_data_i		(el_int_data_out),
+	.exe_write_addr_i		(le_write_addr),
+	.exe_int_write_enable_i		(le_int_write_enable),
+	.exe_instruction_i		(exe_instruction),
+	.exe_pc_i			(exe_pc),
+	.mult5_int_write_data_i		(mult5_int_data_out),
+	.mult5_write_addr_i		(mult5_write_addr),
+	.mult5_int_write_enable_i	(mult5_int_write_enable),
+	.mult5_instruction_i		(mult5_instruction),
+	.mult5_pc_i			(mult5_pc),
+	.cache_int_write_data_i		(cache_int_data_out),
+	.cache_write_addr_i		(cache_write_addr),
+	.cache_int_write_enable_i	(cache_int_write_enable),
+	.cache_instruction_i		(cache_instruction),
+	.cache_pc_i			(cache_pc),
+	.write_int_write_data_o		(lw_int_write_data),
+	.write_write_addr_o		(lw_write_addr),
 	.write_int_write_enable_o	(lw_int_write_enable),
-	.write_instruction_o	(wb_instruction),
-	.write_pc_o		(wb_pc)
+	.write_instruction_o		(wb_instruction),
+	.write_pc_o			(wb_pc)
 );
 
 endmodule
