@@ -79,15 +79,15 @@ assign dl_read_data_a = (bypass_a_en) ? bypass_data_a : reg_read_data_a;
 assign dl_read_data_b = (bypass_b_en) ? bypass_data_b : reg_read_data_b;
 
 fetch fetch(
-	.clock		(clock),
-	.reset		(reset),
+	.clock		(clk_i),
+	.reset		(rsn_i),
 
 	.instruction	(fetch_instruction)
 );
 
 fetch_dec_latch fetch_dec_latch(
-	.clock		(clock),
-	.reset		(reset),
+	.clock		(clk_i),
+	.reset		(rsn_i),
 	.fetch_instruction	(fetch_instruction),
 
 	.dec_instruction	(dec_instruction)
@@ -109,9 +109,12 @@ bypass_ctrl bypass_ctrl (
 	.rsn_i		(rsn_i),
 	.read_addr_a_i	(dec_read_addr_a),
 	.read_addr_b_i	(dec_read_addr_b),
+	.dec_wr_en_i	(dec_write_enable),
+	.dec_wr_addr_i	(dec_write_addr_i),
 	.exe_data_i	(el_int_data_out),
 	.exe_addr_i	(le_write_addr),
 	.exe_wr_en_i	(le_int_write_enable),
+	.exe_instr_i	(exe_instruction),
 	.mult1_data_i	(mult1_int_data_out),
 	.mult1_addr_i	(mult1_write_addr),
 	.mult1_wr_en_i	(mult1_int_write_enable),
@@ -127,9 +130,12 @@ bypass_ctrl bypass_ctrl (
 	.mult5_data_i	(mult5_int_data_out),
 	.mult5_addr_i	(mult5_write_addr),
 	.mult5_wr_en_i	(mult5_int_write_enable),
+	.tl_addr_i	(tl_write_addr),
+	.tl_wr_en_i	(tl_int_write_enable),
 	.cache_data_i	(cache_data_out),
 	.cache_addr_i	(cache_write_addr),
 	.cache_wr_en_i	(cache_write_enable),
+	.cache_hit_i	(cache_hit),
 	.write_data_i	(lw_int_write_data),
 	.write_addr_i	(lw_write_addr),
 	.write_en_i	(lw_int_wrie_enable),
