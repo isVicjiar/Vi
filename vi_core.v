@@ -287,18 +287,28 @@ mult4_mult5_latch mult4_mult5_latch(
 );
 	
 exe_write_latch exe_write_latch(
-	.clk_i		(clk_i),
-	.rsn_i		(rsn_i),
-	.emc_int_write_data_i	(emc_int_data_out),
-	.emc_write_addr_i	(emc_write_addr),
-	.emc_int_write_enable_i	(emc_int_write_enable),
-	.emc_instruction_i	(emc_instruction),
-	.emc_pc_i		(emc_pc),
-	.write_int_write_data_o	(lw_int_write_data),
-	.write_write_addr_o	(lw_write_addr),
+	.clk_i				(clk_i),
+	.rsn_i				(rsn_i),
+	.exe_int_write_data_i		(el_int_data_out),
+	.exe_write_addr_i		(le_write_addr),
+	.exe_int_write_enable_i		(le_int_write_enable),
+	.exe_instruction_i		(exe_instruction),
+	.exe_pc_i			(exe_pc),
+	.mult5_int_write_data_i		(mult5_int_data_out),
+	.mult5_write_addr_i		(mult5_write_addr),
+	.mult5_int_write_enable_i	(mult5_int_write_enable),
+	.mult5_instruction_i		(mult5_instruction),
+	.mult5_pc_i			(mult5_pc),
+	.cache_int_write_data_i		(cache_int_data_out),
+	.cache_write_addr_i		(cache_write_addr),
+	.cache_int_write_enable_i	(cache_int_write_enable),
+	.cache_instruction_i		(cache_instruction),
+	.cache_pc_i			(cache_pc),
+	.write_int_write_data_o		(lw_int_write_data),
+	.write_write_addr_o		(lw_write_addr),
 	.write_int_write_enable_o	(lw_int_write_enable),
-	.write_instruction_o	(wb_instruction),
-	.write_pc_o		(wb_pc)
+	.write_instruction_o		(wb_instruction),
+	.write_pc_o			(wb_pc)
 );
 
 endmodule
