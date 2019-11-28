@@ -86,7 +86,16 @@ always @ (*) begin
                 9'b000000100: stall_core_w = (tl_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
                 9'b000000010: stall_core_w = (cache_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
                 default: stall_core_w = 1'b0;
-            endcase 
+            endcase
+            case (dec_instr_i[6:0])
+                (7'b0110011): begin
+                    if (exe_instr[31:25] != 7'b0000001) begin
+                        if (tl_wr_en_i || mult4_wr_en_i) stall_core_w = 1'b1;
+                    end
+                end
+                (7'b0000011): if (mult2_wr_en_i) stall_core_w = 1'b1;
+                (7'b0100011): if (mult2_wr_en_i) stall_core_w = 1'b1;
+            endcase
         end        
         if (exe_wr_en_i) begin
             if (exe_addr_i == read_addr_a_i) begin 
