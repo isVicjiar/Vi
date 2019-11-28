@@ -12,23 +12,22 @@ output	[31:0]	read_data_a_o,
 output	[31:0]	read_data_b_o);
 
 reg [31:0] registers [31:0];
-integer i;
+reg [31:0] mepc;
+reg [X:0] mcause; // MXLEN-bit 
 
 // Reset 
 always @(negedge reset)
 begin
-	for (i=0; i<32; i=i+1) registers[i]=0;	
+	for (int i=0; i<32; i=i+1) registers[i]=0;	
 end
 
 // Read data
-assign read_data_a = registers[read_addr_a];
-assign read_data_b = registers[read_addr_b];
+assign read_data_a_o = registers[read_addr_a_i];
+assign read_data_b_o = registers[read_addr_b_i];
 
 // Write
-always @(clock)
+always @(posedge(clk_i))
 begin
-	if (clock == 1)
-		if (write_enable == 1)
-			if (write_addr > 5'b00000) registers[write_addr] = write_data;
+	if (write_enable_i && write_addr > 5'b00000) registers[write_addr_i] = write_data_i;
 end
 endmodule	
