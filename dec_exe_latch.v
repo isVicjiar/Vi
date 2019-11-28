@@ -3,6 +3,7 @@
 module dec_exe_latch(
 input		clk_i,
 input		rsn_i,
+input		stall_core_i,
 input	[31:0]	dec_read_data_a_i,
 input	[31:0]	dec_read_data_b_i,
 input	[31:0]	dec_write_addr_i,
@@ -42,12 +43,14 @@ begin
 		exe_pc = 32'b0;
 	end
 	else begin
-		exe_read_addr_a = dec_read_addr_a_i;
-		exe_read_addr_b = dec_read_addr_b_i;
-		exe_write_addr = dec_write_addr_i;
-		exe_int_write_enable = dec_int_write_enable_i;
-		exe_instruction = dec_instruction_i;
-		exe_pc = exe_pc_i;
+		if (!stall_core_i) begin
+			exe_read_addr_a = dec_read_addr_a_i;
+			exe_read_addr_b = dec_read_addr_b_i;
+			exe_write_addr = dec_write_addr_i;
+			exe_int_write_enable = dec_int_write_enable_i;
+			exe_instruction = dec_instruction_i;
+			exe_pc = exe_pc_i;
+		end
 	end
 end
 endmodule
