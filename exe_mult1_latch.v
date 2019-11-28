@@ -37,11 +37,17 @@ begin
 		mult1_pc = 32'b0;
 	end
 	else begin
-		mult1_int_write_data = exe_int_write_data_i;
-		mult1_write_addr = exe_write_addr_i;
-		mult1_int_write_enable = exe_int_write_enable_i;
-		mult1_instruction = exe_instruction_i;
-		mult1_pc = exe_pc_i;
+		if (exe_instruction_i[31:25] == 7'b0000001 && exe_instruction_i[6:0] == 7'b0110011) begin
+			mult1_int_write_data = exe_int_write_data_i;
+			mult1_write_addr = exe_write_addr_i;
+			mult1_int_write_enable = exe_int_write_enable_i;
+			mult1_instruction = exe_instruction_i;
+			mult1_pc = exe_pc_i;
+		else
+			mult1_int_write_enable = 1'b0;
+			mult1_instruction = exe_instruction_i;
+			mult1_pc = exe_pc_i;
+		end
 	end
 end
 endmodule
