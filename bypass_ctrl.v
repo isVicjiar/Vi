@@ -41,6 +41,12 @@ output reg [31:0] bypass_data_b_o,
 output stall_core_o
 );
  
+reg bit stall_core_a;
+reg bit stall_core_b;
+reg bit stall_core_w;
+ 
+assign stall_core_o = stall_core_a || stall_core_b || stall_core_w;
+ 
 // CASES:
 /* EXE ADDR== + ENABLE + NOT LOAD/MULT
     C  ADDR== + ENABLE + HIT
@@ -53,8 +59,6 @@ output stall_core_o
 */ 
 
 always @ (*) begin
-    bit stall_core_a;
-    bit stall_core_b;
     logic [8:0] wr_ens;
     wr_ens = {exe_wr_en_i,mult1_wr_en_i,mult2_wr_en_i,mult3_wr_en_i,mult4_wr_en_i,mult5_wr_en_i,tl_wr_en_i,cache_wr_en_i,write_en_i};
     if (!rsn_i) begin
@@ -64,6 +68,7 @@ always @ (*) begin
         bypass_data_b_o = 32'b0;
         stall_core_a = 1'b0;
         stall_core_b = 1'b0;
+        stall_core_w = 1'b0;
     end
     else begin
         stall_core_a = 1'b0;
@@ -84,7 +89,7 @@ always @ (*) begin
         end        
         if (exe_wr_en_i) begin
             if (exe_addr_i == read_addr_a_i) begin 
-                if (load || mult) stall_core_a = 1'b1;
+             if (exe_instr_i[6:0] == 7'b0000011 || (exe_instr_i[6:0] == 7'b0110011 && exe_instr_i[31:25] == 7'b0000001)) stall_core_a = 1'b1;
                 else begin
                     bypass_a_en_o = 1'b1;
                     bypass_data_a_o = exe_data_i;
@@ -93,7 +98,7 @@ always @ (*) begin
                 end
             end
             if (exe_addr_i == read_addr_b_i) begin 
-                if (load || mult) stall_core_b = 1'b1;
+                if (exe_instr_i[6:0] == 7'b0000011 || (exe_instr_i[6:0] == 7'b0110011 && exe_instr_i[31:25] == 7'b0000001)) stall_core_b = 1'b1;
                 else begin
                     bypass_b_en_o = 1'b1;
                     bypass_data_b_o = exe_data_i;
