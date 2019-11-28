@@ -27,7 +27,7 @@ assign write_instruction_o = write_instruction;
 assign write_pc_o = write_pc;
 	
 // Latch 
-always @(posedge clock)
+always @(posedge clk_i)
 begin
 	if (!rsn_i) begin
 		write_int_write_data = 32'b0;
