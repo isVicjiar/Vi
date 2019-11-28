@@ -54,7 +54,7 @@ wire bypass_a_en;
 wire bypass_b_en;
 wire [31:0] bypass_data_a;
 wire [31:0] bypass_data_b;
-wire dec_stall_core;
+wire stall_core;
 	
 // Decode - Latch = DL
 wire [31:0] dl_read_data_a;
@@ -83,18 +83,20 @@ assign dl_read_data_a = (bypass_a_en) ? bypass_data_a : reg_read_data_a;
 assign dl_read_data_b = (bypass_b_en) ? bypass_data_b : reg_read_data_b;
 
 fetch fetch(
-	.clock		(clk_i),
-	.reset		(rsn_i),
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.stall_core_i	(stall_core),
 
-	.instruction	(fetch_instruction)
+	.instr_o	(fetch_instruction)
 );
 
 fetch_dec_latch fetch_dec_latch(
-	.clock		(clk_i),
-	.reset		(rsn_i),
-	.fetch_instruction	(fetch_instruction),
-
-	.dec_instruction	(dec_instruction)
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.stall_core_i	(stall_core),
+	.fetch_instr_i	(fetch_instruction),
+	
+	.dec_instr_o	(dec_instruction)
 );
 
 decoder decoder(
@@ -147,7 +149,7 @@ bypass_ctrl bypass_ctrl (
 	.bypass_b_en_o	(bypass_b_en),
 	.bypass_data_a_o (bypass_data_a),
 	.bypass_data_b_o (bypass_data_b),
-	.stall_core_o	(dec_stall_core)
+	.stall_core_o	(stall_core)
 );
 
 int_registers int_registers(
@@ -165,6 +167,7 @@ int_registers int_registers(
 dec_exe_latch dec_exe_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
+	.stall_core_i	(stall_core),
 	.dec_read_data_a_i	(dl_read_data_a),
 	.dec_read_addr_b_i	(dl_read_data_b),
 	.dec_write_addr_i	(dl_write_addr),
