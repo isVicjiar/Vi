@@ -14,7 +14,8 @@ output	[31:0]	read_data_b_o);
 reg [31:0] registers [31:0];
 reg [31:0] mepc;
 reg [31:0] mcause;
-
+reg [31:0] mtval;
+	
 // Reset 
 always @(negedge reset)
 begin
