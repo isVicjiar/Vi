@@ -1,22 +1,18 @@
 // Latch between fetch and decode
 
 module fetch_dec_latch(
-input		clock,
-input		reset,
-input	[31:0]	fetch_instruction,
-
-output	[31:0]	dec_instruction);
-
-// Reset 
-always @(negedge reset)
-begin
-	dec_instruction = 0;
-end
+input		clk_i,
+input		rsn_i,
+input 		stall_core_i,
+input	[31:0]	fetch_instr_i,
+output reg [31:0]	dec_instr_o);
 
 // Latch 
 always @(posedge clock)
 begin
-	if (clock == 1)
-		dec_instruction = fetch_instruction;
+	if (!rsn_i) dec_instr_o = 32'b0;
+	else begin
+		if (!stall_core_i) dec_instr_o = fetch_instr_i;
+	end
 end
 endmodule	
