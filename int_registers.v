@@ -34,6 +34,7 @@ reg privilege		11;
 // Read data
 assign read_data_a_o = registers[read_addr_a_i];
 assign read_data_b_o = registers[read_addr_b_i];
+assign read_data_rm_o = rmregisters[read_addr_rm_i];
 
 // Write
 always @(posedge(clk_i))
