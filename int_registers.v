@@ -13,7 +13,7 @@ output	[31:0]	read_data_b_o);
 
 reg [31:0] registers [31:0];
 reg [31:0] mepc;
-reg [X:0] mcause; // MXLEN-bit 
+reg [31:0] mcause;
 
 // Reset 
 always @(negedge reset)
