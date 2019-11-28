@@ -15,7 +15,13 @@ reg [31:0] registers [31:0];
 reg [31:0] mepc;
 reg [31:0] mcause;
 reg [31:0] mtval;
-
+	
+/*
+0x341MRW mepc Machine exception program counter.
+0x342MRW mcause Machine trap cause.
+0x343MRW mtval Machine bad address or instruction.
+*/
+	
 // Read data
 assign read_data_a_o = registers[read_addr_a_i];
 assign read_data_b_o = registers[read_addr_b_i];
