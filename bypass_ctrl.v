@@ -10,6 +10,7 @@ input [4:0] dec_wr_addr_i,
 input [31:0] exe_data_i,
 input [4:0] exe_addr_i,
 input exe_wr_en_i,
+input [31:0] exe_instr_i,
 input [31:0] mult1_data_i,
 input [4:0] mult1_addr_i,
 input mult1_wr_en_i,
@@ -93,7 +94,6 @@ always @ (*) begin
                 else begin
                     bypass_a_en_o = 1'b1;
                     bypass_data_a_o = exe_data_i;
-                    newest_pc_a = exe_pc_i;
                     stall_core_a = 1'b0;
                 end
             end
@@ -102,7 +102,6 @@ always @ (*) begin
                 else begin
                     bypass_b_en_o = 1'b1;
                     bypass_data_b_o = exe_data_i;
-                    newest_pc_b = exe_pc_i;
                     stall_core_b = 1'b0;
                 end
             end
