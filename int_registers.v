@@ -12,9 +12,11 @@ output	[31:0]	read_data_a_o,
 output	[31:0]	read_data_b_o);
 
 reg [31:0] registers [31:0];
+	
 reg [31:0] mepc;
 reg [31:0] mcause;
 reg [31:0] mtval;
+reg privilege;
 	
 /*
 0x341MRW mepc Machine exception program counter.
