@@ -16,3 +16,27 @@ input [31:0] tl_store_data_o,
 output	[31:0]	tl_instruction_o,
 output 	[31:0]	tl_pc_o);
 );
+
+assign tl_cache_addr_o = tl_cache_addr;
+assign tl_write_addr_o = tl_write_addr;
+assign tl_int_write_enable_o = tl_int_write_enable;
+assign tl_store_data_o = tl_store_data;
+assign tl_instruction_o = tl_instruction;
+assign tl_pc_o = tl_pc;
+	
+// Latch 
+always @(posedge clk_i)
+begin
+	if (!rsn_i) begin
+		tl_cache_addr = 32'b0;
+		tl_write_addr = 5'b0;
+		tl_int_write_enable = 1'b0;
+    tl_store_data = 32'b0;
+		tl_instruction = 32'b0;
+		tl_pc = 32'b0;
+	end
+	else begin
+
+	end
+end
+endmodule	
