@@ -8,6 +8,16 @@ input	[4:0]	exe_write_addr_i,
 input		exe_int_write_enable_i,
 input	[31:0]	exe_instruction_i,
 input	[31:0]	exe_pc_i,
+input	[31:0]	mult5_int_write_data_i,
+input	[4:0]	mult5_write_addr_i,
+input		mult5_int_write_enable_i,
+input	[31:0]	mult5_instruction_i,
+input	[31:0]	mult5_pc_i,
+input	[31:0]	cache_int_write_data_i,
+input	[4:0]	cache_write_addr_i,
+input		cache_int_write_enable_i,
+input	[31:0]	cache_instruction_i,
+input	[31:0]	cache_pc_i,
 output	[31:0]	write_int_write_data_o,
 output	[4:0]	write_write_addr_o,
 output		write_int_write_enable_o,
@@ -37,11 +47,27 @@ begin
 		write_pc = 32'b0;
 	end
 	else begin
-		write_int_write_data = exe_int_write_data_i;
-		write_write_addr = exe_write_addr_i;
-		write_int_write_enable = exe_int_write_enable_i;
-		write_instruction = exe_instruction_i;
-		write_pc = exe_pc_i;
+		if (mult5_int_write_enable_i) begin
+			write_int_write_data = mult5_int_write_data_i;
+			write_write_addr = mult5_write_addr_i;
+			write_int_write_enable = mult5_int_write_enable_i;
+			write_instruction = mult5_instruction_i;
+			write_pc = mult5_pc_i;			
+		end
+		if (cache_int_write_enable_i) begin
+			write_int_write_data = cache_int_write_data_i;
+			write_write_addr = cache_write_addr_i;
+			write_int_write_enable = cache_int_write_enable_i;
+			write_instruction = cache_instruction_i;
+			write_pc = cache_pc_i;			
+		end
+		if (exe_int_write_enable_i) begin
+			write_int_write_data = exe_int_write_data_i;
+			write_write_addr = exe_write_addr_i;
+			write_int_write_enable = exe_int_write_enable_i;
+			write_instruction = exe_instruction_i;
+			write_pc = exe_pc_i;
+		end
 	end
 end
 endmodule	
