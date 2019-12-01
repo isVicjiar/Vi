@@ -79,6 +79,28 @@ wire [4:0]  lw_write_addr;
 wire	    lw_int_write_enable;
 wire [31:0] lw_int_write_data;
 
+// dTLB - Lookup = TL
+wire [19:0] tl_addr;
+
+// TransLookup - Latch = TLL
+wire [1:0]  tll_hit_way;
+wire [1:0]  tll_lru_way;
+wire        tll_missalign_exc;
+wire        tll_hit;
+wire        tll_miss;
+
+// Latch - Cache = LC
+wire [19:0] lc_addr;
+wire        lc_rqst_byte;
+wire [1:0]  lc_hit_way;
+wire [1:0]  lc_lru_way;
+wire        lc_hit;
+wire        lc_miss;
+
+// Cache - Latch = CL
+wire [31:0] cl_data;
+
+
 assign dl_read_data_a = (bypass_a_en) ? bypass_data_a : reg_read_data_a;
 assign dl_read_data_b = (bypass_b_en) ? bypass_data_b : reg_read_data_b;
 
@@ -209,6 +231,56 @@ exe_tl_latch exe_tl_latch (
 	.tl_store_data_o		(tl_store_data),
 	.tl_instruction_o		(tl_instruction),
 	.tl_pc_o			(tl_pc)
+);
+
+lookup lookup(
+    .clk_i              (clk_i),
+    .rsn_i              (rsn_i),
+    .addr_i             (tl_addr),
+    .read_rqst_i        (tl_cache_enable & ~tl_write_enable),        
+    .write_rqst_i       (tl_cache_enable & tl_write_enable),
+    // missing .rqst_byte_i,   
+    // missing memory .mem_data_ready_i,
+    // missing memory .mem_addr_i,
+    .hit_way_o,         (tll_hit_way),
+    .lru_way_o,         (tll_lru_way),
+    // missing memory .rqst_to_mem_o,
+    // missing memory .addr_to_mem_o,
+    .unalign_o          (tll_missalign_exc),
+    .hit_o              (tll_hit),
+    .miss_o             (tll_miss)
+);
+
+tl_cache_latch tl_cache_latch(
+    .clk_i              (clk_i),
+    .rsn_i              (rsn_i),
+    .stall_core_i       (lc_stall_core),
+    .tl_addr_i          (tl_addr),
+    //missing .tl_rqst_byte_i,
+    .tl_hit_way_i       (tll_hit_way),
+    .tl_lru_way_i       (tll_lru_way),
+    .tl_hit_i           (tll_hit),
+    .tl_miss_i          (tll_miss),
+    .c_addr_o           (lc_addr),
+    .c_rqst_byte_o      (lc_rqst_byte),
+    .c_hit_way_o        (lc_hit_way),
+    .c_lru_way_o        (lc_lru_way),
+    .c_hit_o            (lc_hit),
+    .c_miss_o           (lc_miss)
+);
+
+cache cache(
+    .clk_i              (clk_i),
+    .rsn_i              (rsn_i),
+    .addr_i             (lc_addr),
+    .rqst_byte_i        (lc_rqst_byte),
+    //missing memory .mem_data_ready_i   (),
+    //missing memory .mem_data_i,
+    .hit_way_i          (lc_hit_way),
+    .lru_way_i          (lc_lru_way),
+    .hit_i              (lc_hit),
+    .miss_i             (lc_miss),
+    .data_o             (cl_data)
 );
 	
 exe_mult1_latch exe_mult1_latch(

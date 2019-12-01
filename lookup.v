@@ -9,7 +9,7 @@
 *  most recent
 *  being LRU[i] == 1 the oldest entry */ 
 
-module cache(
+module lookup(
     input       clk_i,
     input       rsn_i,
     input   [19:0]  addr_i,
@@ -54,10 +54,9 @@ begin
         hit_array[i] = valid_bit[i] & (addr_i[19:4] == tags_array[i]);
     end
     set_hit = hit_array[0] ? 0 : 
-        (hit_array[1] ? 1 :
-        (hit_array[2] ? 2 : 
-        3));
-
+             (hit_array[1] ? 1 :
+             (hit_array[2] ? 2 : 
+                             3));
 
     case (state)
         IDLE_STATE: begin
