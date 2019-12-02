@@ -17,6 +17,8 @@ reg [X:0] hf_queue [15:0]; // {Exceptions bits, @miss, PC, dec_dest_reg, dec_des
 reg [3:0] hf_head;
 reg [3:0] hf_tail;
 reg recovery_inflight;
+reg [3:0] recovery_case;
+reg [3:0] recovery_index;
   
 always @ (posedge clk_i) begin
 	if (!stall_decode_i) begin
@@ -38,9 +40,14 @@ correcte
 		if (|wb_exc) begin
 			stall_decode_o = 1'b1;
 			kill_instr_o = 1'b1;
+			recovery_index = hf_tail;
+			recovery_inflight = 1'b1;
 		end
 		else if (recovery_inflight) begin
-			
+			rec_dest_reg_value_o = hf_queue[recovery_index][31:0];
+			rec_dest_reg_o = hf_queue[recovery_index][36:32];
+			if (recovery_index < 4'b1111) recovery_index = recovery_index + 1;
+			else recovery_index = 4'b0;	
 		end
 		else begin 
 			if (hf_head < 4'b1111) hf_head = hf_head + 1;
