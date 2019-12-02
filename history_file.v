@@ -16,6 +16,7 @@ output reg kill_instr_o);
 reg [X:0] hf_queue [15:0]; // {Exceptions bits, @miss, PC, dec_dest_reg, dec_dest_reg_value}
 reg [3:0] hf_head;
 reg [3:0] hf_tail;
+reg recovery_inflight;
   
 always @ (posedge clk_i) begin
 	if (!stall_decode_i) begin
@@ -37,6 +38,9 @@ correcte
 		if (|wb_exc) begin
 			stall_decode_o = 1'b1;
 			kill_instr_o = 1'b1;
+		end
+		else if (recovery_inflight) begin
+			
 		end
 		else begin 
 			if (hf_head < 4'b1111) hf_head = hf_head + 1;
