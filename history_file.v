@@ -37,5 +37,10 @@ correcte
 		if (|wb_exc) begin
 			stall_decode_o = 1'b1;
 			kill_instr_o = 1'b1;
+		end
+		else begin 
+			if (hf_head < 4'b1111) hf_head = hf_head + 1;
+			else hf_head = 4'b0;			
+		end
 	end
 end
