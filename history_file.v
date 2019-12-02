@@ -29,42 +29,35 @@ always @ (posedge clk_i) begin
 		if (hf_tail < 4'b1111) hf_tail = hf_tail + 1;
 		else hf_tail = 4'b0;
 	end
-	for (int i=0; i<16; i++) begin
-		if (hf_queue[i][68:37] == wb_pc_i && !hf_queue[i][X]) begin
-			hf_index = i;	
-			hf_index[5] = 1'b0;
-		end
+	if (recovery_inflight) begin
+		rec_dest_reg_value_o = hf_queue[recovery_index][31:0];
+		rec_dest_reg_o = hf_queue[recovery_index][36:32];
+		if (recovery_index < 4'b1111) recovery_index = recovery_index + 1;
+		else recovery_index = 4'b0;	
 	end
-	if (!hf_index[5]) begin 
-		hf_queue[i][X];	//TODO X is the bit (should be the highest) indicating that has finished
-		if (
-/*	Si té excepcions
- Bloquejar Decode
- Matar instruccions en vol
- Copiar en ordre invers (de TAIL a HEAD)
- El <Value,Dest> guardat al History Buffer al Banc de Registres
- Garanteix que els registres amb WAW recuperen el Value
-correcte
-
- El PC “precís” està a HF[head].pc i el copiem a rm0
- L’@ de miss està a HF[head].@ i la copiem a rm1*/
-		if (|wb_exc) begin
-			stall_decode_o = 1'b1;
-			kill_instr_o = 1'b1;
-			exc_pc_o = hf_queue[hf_head][68:37];
-			exc_miss_addr_o = hf_queue[hf_head][100:69];
-			recovery_index = hf_tail;
-			recovery_inflight = 1'b1;
+	else begin
+		for (int i=0; i<16; i++) begin
+			if (hf_queue[i][68:37] == wb_pc_i && !hf_queue[i][X]) begin
+				hf_index = i;	
+				hf_index[4] = 1'b0;
+			end
 		end
-		else if (recovery_inflight) begin
-			rec_dest_reg_value_o = hf_queue[recovery_index][31:0];
-			rec_dest_reg_o = hf_queue[recovery_index][36:32];
-			if (recovery_index < 4'b1111) recovery_index = recovery_index + 1;
-			else recovery_index = 4'b0;	
-		end
-		else begin 
-			if (hf_head < 4'b1111) hf_head = hf_head + 1;
-			else hf_head = 4'b0;			
+		if (!hf_index[4]) begin 
+			hf_queue[i][X] = 1'b1;	//TODO X is the bit (should be the highest) indicating that has finished
+			if (hf_index[3:0] == hf_head) begin
+				if (|wb_exc) begin
+					stall_decode_o = 1'b1;
+					kill_instr_o = 1'b1;
+					exc_pc_o = hf_queue[hf_head][68:37];
+					exc_miss_addr_o = hf_queue[hf_head][100:69];
+					recovery_index = hf_tail;
+					recovery_inflight = 1'b1;
+				end
+				else begin 
+					if (hf_head < 4'b1111) hf_head = hf_head + 1;
+					else hf_head = 4'b0;
+				end
+			end
 		end
 	end
 end
