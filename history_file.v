@@ -32,8 +32,11 @@ always @ (posedge clk_i) begin
 	if (recovery_inflight) begin
 		rec_dest_reg_value_o = hf_queue[recovery_index][31:0];
 		rec_dest_reg_o = hf_queue[recovery_index][36:32];
-		if (recovery_index < 4'b1111) recovery_index = recovery_index + 1;
-		else recovery_index = 4'b0;	
+		if (recovery_index != hf_head) begin
+			if (recovery_index < 4'b1111) recovery_index = recovery_index + 1;
+			else recovery_index = 4'b0;	
+		end
+		else recovery_inflight = 1'b0;
 	end
 	else begin
 		for (int i=0; i<16; i++) begin
@@ -44,18 +47,24 @@ always @ (posedge clk_i) begin
 		end
 		if (!hf_index[4]) begin 
 			hf_queue[i][X] = 1'b1;	//TODO X is the bit (should be the highest) indicating that has finished
+			hf_queue[i][X-1:101] = wb_exc_i;
+			hf_queue[i][100:69] = wb_miss_addr_i;
 			if (hf_index[3:0] == hf_head) begin
-				if (|wb_exc) begin
+				if (|wb_exc_i) begin // Exc occured with this instruction (head)
 					stall_decode_o = 1'b1;
 					kill_instr_o = 1'b1;
 					exc_pc_o = hf_queue[hf_head][68:37];
-					exc_miss_addr_o = hf_queue[hf_head][100:69];
+					exc_miss_addr_o = wb_miss_addr_i;
 					recovery_index = hf_tail;
 					recovery_inflight = 1'b1;
 				end
-				else begin 
+				else begin // No exception occured for head, iterate until all newer insts are dequeued
 					if (hf_head < 4'b1111) hf_head = hf_head + 1;
 					else hf_head = 4'b0;
+					while(hf_queue[hf_head][X]) begin
+						if (hf_head < 4'b1111) hf_head = hf_head + 1;
+						else hf_head = 4'b0;
+					end
 				end
 			end
 		end
