@@ -123,6 +123,9 @@ always @(negedge rsn_i)
 begin
     state = IDLE_STATE;
     valid_bit = 0;
+    rqst_to_mem = 0;
+    hit = 0;
+    miss = 0;
     lru_matrix[0] = 0;
     lru_matrix[1] = 0;
     lru_matrix[2] = 0;

@@ -2,7 +2,7 @@
 // Direct mapping
 //4 lines 128bits
 
-module cache(
+module instruction_cache(
     input       clk_i,
     input       rsn_i,
     input   [19:0]  addr_i,
@@ -24,8 +24,11 @@ reg [3:0]   valid_bit;
 
 reg rqst_to_mem;
 
-wire [127:0] cache_line;
+reg [127:0] cache_line;
 
+reg state;
+localparam IDLE_STATE = 0;
+localparam WAIT_STATE = 1;
 
 wire [1:0]  addr_word;
 wire [1:0]  addr_idx;
@@ -40,16 +43,30 @@ assign data_o = cache_line[addr_word*32 +: 32];
 
 always @(posedge clk_i)
 begin
-    if(mem_data_ready_i && mem_addr_i[19:6] == addr_tag) begin
-        data_array[addr_idx] = mem_data_i;
-        tags_array[addr_idx] = mem_addr_i[19:6];
-        valid_bit[addr_idx] = 1;
-    end
+    case(state)
+        IDLE_STATE: begin
+            if (tags_array[addr_idx] != addr_tag) || ~valid_bit[addr_idx]) begin
+                rqst_to_mem = 1'b1;
+                state = WAIT_STATE;
+            end
+        end
+        WAIT_STATE: begin
+            rqst_to_mem = 0;
+            if(mem_data_ready_i && mem_addr_i[19:6] == addr_tag) begin
+                data_array[addr_idx] = mem_data_i;
+                tags_array[addr_idx] = mem_addr_i[19:6];
+                valid_bit[addr_idx] = 1;
+                state = IDLE_STATE;
+            end
+        end
+    endcase
 end
 
 
 always @(negedge rsn_i)
 begin
     valid_bit = 0;
+    state = WAIT_STATE;
+    rqst_to_mem = 0;
 end
 endmodule
