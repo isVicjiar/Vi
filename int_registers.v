@@ -8,13 +8,15 @@ input 	[31:0] 	rm_write_data_i,
 input	[4:0]	read_addr_a_i,	
 input	[4:0]	read_addr_b_i,
 input	[1:0]	read_addr_rm_i,
+input	[4:0] 	dec_write_addr_i,
 input	[4:0]	write_addr_i,
 input		write_enable_i,
 input 	[1:0] 	rm_write_addr_i,
 input 		rm_write_enable_i,
 output	[31:0]	read_data_a_o,
 output	[31:0]	read_data_b_o,
-output  [31:0] 	read_data_rm_o);
+output  [31:0] 	read_data_rm_o
+output 	[31:0] 	dec_dest_reg_value_o);
 
 reg [31:0] registers [31:0];
 reg [31:0] rmregisters [3:0];
@@ -35,6 +37,7 @@ reg privilege		11;
 assign read_data_a_o = registers[read_addr_a_i];
 assign read_data_b_o = registers[read_addr_b_i];
 assign read_data_rm_o = rmregisters[read_addr_rm_i];
+assign dec_dest_reg_value_o = registers[dec_write_addr_i];
 
 // Write
 always @(posedge(clk_i))
