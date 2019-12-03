@@ -55,6 +55,8 @@ wire bypass_b_en;
 wire [31:0] bypass_data_a;
 wire [31:0] bypass_data_b;
 wire dec_stall_core;
+wire bypass_stall_core;
+wire hf_stall_core;
 wire [31:0] reg_write_data;
 wire [4:0] reg_write_addr;
 wire reg_write_enable;
@@ -108,6 +110,7 @@ assign dl_read_data_b = (bypass_b_en) ? bypass_data_b : reg_read_data_b;
 assign reg_write_data = (rec_write_en) ? rec_dest_reg_value : lw_int_write_data;
 assign reg_write_addr = (rec_write_en) ? rec_dest_reg : lw_write_addr;
 assign reg_write_enable = (rec_write_en) ? 1'b1 : lw_int_write_enable;
+assign dec_stall_core = bypass_stall_core || hf_stall_core;
 	
 fetch fetch(
 	.clk_i		(clk_i),
@@ -176,7 +179,7 @@ bypass_ctrl bypass_ctrl (
 	.bypass_b_en_o	(bypass_b_en),
 	.bypass_data_a_o (bypass_data_a),
 	.bypass_data_b_o (bypass_data_b),
-	.stall_core_o	(stall_core)
+	.stall_core_o	(bypass_stall_core)
 );
 
 int_registers int_registers(
@@ -204,8 +207,8 @@ history_file history_file(
 	.wb_dest_reg_i	(wb_write_addr),
 	.wb_exc_i	(wb_exc_bits),
 	.wb_miss_addr_i	(wb_miss_addr),
-	.stall_decode_o	(stall_decode_hf),
-	.kill_instr_o	(kill_instr_hf),
+	.stall_decode_o	(hf_stall_decode),
+	.kill_instr_o	(hf_kill_instr),
 	.rec_dest_reg_value_o	(rec_dest_reg_value),
 	.rec_dest_reg_o	(rec_dest_reg),
 	.rec_write_en_o	(rec_write_en)		
