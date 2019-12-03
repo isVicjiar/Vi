@@ -23,14 +23,14 @@ reg [31:0] rmregisters [3:0];
 
 /*
 reg [31:0] mepc 	00;
-reg [31:0] mcause 	01;
-reg [31:0] mtval	10;
+reg [31:0] mtval	01;
+reg [31:0] mcause 	10;
 reg privilege		11;
 	
 /*
 0x341MRW mepc Machine exception program counter.
-0x342MRW mcause Machine trap cause.
 0x343MRW mtval Machine bad address or instruction.
+0x342MRW mcause Machine trap cause.
 */
 
 // Read data
