@@ -199,13 +199,11 @@ history_file history_file(
 	.wb_dest_reg_i	(wb_write_addr),
 	.wb_exc_i	(wb_exc_bits),
 	.wb_miss_addr_i	(wb_miss_addr),
-	.
-output reg stall_decode_o,
-output reg kill_instr_o,
-output reg [31:0] rec_dest_reg_value_o,
-output reg [4:0] rec_dest_reg_o,
-output rec_write_en_o);
-		
+	.stall_decode_o	(stall_decode_hf),
+	.kill_instr_o	(kill_instr_hf),
+	.rec_dest_reg_value_o	(rec_dest_reg_value),
+	.rec_dest_reg_o	(rec_dest_reg),
+	.rec_write_en_o	(rec_write_en)		
 );
 	
 dec_exe_latch dec_exe_latch(
