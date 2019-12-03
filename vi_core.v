@@ -138,7 +138,7 @@ bypass_ctrl bypass_ctrl (
 	.read_addr_a_i	(dec_read_addr_a),
 	.read_addr_b_i	(dec_read_addr_b),
 	.dec_wr_en_i	(dec_write_enable),
-	.dec_wr_addr_i	(dec_write_addr_i),
+	.dec_wr_addr_i	(dec_write_addr),
 	.exe_data_i	(el_int_data_out),
 	.exe_addr_i	(le_write_addr),
 	.exe_wr_en_i	(le_int_write_enable),
@@ -180,10 +180,32 @@ int_registers int_registers(
 	.write_data_i	(lw_int_write_data),
 	.read_addr_a_i	(dec_read_addr_a),
 	.read_addr_b_i	(dec_read_addr_b),
+	.dec_write_addr_i (dl_write_addr),
 	.write_addr_i	(lw_write_addr),
 	.write_enable_i	(lw_int_write_enable),
 	.read_data_a_o	(reg_read_data_a),
-	.read_data_b_o	(reg_read_data_b)
+	.read_data_b_o	(reg_read_data_b),
+	.dec_dest_reg_value_o (dec_dest_reg_value)
+);
+	
+history_file history_file(
+	.clk_i		(clk_i),
+	.rsn_i		(rsn_i),
+	.stall_decode_i	(dec_stall_core),
+	.dec_dest_reg_i	(dl_write_addr),
+	.dec_dest_reg_value_i	(dec_dest_reg_value),
+	.dec_pc_i	(dec_pc),
+	.wb_pc_i	(wb_pc),
+	.wb_dest_reg_i	(wb_write_addr),
+	.wb_exc_i	(wb_exc_bits),
+	.wb_miss_addr_i	(wb_miss_addr),
+	.
+output reg stall_decode_o,
+output reg kill_instr_o,
+output reg [31:0] rec_dest_reg_value_o,
+output reg [4:0] rec_dest_reg_o,
+output rec_write_en_o);
+		
 );
 	
 dec_exe_latch dec_exe_latch(
