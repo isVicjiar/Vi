@@ -55,6 +55,9 @@ wire bypass_b_en;
 wire [31:0] bypass_data_a;
 wire [31:0] bypass_data_b;
 wire dec_stall_core;
+wire [31:0] reg_write_data;
+wire [4:0] reg_write_addr;
+wire reg_write_enable;
 	
 // Decode - Latch = DL
 wire [31:0] dl_read_data_a;
@@ -100,10 +103,12 @@ wire        lc_miss;
 // Cache - Latch = CL
 wire [31:0] cl_data;
 
-
 assign dl_read_data_a = (bypass_a_en) ? bypass_data_a : reg_read_data_a;
 assign dl_read_data_b = (bypass_b_en) ? bypass_data_b : reg_read_data_b;
-
+assign reg_write_data = (rec_write_en) ? rec_dest_reg_value : lw_int_write_data;
+assign reg_write_addr = (rec_write_en) ? rec_dest_reg : lw_write_addr;
+assign reg_write_enable = (rec_write_en) ? 1'b1 : lw_int_write_enable;
+	
 fetch fetch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
@@ -177,12 +182,12 @@ bypass_ctrl bypass_ctrl (
 int_registers int_registers(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
-	.write_data_i	(lw_int_write_data),
+	.write_data_i	(reg_write_data),
 	.read_addr_a_i	(dec_read_addr_a),
 	.read_addr_b_i	(dec_read_addr_b),
 	.dec_write_addr_i (dl_write_addr),
-	.write_addr_i	(lw_write_addr),
-	.write_enable_i	(lw_int_write_enable),
+	.write_addr_i	(reg_write_addr),
+	.write_enable_i	(reg_write_enable),
 	.read_data_a_o	(reg_read_data_a),
 	.read_data_b_o	(reg_read_data_b),
 	.dec_dest_reg_value_o (dec_dest_reg_value)
