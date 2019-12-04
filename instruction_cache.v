@@ -6,7 +6,6 @@ module instruction_cache(
     input       clk_i,
     input       rsn_i,
     input   [19:0]  addr_i,
-    input       read_rqst_i,
     input       mem_data_ready_i,
     input   [127:0] mem_data_i,
     input   [19:0]  mem_addr_i,
@@ -24,7 +23,7 @@ reg [3:0]   valid_bit;
 
 reg rqst_to_mem;
 
-reg [127:0] cache_line;
+wire [127:0] cache_line;
 
 reg state;
 localparam IDLE_STATE = 0;
@@ -45,7 +44,7 @@ always @(posedge clk_i)
 begin
     case(state)
         IDLE_STATE: begin
-            if (tags_array[addr_idx] != addr_tag) || ~valid_bit[addr_idx]) begin
+            if ((tags_array[addr_idx] != addr_tag) || ~valid_bit[addr_idx]) begin
                 rqst_to_mem = 1'b1;
                 state = WAIT_STATE;
             end

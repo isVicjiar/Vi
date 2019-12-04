@@ -45,6 +45,13 @@ wire [31:0] mult5_int_data_out;
 wire [4:0] mult5_write_addr;
 wire mult5_int_write_enable;
 
+// Fetch
+wire  [19:0] f_instr_addr;
+wire f_itlb_hit;
+wire f_itlb_read_only;
+wire f_icache_hit;
+wire f_icache_miss;
+
 // Decode
 wire [4:0] dec_read_addr_a;
 wire [4:0] dec_read_addr_b;
@@ -86,6 +93,8 @@ wire [31:0] lw_int_write_data;
 
 // dTLB - Lookup = TL
 wire [19:0] tl_addr;
+wire tl_dtlb_hit;
+wire tl_dtlb_read_only;
 
 // TransLookup - Latch = TLL
 wire [1:0]  tll_hit_way;
@@ -116,8 +125,35 @@ fetch fetch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
 	.stall_core_i	(dec_stall_core),
+	.pc_o	(fetch_pc)
+);
 
-	.instr_o	(fetch_instruction)
+itlb tlb(
+    .clk_i      (clk_i),
+    .rsn_i      (rsn_i),
+    .supervisor_i   (supervisor_mode),
+    .v_addr_i       (fetch_pc),
+    .write_enable_i     (update_itlb),
+    .new_physical_i     (update_itlb_p),
+    .new_virutal_i      (update_itlb_v), 
+    .new_read_only_i    (update_itlb_r),
+    .p_addr_o       (f_instr_addr),
+    .tlb_hit_o      (f_itlb_hit),
+    .tlb_protected_o    (f_itlb_read_only)
+);
+
+instruction_cache   instruction_cache(
+    .clk_i      (clk_i),
+    .rsn_i      (rsn_i),
+    .addr_i     (f_instr_addr),
+    //missing memory .mem_data_ready_i,
+    //missing memory .mem_data_i,
+    //missing memory .mem_addr_i,
+    .data_o     (fetch_instruction),
+    //missing memory .rqst_to_mem_o,
+    //missing memory .addr_to_mem_o,
+    .hit_o      (f_icache_hit),
+    .miss_o     (f_icache_miss)
 );
 
 fetch_dec_latch fetch_dec_latch(
@@ -259,6 +295,20 @@ exe_tl_latch exe_tl_latch (
 	.tl_store_data_o		(tl_store_data),
 	.tl_instruction_o		(tl_instruction),
 	.tl_pc_o			(tl_pc)
+);
+
+dtlb tlb(
+    .clk_i      (clk_i),
+    .rsn_i      (rsn_i),
+    .supervisor_i   (supervisor_mode),
+    .v_addr_i       (tl_cache_addr),
+    .write_enable_i     (update_dtlb),
+    .new_physical_i     (update_dtlb_p),
+    .new_virutal_i      (update_dtlb_v), 
+    .new_read_only_i    (update_dtlb_r),
+    .p_addr_o       (tl_addr),
+    .tlb_hit_o      (tl_dtlb_hit),
+    .tlb_protected_o    (tl_dtlb_read_only)
 );
 
 lookup lookup(
