@@ -219,35 +219,49 @@ bypass_ctrl bypass_ctrl (
 );
 
 int_registers int_registers(
-	.clk_i		(clk_i),
-	.rsn_i		(rsn_i),
-	.write_data_i	(reg_write_data),
-	.read_addr_a_i	(dec_read_addr_a),
-	.read_addr_b_i	(dec_read_addr_b),
-	.dec_write_addr_i (dl_write_addr),
-	.write_addr_i	(reg_write_addr),
-	.write_enable_i	(reg_write_enable),
-	.read_data_a_o	(reg_read_data_a),
-	.read_data_b_o	(reg_read_data_b),
-	.dec_dest_reg_value_o (dec_dest_reg_value)
+	.clk_i			(clk_i),
+	.rsn_i			(rsn_i),
+	.write_data_i		(reg_write_data),
+	.write_exc_en_i		(exc_occured),
+	.write_data_mepc_i	(exc_mepc),
+	.write_data_mtval_i	(exc_mtval),
+	.write_data_mcause_i	(exc_mcause),
+	.write_data_mpriv_i	(write_data_mpriv),
+	.write_mpriv_en_i	(write_mpriv_en),
+	.read_addr_a_i		(dec_read_addr_a),
+	.read_addr_b_i		(dec_read_addr_b),
+	.dec_write_addr_i 	(dl_write_addr),
+	.write_addr_i		(reg_write_addr),
+	.write_enable_i		(reg_write_enable),
+	.read_data_a_o		(reg_read_data_a),
+	.read_data_b_o		(reg_read_data_b),
+	.read_data_mepc_o	(read_data_mepc),
+	.read_data_mtval_o	(read_data_mtval),
+	.read_data_mcause_o	(read_data_mcause),
+	.read_data_mpriv_o	(read_data_mpriv),
+	.dec_dest_reg_value_o 	(dec_dest_reg_value)
 );
 	
 history_file history_file(
-	.clk_i		(clk_i),
-	.rsn_i		(rsn_i),
-	.stall_decode_i	(dec_stall_core),
-	.dec_dest_reg_i	(dl_write_addr),
+	.clk_i			(clk_i),
+	.rsn_i			(rsn_i),
+	.stall_decode_i		(dec_stall_core),
+	.dec_dest_reg_i		(dl_write_addr),
 	.dec_dest_reg_value_i	(dec_dest_reg_value),
-	.dec_pc_i	(dec_pc),
-	.wb_pc_i	(wb_pc),
-	.wb_dest_reg_i	(wb_write_addr),
-	.wb_exc_i	(wb_exc_bits),
-	.wb_miss_addr_i	(wb_miss_addr),
-	.stall_decode_o	(hf_stall_decode),
-	.kill_instr_o	(hf_kill_instr),
+	.dec_pc_i		(dec_pc),
+	.wb_pc_i		(wb_pc),
+	.wb_dest_reg_i		(wb_write_addr),
+	.wb_exc_i		(wb_exc_bits),
+	.wb_miss_addr_i		(wb_miss_addr),
+	.stall_decode_o		(hf_stall_decode),
+	.kill_instr_o		(hf_kill_instr),
 	.rec_dest_reg_value_o	(rec_dest_reg_value),
-	.rec_dest_reg_o	(rec_dest_reg),
-	.rec_write_en_o	(rec_write_en)		
+	.rec_dest_reg_o		(rec_dest_reg),
+	.rec_write_en_o		(rec_write_en),
+	.exc_occured_o		(exc_occured),
+	.exc_mtval_o		(exc_mtval),
+	.exc_mepc_o		(exc_mepc),
+	.exc_mcause_o		(exc_mcause)
 );
 	
 dec_exe_latch dec_exe_latch(
