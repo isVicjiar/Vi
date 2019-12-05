@@ -4,12 +4,10 @@ module int_registers(
 input		clk_i,
 input		rsn_i,
 input	[31:0]	write_data_i,
-input 	[31:0] 	write_data_mepc_i,
-input		write_mepc_en_i,	
+input		write_exc_en_i,
+input 	[31:0] 	write_data_mepc_i,	
 input 	[31:0] 	write_data_mtval_i,
-input 		write_mtval_en_i,
 input 	[31:0] 	write_data_mcause_i,
-input 		write_mcause_en_i,
 input 	[31:0] 	write_data_mpriv_i,
 input 		write_mpriv_en_i,
 input	[4:0]	read_addr_a_i,	
@@ -66,9 +64,11 @@ begin
 		mpriv = 32'b1;
 	end
 	else begin
-		if (write_mepc_en_i) mepc = write_data_mepc_i;
-		if (write_mtval_en_i) mtval = write_data_mtval_i;
-		if (write_mcause_en_i) mcause = write_data_mcause_i;
+		if (write_exc_en_i) begin
+			mepc = write_data_mepc_i;
+			mtval = write_data_mtval_i;
+			mcause = write_data_mcause_i;
+		end
 		if (write_mpriv_en_i) mpriv = write_data_mpriv_i;
 	end
 end
