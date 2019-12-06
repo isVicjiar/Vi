@@ -74,14 +74,19 @@ begin
                 end
             end else begin 
                 if(write_rqst_i && (hit_array !=0)) begin
-                    valid_bit[set_hit] = 0;
-                    for (i = 0; i < 4; i = i + 1) begin
-                        lru_matrix[i][set_hit] = 0;
-                        lru_matrix[set_hit][i] = 1;
+                    hit = (hit_array == 0) ? 0 : 1;
+                    miss = ~hit;
+                    if (hit) begin 
+                        for (i = 0; i < 4; i = i + 1) begin
+                            lru_matrix[set_hit][i] = 0;
+                            lru_matrix[i][set_hit] = 1;
+                        end
                     end
                 end
-                hit = 0;
-                miss = 0;
+                else begin
+                    hit = 0;
+                    miss = 0;
+                end
             end
         end
         WAIT_STATE: begin
@@ -109,7 +114,7 @@ begin
 end
 
 assign unalign_o = rqst_byte_i ? 0 :
-                   addr_i[1:0] ? 1 : 0;
+                   &addr_i[1:0] ? 1 : 0;
 
 assign hit_o = hit;
 assign miss_o = miss;
