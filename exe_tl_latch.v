@@ -3,6 +3,7 @@
 module exe_tl_latch (
 input 		clk_i,
 input 		rsn_i,
+input		kill_i,
 input 		stall_core_i,
 input	[31:0]	exe_cache_addr_i,
 input	[4:0]	exe_write_addr_i,
@@ -36,7 +37,7 @@ assign tl_pc_o = tl_pc;
 // Latch 
 always @(posedge clk_i)
 begin
-	if (!rsn_i) begin
+	if (!rsn_i || kill_i) begin
 		tl_cache_addr = 32'b0;
 		tl_write_addr = 5'b0;
 		tl_int_write_enable = 1'b0;
