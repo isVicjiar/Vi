@@ -8,7 +8,8 @@ input	[31:0]	instr_i,
 output	[4:0]	read_addr_a_o,
 output	[4:0]	read_addr_b_o,
 output	[4:0]	write_addr_o,
-output		int_write_enable_o);
+output		int_write_enable_o,
+output		iret_o);
 	
 reg bit int_write_enable;
 
@@ -18,6 +19,7 @@ assign write_addr_o = instr_i[11:7];
 assign int_write_enable_o = int_write_enable;
 
 always @(*) begin
+	iret_o = 1'b1;
 	logic [6:0] funct7;
 	logic [2:0] funct3;
 	logic [6:0] opcode;
@@ -28,6 +30,9 @@ always @(*) begin
 	else begin
 		if (opcode == 7'1101111 || opcode == 7'1101111 || opcode == 7'b0100011) int_write_enable = 1'b0;
 		else int_write_enable = 1'b1;
+		if (opcode == 7'b1110011 && exe_instruction_i[24:20] == 5'b00010) begin
+			iret_o = 1'b1;	
+		end
 	end
 end
 endmodule
