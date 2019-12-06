@@ -3,6 +3,7 @@
 module exe_mult1_latch(
 input		clk_i,
 input		rsn_i,
+input 		kill_i,
 input	[31:0]	exe_int_write_data_i,
 input	[4:0]	exe_write_addr_i,
 input		exe_int_write_enable_i,
@@ -29,7 +30,7 @@ assign mult1_pc_o = mult1_pc;
 // Latch 
 always @(posedge clock)
 begin
-	if (!rsn_i) begin
+	if (!rsn_i || kill_i) begin
 		mult1_int_write_data = 32'b0;
 		mult1_write_addr = 5'b0;
 		mult1_int_write_enable = 1'b0;
