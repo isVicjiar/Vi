@@ -64,6 +64,7 @@ wire [31:0] bypass_data_b;
 wire dec_stall_core;
 wire bypass_stall_core;
 wire hf_stall_core;
+wire hf_kill_instr;
 wire [31:0] reg_write_data;
 wire [4:0] reg_write_addr;
 wire reg_write_enable;
@@ -270,6 +271,7 @@ history_file history_file(
 dec_exe_latch dec_exe_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
+	.kill_i		(hf_kill_instr),
 	.stall_core_i	(dec_stall_core),
 	.dec_read_data_a_i	(dl_read_data_a),
 	.dec_read_addr_b_i	(dl_read_data_b),
@@ -298,6 +300,7 @@ int_alu int_alu(
 exe_tl_latch exe_tl_latch (
 	.clk_i 				(clk_i),
 	.rsn_i				(rsn_i),
+	.kill_i				(hf_kill_instr),
 	.stall_core_i			(tl_stall_core),
 	.exe_cache_addr_i 		(el_int_data_out),
 	.exe_write_addr_i		(le_write_addr),
@@ -349,6 +352,7 @@ lookup lookup(
 tl_cache_latch tl_cache_latch(
     .clk_i              (clk_i),
     .rsn_i              (rsn_i),
+    .kill_i		(hf_kill_instr),
     .stall_core_i       (lc_stall_core),
     .tl_addr_i          (tl_addr),
     //missing .tl_rqst_byte_i,
@@ -381,6 +385,7 @@ cache cache(
 exe_mult1_latch exe_mult1_latch(
 	.clk_i				(clk_i),
 	.rsn_i				(rsn_i),
+	.kill_i				(hf_kill_instr),
 	.exe_int_write_data_i		(el_int_data_out),
 	.exe_write_addr_i		(le_write_addr),
 	.exe_int_write_enable_i		(le_int_write_enable),
@@ -396,6 +401,7 @@ exe_mult1_latch exe_mult1_latch(
 mult1_mult2_latch mult1_mult2_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
+	.kill_i		(hf_kill_instr),
 	.mult1_int_write_data_i	(mult1_int_data_out),
 	.mult1_write_addr_i	(mult1_write_addr),
 	.mult1_int_write_enable_i	(mult1_int_write_enable),
@@ -411,6 +417,7 @@ mult1_mult2_latch mult1_mult2_latch(
 mult2_mult3_latch mult2_mult3_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
+	.kill_i		(hf_kill_instr),
 	.mult2_int_write_data_i	(mult2_int_data_out),
 	.mult2_write_addr_i	(mult2_write_addr),
 	.mult2_int_write_enable_i	(mult2_int_write_enable),
@@ -426,6 +433,7 @@ mult2_mult3_latch mult2_mult3_latch(
 mult3_mult4_latch mult3_mult4_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
+	.kill_i		(hf_kill_instr),
 	.mult3_int_write_data_i	(mult3_int_data_out),
 	.mult3_write_addr_i	(mult3_write_addr),
 	.mult3_int_write_enable_i	(mult3_int_write_enable),
@@ -441,6 +449,7 @@ mult3_mult4_latch mult3_mult4_latch(
 mult4_mult5_latch mult4_mult5_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
+	.kill_i		(hf_kill_instr),
 	.mult4_int_write_data_i	(mult4_int_data_out),
 	.mult4_write_addr_i	(mult4_write_addr),
 	.mult4_int_write_enable_i	(mult4_int_write_enable),
@@ -456,6 +465,7 @@ mult4_mult5_latch mult4_mult5_latch(
 exe_write_latch exe_write_latch(
 	.clk_i				(clk_i),
 	.rsn_i				(rsn_i),
+	.kill_i				(hf_kill_instr),
 	.exe_int_write_data_i		(el_int_data_out),
 	.exe_write_addr_i		(le_write_addr),
 	.exe_int_write_enable_i		(le_int_write_enable),
