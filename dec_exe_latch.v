@@ -3,6 +3,7 @@
 module dec_exe_latch(
 input		clk_i,
 input		rsn_i,
+input 		kill_i,
 input		stall_core_i,
 input	[31:0]	dec_read_data_a_i,
 input	[31:0]	dec_read_data_b_i,
@@ -34,7 +35,7 @@ assign exe_pc_o = exe_pc;
 // Latch 
 always @(posedge clock)
 begin
-	if (!rsn_i) begin
+	if (!rsn_i || kill_i) begin
 		exe_read_addr_a = 5'b0;
 		exe_read_addr_b = 5'b0;
 		exe_write_addr = 5'b0;
