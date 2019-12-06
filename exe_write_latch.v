@@ -22,7 +22,8 @@ output	[31:0]	write_int_write_data_o,
 output	[4:0]	write_write_addr_o,
 output		write_int_write_enable_o,
 output	[31:0]	write_instruction_o,
-output 	[31:0]	write_pc_o);
+output 	[31:0]	write_pc_o
+);
 
 reg	[31:0]	write_int_write_data;
 reg	[4:0]	write_write_addr;
