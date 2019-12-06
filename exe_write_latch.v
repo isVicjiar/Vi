@@ -3,6 +3,7 @@
 module exe_write_latch(
 input		clk_i,
 input		rsn_i,
+input		kill_i,
 input	[31:0]	exe_int_write_data_i,
 input	[4:0]	exe_write_addr_i,
 input		exe_int_write_enable_i,
@@ -40,7 +41,7 @@ assign write_pc_o = write_pc;
 // Latch 
 always @(posedge clk_i)
 begin
-	if (!rsn_i) begin
+	if (!rsn_i || kill_i) begin
 		write_int_write_data = 32'b0;
 		write_write_addr = 5'b0;
 		write_int_write_enable = 1'b0;
