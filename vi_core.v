@@ -120,25 +120,27 @@ assign reg_write_data = (rec_write_en) ? rec_dest_reg_value : lw_int_write_data;
 assign reg_write_addr = (rec_write_en) ? rec_dest_reg : lw_write_addr;
 assign reg_write_enable = (rec_write_en) ? 1'b1 : lw_int_write_enable;
 assign dec_stall_core = bypass_stall_core || hf_stall_core;
+assign write_mpriv_en = (iret || exc_occured) ? 1'b1 : 1'b0;
+assign write_data_mpriv = (iret) ? 1'b0 : ((exc_occured) ? 1'b1 : write_data_mpriv);
 	
 fetch fetch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
 	.stall_core_i	(dec_stall_core),
-	.pc_o	(fetch_pc)
+	.pc_o		(fetch_pc)
 );
 
 itlb tlb(
-    .clk_i      (clk_i),
-    .rsn_i      (rsn_i),
-    .supervisor_i   (supervisor_mode),
-    .v_addr_i       (fetch_pc),
+    .clk_i      	(clk_i),
+    .rsn_i      	(rsn_i),
+    .supervisor_i   	(supervisor_mode),
+    .v_addr_i       	(fetch_pc),
     .write_enable_i     (update_itlb),
     .new_physical_i     (update_itlb_p),
     .new_virutal_i      (update_itlb_v), 
     .new_read_only_i    (update_itlb_r),
-    .p_addr_o       (f_instr_addr),
-    .tlb_hit_o      (f_itlb_hit),
+    .p_addr_o       	(f_instr_addr),
+    .tlb_hit_o      	(f_itlb_hit),
     .tlb_protected_o    (f_itlb_read_only)
 );
 
@@ -166,14 +168,15 @@ fetch_dec_latch fetch_dec_latch(
 );
 
 decoder decoder(
-	.clk_i		(clk_i),
-	.rsn_i		(rsn_i),
-	.instruction_i	(dec_instruction),
+	.clk_i			(clk_i),
+	.rsn_i			(rsn_i),
+	.instruction_i		(dec_instruction),
 
-	.read_addr_a_o	(dec_read_addr_a),
-	.read_addr_b_o	(dec_read_addr_b),
-	.write_addr_o	(dl_write_addr),
-	.int_write_enable_o	(dl_int_write_enable)
+	.read_addr_a_o		(dec_read_addr_a),
+	.read_addr_b_o		(dec_read_addr_b),
+	.write_addr_o		(dl_write_addr),
+	.int_write_enable_o	(dl_int_write_enable),
+	.iret_o			(iret),
 );
 
 bypass_ctrl bypass_ctrl (
