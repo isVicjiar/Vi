@@ -3,6 +3,7 @@
 module mult2_mult3_latch(
 input		clk_i,
 input		rsn_i,
+input		kill_i,
 input	[31:0]	mult2_int_write_data_i,
 input	[4:0]	mult2_write_addr_i,
 input		mult2_int_write_enable_i,
@@ -29,7 +30,7 @@ assign mult3_pc_o = mult3_pc;
 // Latch 
 always @(posedge clock)
 begin
-	if (!rsn_i) begin
+	if (!rsn_i || kill_i) begin
 		mult3_int_write_data = 32'b0;
 		mult3_write_addr = 5'b0;
 		mult3_int_write_enable = 1'b0;
