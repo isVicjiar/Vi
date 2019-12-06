@@ -1,6 +1,7 @@
 module tl_cache_latch(
     input 		clk_i,
     input 		rsn_i,
+    input		kill_i, 
     input 		stall_core_i,
     input  [19:0]  tl_addr_i,
     input       tl_rqst_byte_i,
@@ -33,7 +34,7 @@ assign c_miss_o = miss;
 
 always @(posedge clk_i)
 begin
-    if(!rsn_i) begin
+    if(!rsn_i || kill_i) begin
         addr        <= 20'b0;
         rqst_byte   <=  1'b0;
         hit_way     <=  2'b0;
