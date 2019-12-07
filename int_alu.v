@@ -65,6 +65,9 @@ begin
 	7'b1101111: begin
 		result = pc_i + jal_ext_imm; // Jal
 	end
+	7'b1110011: begin
+		result = data_a_i;
+	end
 	endcase
 end
 endmodule
