@@ -36,7 +36,7 @@ always @(*) begin
 		csr_read_en = 1'b0;
 	end
 	else begin
-		if (opcode == 7'1101111 || opcode == 7'1101111 || opcode == 7'b0100011 || opcode == 7'b1110011) int_write_enable = 1'b0;
+		if (opcode == 7'1101111 || opcode == 7'1101111 || opcode == 7'b0100011 || (opcode == 7'b1110011 && funct3 == 3'b010)) int_write_enable = 1'b0;
 		else int_write_enable = 1'b1;
 		if (opcode == 7'b1110011 && instr_i[24:20] == 5'b00010 && instr_i[19:7] = 12'b0) begin
 			iret_o = 1'b1;	
