@@ -10,7 +10,7 @@ module tlb(
     input   [19:0]  new_virutal_i,
     input       new_read_only_i,
 
-    output  [19:0]  p_addr_i,
+    output  [19:0]  p_addr_o,
     output      tlb_hit_o,
     output      tlb_protected_o
 );
@@ -51,7 +51,9 @@ always @(*) begin
             read_only = read_only_array[1];
             lru = 0;
         end
-        else begin hit = 0 end;
+        else begin
+            hit = 0;
+        end
     end
 end
 
@@ -68,6 +70,7 @@ always @(posedge clk_i) begin
 end
 
 
-assign p_addr_i = {page_num,offset};
+assign p_addr_o = {page_num,offset};
 assign tlb_hit_o = hit | supervisor_i;
 assign tlb_protected_o = read_only;
+endmodule
