@@ -55,6 +55,9 @@ wire f_icache_miss;
 // Decode
 wire [4:0] dec_read_addr_a;
 wire [4:0] dec_read_addr_b;
+wire [1:0] csr_addr;
+wire [31:0] csr_data_read;
+wire csr_read_en;
 wire [31:0] reg_read_data_a;
 wire [31:0] reg_read_data_b;
 wire bypass_a_en;
@@ -115,7 +118,8 @@ wire        lc_miss;
 // Cache - Latch = CL
 wire [31:0] cl_data;
 
-assign dl_read_data_a = (bypass_a_en) ? bypass_data_a : reg_read_data_a;
+assign csr_data_read = (csr_addr[1]) ? ((csr_addr[0]) ? read_data_mpriv : read_data_mcause) : ((csr_addr[0]) ? read_data_mtval : read_data_mepc);
+assign dl_read_data_a = (csr_read_en) ? csr_data_read : ((bypass_a_en) ? bypass_data_a : reg_read_data_a);
 assign dl_read_data_b = (bypass_b_en) ? bypass_data_b : reg_read_data_b;
 assign reg_write_data = (rec_write_en) ? rec_dest_reg_value : lw_int_write_data;
 assign reg_write_addr = (rec_write_en) ? rec_dest_reg : lw_write_addr;
