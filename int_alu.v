@@ -24,12 +24,12 @@ assign	opcode = instr_i[6:0];
 assign	funct7 = instr_i[31:25];
 assign	funct3 = instr_i[14:12];	
 
-assign	ext_imm = {{20{instr_i[31]}}, instr_i[31:20]};
+assign	ext_imm = {{20{instr_i[31]}},instr_i[31:20]};
 assign	unsigned_ext_imm = {20'b0, instr_i[31:20]};
-assign  jal_ext_imm = { 11{instr_i[31]}, instr_i[31], instr_i[19:12], instr_i[20], instr_i[30:21], 1'b0 };
-assign  branch_ext_imm = { 19{instr_i[31]}, instr_i[31], instr_i[7], instr_i[30:25], instr_i[11:8], 1'b0 };
-assign  load_ext_imm = { 20{instr_i[31]}, instr_i[31:25], instr_i[11:7] };
-assign  store_ext_imm = { 20{instr_i[31]}, instr_i[31:20] };
+assign  jal_ext_imm = {{11{instr_i[31]}},instr_i[31],instr_i[19:12],instr_i[20],instr_i[30:21],1'b0};
+assign  branch_ext_imm = { {19{instr_i[31]}}, instr_i[31], instr_i[7], instr_i[30:25], instr_i[11:8], 1'b0 };
+assign  load_ext_imm = { {20{instr_i[31]}}, instr_i[31:25], instr_i[11:7] };
+assign  store_ext_imm = { {20{instr_i[31]}}, instr_i[31:20] };
 assign  data_out_o = result;
 
 always@(*)
@@ -47,7 +47,7 @@ begin
 		endcase
 	end
 	7'b0010011: begin
-		case(inst_type)
+		case(funct3)
 		3'b000: begin
 			result = data_a_i + ext_imm; // Addi - NOP
 		end
