@@ -7,7 +7,7 @@ input		dcsn_ok_i,
 input		dcsn_i,
 input	[31:0]	restore_pc,
 input	[31:0]	alu_pc,
-
+input		stall_core_i,
 output	[31:0]	pc_o,
 output		pred_o,
 output		taken_o,
