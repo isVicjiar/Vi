@@ -28,7 +28,7 @@ assign mult2_instruction_o = mult2_instruction;
 assign mult2_pc_o = mult2_pc;
 	
 // Latch 
-always @(posedge clock)
+always @(posedge clk_i)
 begin
 	if (!rsn_i || kill_i) begin
 		mult2_int_write_data = 32'b0;

@@ -17,10 +17,11 @@ output	[4:0]	tl_write_addr_o,
 output		tl_int_write_enable_o,
 input 	[31:0] 	tl_store_data_o,
 output	[31:0]	tl_instruction_o,
-output 	[31:0]	tl_pc_o);
+output 	[31:0]	tl_pc_o
 );
 
 reg [31:0] tl_cache_addr;
+reg tl_cache_enable;
 reg [4:0] tl_write_addr;
 reg tl_int_write_enable;
 reg [31:0] tl_store_data;

@@ -33,11 +33,11 @@ assign exe_instruction_o = exe_instruction;
 assign exe_pc_o = exe_pc;
 	
 // Latch 
-always @(posedge clock)
+always @(posedge clk_i)
 begin
 	if (!rsn_i || kill_i) begin
-		exe_read_addr_a = 5'b0;
-		exe_read_addr_b = 5'b0;
+		exe_read_data_a = 5'b0;
+		exe_read_data_b = 5'b0;
 		exe_write_addr = 5'b0;
 		exe_int_write_enable = 1'b0;
 		exe_instruction = 32'b0;
@@ -45,12 +45,12 @@ begin
 	end
 	else begin
 		if (!stall_core_i) begin
-			exe_read_addr_a = dec_read_addr_a_i;
-			exe_read_addr_b = dec_read_addr_b_i;
+			exe_read_data_a = dec_read_data_a_i;
+			exe_read_data_b = dec_read_data_b_i;
 			exe_write_addr = dec_write_addr_i;
 			exe_int_write_enable = dec_int_write_enable_i;
 			exe_instruction = dec_instruction_i;
-			exe_pc = exe_pc_i;
+			exe_pc = dec_pc_i;
 		end
 	end
 end

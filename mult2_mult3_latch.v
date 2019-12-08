@@ -28,7 +28,7 @@ assign mult3_instruction_o = mult3_instruction;
 assign mult3_pc_o = mult3_pc;
 	
 // Latch 
-always @(posedge clock)
+always @(posedge clk_i)
 begin
 	if (!rsn_i || kill_i) begin
 		mult3_int_write_data = 32'b0;

@@ -28,7 +28,7 @@ assign mult1_instruction_o = mult1_instruction;
 assign mult1_pc_o = mult1_pc;
 	
 // Latch 
-always @(posedge clock)
+always @(posedge clk_i)
 begin
 	if (!rsn_i || kill_i) begin
 		mult1_int_write_data = 32'b0;
@@ -44,7 +44,8 @@ begin
 			mult1_int_write_enable = exe_int_write_enable_i;
 			mult1_instruction = exe_instruction_i;
 			mult1_pc = exe_pc_i;
-		else
+		end
+		else begin
 			mult1_int_write_enable = 1'b0;
 			mult1_instruction = exe_instruction_i;
 			mult1_pc = exe_pc_i;

@@ -68,9 +68,18 @@ wire dec_stall_core;
 wire bypass_stall_core;
 wire hf_stall_core;
 wire hf_kill_instr;
+wire exc_occured;
+wire read_data_mpriv;
+wire read_data_mcause;
+wire read_data_mepc;
+wire read_data_mtval;
+wire rec_write_en;
+wire rec_dest_reg;
+wire rec_dest_reg_value;
 wire [31:0] reg_write_data;
 wire [4:0] reg_write_addr;
 wire reg_write_enable;
+wire iret;
 	
 // Decode - Latch = DL
 wire [31:0] dl_read_data_a;
@@ -135,7 +144,7 @@ fetch fetch(
 	.pc_o		(fetch_pc)
 );
 
-itlb tlb(
+tlb itlb(
     .clk_i      	(clk_i),
     .rsn_i      	(rsn_i),
     .supervisor_i   	(supervisor_mode),
@@ -181,7 +190,7 @@ decoder decoder(
 	.read_addr_b_o		(dec_read_addr_b),
 	.write_addr_o		(dl_write_addr),
 	.int_write_enable_o	(dl_int_write_enable),
-	.iret_o			(iret),
+	.iret_o			(iret)
 );
 
 bypass_ctrl bypass_ctrl (
@@ -191,6 +200,7 @@ bypass_ctrl bypass_ctrl (
 	.read_addr_b_i	(dec_read_addr_b),
 	.dec_wr_en_i	(dec_write_enable),
 	.dec_wr_addr_i	(dec_write_addr),
+	.dec_instr_i	(dec_instruction),
 	.exe_data_i	(el_int_data_out),
 	.exe_addr_i	(le_write_addr),
 	.exe_wr_en_i	(le_int_write_enable),
@@ -321,7 +331,7 @@ exe_tl_latch exe_tl_latch (
 	.tl_pc_o			(tl_pc)
 );
 
-dtlb tlb(
+tlb dtlb(
     .clk_i      	(clk_i),
     .rsn_i      	(rsn_i),
     .supervisor_i   	(supervisor_mode),
@@ -344,8 +354,8 @@ lookup lookup(
     // missing .rqst_byte_i,   
     // missing memory .mem_data_ready_i,
     // missing memory .mem_addr_i,
-    .hit_way_o,         (tll_hit_way),
-    .lru_way_o,         (tll_lru_way),
+    .hit_way_o          (tll_hit_way),
+    .lru_way_o          (tll_lru_way),
     // missing memory .rqst_to_mem_o,
     // missing memory .addr_to_mem_o,
     .unalign_o          (tll_missalign_exc),
@@ -361,7 +371,7 @@ tl_cache_latch tl_cache_latch(
     .tl_addr_i          (tl_addr),
     .tl_data_i          (tl_store_data),
     //missing .tl_rqst_byte_i,
-    .tl_rqst_write_i    (tl_cache_enable & tl_write_enable)
+    .tl_rqst_write_i    (tl_cache_enable & tl_write_enable),
     .tl_hit_way_i       (tll_hit_way),
     .tl_lru_way_i       (tll_lru_way),
     .tl_hit_i           (tll_hit),

@@ -45,12 +45,13 @@ assign read_data_mcause_o = mcause;
 assign read_data_mpriv_o = mpriv;
 assign dec_dest_reg_value_o = registers[dec_write_addr_i];
 
+integer i;
 // Write
 always @(posedge(clk_i))
 begin
-	if (!rsn_i) for (int i=0; i<32; i=i+1) registers[i]=0;	
+	if (!rsn_i) for (i=0; i<32; i=i+1) registers[i]=0;	
 	else begin
-		if (write_enable_i && write_addr > 5'b00000) registers[write_addr_i] = write_data_i;
+		if (write_enable_i && write_addr_i > 5'b00000) registers[write_addr_i] = write_data_i;
 	end
 end
 	

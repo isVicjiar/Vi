@@ -28,7 +28,7 @@ assign mult5_instruction_o = mult5_instruction;
 assign mult5_pc_o = mult5_pc;
 	
 // Latch 
-always @(posedge clock)
+always @(posedge clk_i)
 begin
 	if (!rsn_i || kill_i) begin
 		mult5_int_write_data = 32'b0;

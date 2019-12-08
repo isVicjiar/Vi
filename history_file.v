@@ -15,7 +15,7 @@ output reg 	stall_decode_o,
 output reg 	kill_instr_o,
 output reg 	[31:0] 	rec_dest_reg_value_o,
 output reg 	[4:0] 	rec_dest_reg_o,
-output 		rec_write_en_o
+output reg	rec_write_en_o,
 output reg	exc_occured_o,
 output reg 	[31:0] exc_mtval_o,
 output reg 	[31:0] exc_mepc_o,
@@ -28,9 +28,9 @@ reg [3:0] hf_tail;
 reg recovery_inflight;
 reg [3:0] recovery_case;
 reg [3:0] recovery_index;
-	
+integer i;	
+reg [4:0] hf_index;
 always @ (posedge clk_i) begin //HF_QUEUE COULD NOT BE UPDATING CORRECTLY AS IM CHANGING TWICE IN THE SAME BLOCK
-	reg [4:0] hf_index;
 	hf_index = 5'b10000;
 	rec_write_en_o = 1'b0;
 	stall_decode_o = 1'b0;
@@ -59,7 +59,7 @@ always @ (posedge clk_i) begin //HF_QUEUE COULD NOT BE UPDATING CORRECTLY AS IM 
 		end
 	end
 	else begin
-		for (int i=0; i<16; i++) begin
+		for (i=0; i<16; i = i + 1) begin
 			if (hf_queue[i][68:37] == wb_pc_i && !hf_queue[i][133]) begin
 				hf_index = i;	
 				hf_index[4] = 1'b0;
@@ -73,15 +73,13 @@ always @ (posedge clk_i) begin //HF_QUEUE COULD NOT BE UPDATING CORRECTLY AS IM 
 				if (|wb_exc_i) begin // Exc occured with this instruction (head)
 					stall_decode_o = 1'b1;
 					kill_instr_o = 1'b1;
-					exc_pc_o = hf_queue[hf_head][68:37];
-					exc_miss_addr_o = wb_miss_addr_i;
 					recovery_index = hf_tail;
 					recovery_inflight = 1'b1;
 				end
 				else begin // No exception occured for head, iterate until all newer insts are dequeued or exception found
 					if (hf_head < 4'b1111) hf_head = hf_head + 1;
 					else hf_head = 4'b0;
-					while(hf_queue[hf_head][133] && !exc_found && hf_head!=hf_tail) begin
+					while(hf_queue[hf_head][133] && !recovery_inflight && hf_head!=hf_tail) begin
 						if (|hf_queue[hf_head][132:101]) begin // Exc occured with this instruction (head)
 								stall_decode_o = 1'b1;
 								kill_instr_o = 1'b1;
