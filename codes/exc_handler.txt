@@ -1,0 +1,8 @@
+store r5, [A] // 
+store r6, [B]
+mov rm1, r5
+add r5, #8000, r6 // r6 represents the translation of r5
+tlbwrite r5, r6 //r5 virtual, r6 physical
+load [A], r5
+load [B], r6
+iret
