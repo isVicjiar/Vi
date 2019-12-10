@@ -112,8 +112,10 @@ wire iret;
 // Decode - Latch = DL
 wire [31:0] dl_read_data_a;
 wire [31:0] dl_read_data_b;
-wire [4:0] dl_write_addr;
-wire	   dl_int_write_enable;
+wire [4:0]  dl_write_addr;
+wire	    dl_int_write_enable;
+wire        dl_tlbwrite;
+wire	    dl_idtlb_write;
 
 // Latch - Exe = LE
 wire [31:0] le_int_data_a;
@@ -131,6 +133,17 @@ wire [31:0] el_int_data_out;
 wire [4:0]  lw_write_addr;
 wire	    lw_int_write_enable;
 wire [31:0] lw_int_write_data;
+
+// Latch - TL
+wire 	tl_cache_enable;
+wire	[31:0] tl_cache_addr;
+wire	[4:0]  tl_write_addr;
+wire	tl_write_enable;
+wire	[31:0] tl_store_data;
+wire	tl_tlbwrite;
+wire	tl_idtlb;
+wire	[31:0] tl_read_data_a;
+wire	[31:0] tl_read_data_b;
 
 // dTLB - Lookup = TL
 wire [19:0] tl_addr;
@@ -214,8 +227,7 @@ fetch_dec_latch fetch_dec_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
 	.stall_core_i	(dec_stall_core),
-	.fetch_instr_i	(fetch_instruction),
-	
+	.fetch_instr_i	(fetch_instruction),	
 	.dec_instr_o	(dec_instruction)
 );
 
@@ -223,11 +235,14 @@ decoder decoder(
 	.clk_i			(clk_i),
 	.rsn_i			(rsn_i),
 	.instr_i		(dec_instruction),
-
 	.read_addr_a_o		(dec_read_addr_a),
 	.read_addr_b_o		(dec_read_addr_b),
 	.write_addr_o		(dl_write_addr),
 	.int_write_enable_o	(dl_int_write_enable),
+	.tlbwrite_o		(dl_tlbwrite),
+	.idtlb_write_o		(dl_idtlb_write),
+	.csr_addr_o		(csr_addr),
+	.csr_read_en_o		(csr_read_en),
 	.iret_o			(iret)
 );
 
@@ -329,12 +344,16 @@ dec_exe_latch dec_exe_latch(
 	.dec_read_data_b_i	(dl_read_data_b),
 	.dec_write_addr_i	(dl_write_addr),
 	.dec_int_write_enable_i	(dl_int_write_enable),
+	.dec_tlbwrite_i		(dl_tlbwrite),
+	.dec_idtlb_i		(dl_idtlb),
 	.dec_instruction_i	(dec_instruction),
 	.dec_pc_i		(dec_pc),
 	.exe_read_data_a_o	(le_read_data_a),
 	.exe_read_data_b_o	(le_read_data_b),
 	.exe_write_addr_o	(le_write_addr),
 	.exe_int_write_enable_o	(le_int_write_enable),
+	.exe_tlbwrite_i		(le_tlbwrite),
+	.exe_idtlb_i		(le_idtlb),
 	.exe_instruction_o	(exe_instruction),
 	.exe_pc_o		(exe_pc)
 );
@@ -344,8 +363,8 @@ int_alu int_alu(
 	.rsn_i		(rsn_i),
 	.pc_i		(exe_pc),
 	.instr_i	(exe_instruction),
-	.data_a_i	(el_int_data_a),
-	.data_b_i	(el_int_data_b),
+	.data_a_i	(le_int_data_a),
+	.data_b_i	(le_int_data_b),
 	.data_out_o	(el_int_data_out)
 );
 
@@ -357,7 +376,11 @@ exe_tl_latch exe_tl_latch (
 	.exe_cache_addr_i 		(el_int_data_out),
 	.exe_write_addr_i		(le_write_addr),
 	.exe_int_write_enable_i		(le_int_write_enable),
-	.exe_store_data_i		(el_int_data_b),
+	.exe_store_data_i		(le_int_data_b),
+	.exe_tlbwrite_i			(le_tlbwrite),
+	.exe_idtlb_i			(le_idtlb),
+	.exe_read_data_a_i		(le_read_data_a),
+	.exe_read_data_b_i		(le_read_data_b),
 	.exe_instruction_i		(exe_instruction),
 	.exe_pc_i			(exe_pc),
 	.tl_cache_enable_o		(tl_cache_enable),
@@ -365,6 +388,10 @@ exe_tl_latch exe_tl_latch (
 	.tl_write_addr_o		(tl_write_addr),
 	.tl_int_write_enable_o		(tl_write_enable),
 	.tl_store_data_o		(tl_store_data),
+	.tl_tlbwrite_i			(tl_tlbwrite),
+	.tl_idtlb_i			(tl_idtlb),
+	.tl_read_data_a_i		(tl_read_data_a),
+	.tl_read_data_b_i		(tl_read_data_b),
 	.tl_instruction_o		(tl_instruction),
 	.tl_pc_o			(tl_pc)
 );

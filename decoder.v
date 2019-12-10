@@ -4,11 +4,12 @@ module decoder(
 input		clk_i,
 input		rsn_i,
 input	[31:0]	instr_i,
-
 output	[4:0]	read_addr_a_o,
 output	[4:0]	read_addr_b_o,
 output	[4:0]	write_addr_o,
 output		int_write_enable_o,
+output 	reg	tlbwrite_o,
+output		idtlb_write_o,
 output	[1:0]	csr_addr_o,
 output		csr_read_en_o,
 output	reg	iret_o);
@@ -25,9 +26,11 @@ assign write_addr_o = instr_i[11:7];
 assign int_write_enable_o = int_write_enable;
 assign csr_read_en_o = csr_read_en;
 assign csr_addr_o = instr_i[21:20];
+assign idtlb_write_o = instr_i[12];
 
 always @(*) begin
-	iret_o = 1'b1;
+	iret_o = 1'b0;
+	tlbwrite_o = 1'b0;
  	funct7 = instr_i[31:25];
 	funct3 = instr_i[14:12];
 	opcode = instr_i[6:0];
@@ -46,6 +49,11 @@ always @(*) begin
 			csr_read_en = 1'b1;
 		end
 		else csr_read_en = 1'b0;
+		//tlbwrite i instr[12] = 0 / d instr[12] = 1
+		if (opcode == 7'b1110011 && (funct3 == 3'b000 || funct3 == 3'b001)) begin
+			tlbwrite_o = 1'b1;
+		end
+		else tlbwrite_o = 1'b0;
 	end
 end
 endmodule
