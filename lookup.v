@@ -12,20 +12,22 @@
 module lookup(
     input       clk_i,
     input       rsn_i,
-    input   [19:0]  addr_i,
+    input   [19:0]  read_addr_i,
+    input   [19:0]  write_addr_i,
     input       read_rqst_i,
-    input       write_rqst_i,
+    input       write_enable_i,
     input       rqst_byte_i,
     input       mem_data_ready_i,
     input   [19:0]  mem_addr_i,
 
-    output  [1:0] hit_way_o,
+    output  [1:0] read_hit_way_o,
+    output  [1:0] write_hit_way_o,
     output  [1:0] lru_way_o,
     output      rqst_to_mem_o,
     output  [19:0]  addr_to_mem_o,
     output      unalign_o,
-    output      hit_o,
-    output      miss_o
+    output      write_hit_o,
+    output      read_miss_o
 );
 
 reg state;
@@ -34,14 +36,15 @@ localparam WAIT_STATE = 1;
 
 reg [127:0] data_array [3:0];
 reg [15:0]  tags_array [3:0];
-reg [3:0]   hit_array;
+reg [3:0]   read_hit_array;
+reg [3:0]   write_hit_array;
 reg [3:0]   valid_bit;
 
-reg hit;
-reg miss;
+reg read_hit;
 reg rqst_to_mem;
 
 reg [1:0] set_hit;
+reg [1:0] set_write;
 reg [1:0] set_lru;
 reg [3:0] lru_matrix [3:0];
 
@@ -51,19 +54,18 @@ integer i;
 always @(posedge clk_i)
 begin
     for(i = 0; i<4; i = i + 1) begin
-        hit_array[i] = valid_bit[i] & (addr_i[19:4] == tags_array[i]);
+        read_hit_array[i] = valid_bit[i] & (read_addr_i[19:4] == tags_array[i]);
     end
-    set_hit = hit_array[0] ? 0 : 
-             (hit_array[1] ? 1 :
-             (hit_array[2] ? 2 : 
+    set_hit = read_hit_array[0] ? 0 : 
+             (read_hit_array[1] ? 1 :
+             (read_hit_array[2] ? 2 : 
                              3));
 
     case (state)
         IDLE_STATE: begin
             if(read_rqst_i) begin
-                hit = (hit_array == 0) ? 0 : 1;
-                miss = ~hit;
-                if (hit) begin 
+                read_hit = (read_hit_array == 0) ? 0 : 1;
+                if (read_hit) begin 
                     for (i = 0; i < 4; i = i + 1) begin
                         lru_matrix[set_hit][i] = 0;
                         lru_matrix[i][set_hit] = 1;
@@ -73,25 +75,11 @@ begin
                     state = WAIT_STATE;
                 end
             end else begin 
-                if(write_rqst_i && (hit_array !=0)) begin
-                    hit = (hit_array == 0) ? 0 : 1;
-                    miss = ~hit;
-                    if (hit) begin 
-                        for (i = 0; i < 4; i = i + 1) begin
-                            lru_matrix[set_hit][i] = 0;
-                            lru_matrix[i][set_hit] = 1;
-                        end
-                    end
-                end
-                else begin
-                    hit = 0;
-                    miss = 0;
-                end
+                read_hit = 1;
             end
         end
         WAIT_STATE: begin
-            hit  = 0;
-            miss = 1;
+            read_hit  = 0;
             rqst_to_mem = 0;
             if (!mem_data_ready_i) begin
                 for (i=0; i<4; i = i +1) begin
@@ -99,7 +87,7 @@ begin
                         set_lru = i;
                     end
                 end
-            end else if(mem_addr_i[19:4] == addr_i[19:4]) begin
+            end else if(mem_addr_i[19:4] == read_addr_i[19:4]) begin
                 state = IDLE_STATE;
                 tags_array[set_lru] = mem_addr_i[19:4];
                 valid_bit[set_lru]  = 1;
@@ -113,15 +101,39 @@ begin
     endcase
 end
 
-assign unalign_o = rqst_byte_i ? 0 :
-                   &addr_i[1:0] ? 1 : 0;
+always@(posedge clk_i) begin
+    for(i = 0; i<4; i = i + 1) begin
+        write_hit_array[i] = valid_bit[i] & (write_addr_i[19:4] == tags_array[i]);
+    end
+    set_write = write_hit_array[0] ? 0 : 
+               (write_hit_array[1] ? 1 :
+               (write_hit_array[2] ? 2 : 
+                                     3));
 
-assign hit_o = hit;
-assign miss_o = miss;
-assign hit_way_o = set_hit;
+    if(write_enable_i && (write_hit_array !=0)) begin
+        write_hit = (write_hit_array == 0) ? 0 : 1;
+        if (write_hit) begin 
+            for (i = 0; i < 4; i = i + 1) begin
+                lru_matrix[set_write][i] = 0;
+                lru_matrix[i][set_write] = 1;
+            end
+        end
+    end
+    else begin
+        write_hit = 0;
+    end
+end
+
+assign unalign_o = rqst_byte_i ? 0 :
+                   &read_addr_i[1:0] ? 1 : 0;
+
+assign write_hit_o = write_hit;
+assign read_miss_o = ~read_hit;
+assign read_hit_way_o = set_hit;
+assign write_hit_way_o = set_write;
 assign lru_way_o = set_lru;
 assign rqst_to_mem_o = rqst_to_mem;
-assign addr_to_mem_o = addr_i;
+assign addr_to_mem_o = read_addr_i;
 
 
 always @(negedge rsn_i)
@@ -129,8 +141,8 @@ begin
     state = IDLE_STATE;
     valid_bit = 0;
     rqst_to_mem = 0;
-    hit = 0;
-    miss = 0;
+    read_hit = 0;
+    write_hit = 0;
     lru_matrix[0] = 0;
     lru_matrix[1] = 0;
     lru_matrix[2] = 0;
