@@ -5,7 +5,7 @@ module cache_write_latch(
     input kill_i,
     input [31:0] c_data_i,
     input c_reg_write_enable_i,
-    input [31:0] c_write_addr_i;
+    input [31:0] c_write_addr_i,
     output [31:0] w_data_o,
     output w_reg_write_enable_o,
     output [31:0] w_write_addr_o
@@ -33,4 +33,4 @@ begin
         write_addr <= c_write_addr_i;
     end
 end
-
+endmodule

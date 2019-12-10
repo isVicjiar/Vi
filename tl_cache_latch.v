@@ -8,22 +8,22 @@ module tl_cache_latch(
     input  [1:0] tl_hit_way_i,
     input  [1:0] tl_lru_way_i,
     input     tl_miss_i,
-    input       tl_buffer_hit_i;
-    input   [31:0] tl_buffer_data_i;
-    input       tl_int_write_enable_i;
-    input   [31:0] tl_write_addr_i;
-    input   [31:0] tl_pc_i;
+    input       tl_buffer_hit_i,
+    input   [31:0] tl_buffer_data_i,
+    input       tl_int_write_enable_i,
+    input   [31:0] tl_write_addr_i,
+    input   [31:0] tl_pc_i,
 
     output   [19:0]  c_addr_o,
     output       c_rqst_byte_o,
     output   [1:0]   c_hit_way_o,
     output   [1:0]   c_lru_way_o,
     output      c_miss_o,
-    output      c_buffer_hit_o;
-    output  [31:0] c_buffer_data_o;
-    output      c_int_write_enable_o;
-    output  [31:0] c_write_addr_o;
-    output  [31:0] c_pc_o;
+    output      c_buffer_hit_o,
+    output  [31:0] c_buffer_data_o,
+    output      c_int_write_enable_o,
+    output  [31:0] c_write_addr_o,
+    output  [31:0] c_pc_o
 );
 
 reg   [19:0]  addr;

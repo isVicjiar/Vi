@@ -6,8 +6,8 @@ module tlb(
     input       supervisor_i,
     input   [31:0]  v_addr_i,
     input       write_enable_i,
-    input   [7:0]   new_physical_i,
-    input   [19:0]  new_virutal_i,
+    input   [19:0]  new_physical_i,
+    input   [31:0]  new_virutal_i,
     input       new_read_only_i,
 
     output  [19:0]  p_addr_o,
@@ -61,8 +61,8 @@ always @(posedge clk_i) begin
     if(write_enable_i) begin
         sub_bit = !valid_bit[0] ? 0 : 
                   !valid_bit[1] ? 1 : lru;
-        physical_tags[sub_bit] = new_physical_i;
-        virtual_tags[sub_bit] = new_virutal_i;
+        physical_tags[sub_bit] = new_physical_i[19:12];
+        virtual_tags[sub_bit] = new_virutal_i[31:12];
         read_only_array[sub_bit] = new_read_only_i;
         valid_bit[sub_bit] = 1;
         lru = ~sub_bit;

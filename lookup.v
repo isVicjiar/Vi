@@ -41,6 +41,7 @@ reg [3:0]   write_hit_array;
 reg [3:0]   valid_bit;
 
 reg read_hit;
+reg write_hit;
 reg rqst_to_mem;
 
 reg [1:0] set_hit;

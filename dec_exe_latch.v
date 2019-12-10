@@ -60,7 +60,7 @@ begin
 			exe_write_addr = dec_write_addr_i;
 			exe_int_write_enable = dec_int_write_enable_i;
 			exe_tlbwrite = dec_tlbwrite_i;
-			exe_idtlb = dec_idltb_i;
+			exe_idtlb = dec_idtlb_i;
 			exe_instruction = dec_instruction_i;
 			exe_pc = dec_pc_i;
 		end
