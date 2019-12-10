@@ -199,12 +199,12 @@ fetch fetch(
 tlb itlb(
     .clk_i      	(clk_i),
     .rsn_i      	(rsn_i),
-    .supervisor_i   	(/*bit supervisor*/),
+    .supervisor_i   	(0/*bit supervisor*/),
     .v_addr_i       	(fetch_pc),
     .write_enable_i     (update_itlb),
     .new_physical_i     (update_itlb_p),
     .new_virutal_i      (update_itlb_v), 
-    .new_read_only_i    (update_itlb_r),
+    .new_read_only_i    (0/*read only*/),
     .p_addr_o       	(f_instr_addr),
     .tlb_hit_o      	(f_itlb_hit),
     .tlb_protected_o    (f_itlb_read_only)
@@ -404,7 +404,7 @@ tlb dtlb(
     .write_enable_i     (update_dtlb),
     .new_physical_i     (update_dtlb_p),
     .new_virutal_i      (update_dtlb_v), 
-    .new_read_only_i    (update_dtlb_r),
+    .new_read_only_i    (0/*read only*/),
     .p_addr_o       	(tl_addr),
     .tlb_hit_o      	(tl_dtlb_hit),
     .tlb_protected_o    (tl_dtlb_read_only)
