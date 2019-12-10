@@ -13,7 +13,6 @@ module instruction_cache(
     output  [31:0]  data_o,
     output      rqst_to_mem_o,
     output  [19:0]  addr_to_mem_o,
-    output      hit_o,
     output      miss_o
 );
 
@@ -36,8 +35,11 @@ assign addr_word = addr_i[3:2];
 assign addr_tag = addr_i[19:6]; 
 assign addr_idx = addr_i[5:4];
 
+assign addr_to_mem_o = addr_i;
+assign rqst_to_mem_o = rqst_to_mem;
+
 assign cache_line = data_array[addr_idx];
-assign hit_o = valid_bit[addr_idx] && tags_array[addr_idx] == addr_tag;
+assign miss_o = ~(valid_bit[addr_idx] && tags_array[addr_idx] == addr_tag);
 assign data_o = cache_line[addr_word*32 +: 32];
 
 always @(posedge clk_i)

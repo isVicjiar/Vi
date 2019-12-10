@@ -28,8 +28,9 @@ wire pred;
 wire taken;
 
 assign pc_add_4 = pc + 4;
-assign next_pc = dcsn_ok_i ? ((pred & taken) ? pred_pc : pc_add_4) 
-                           : (dcsn_i ? restore_pc : alu_pc);
+//assign next_pc = dcsn_ok_i ? ((pred & taken) ? pred_pc : pc_add_4) 
+ //                          : (dcsn_i ? restore_pc : alu_pc);
+assign next_pc = pc_add_4;
 assign pc_o = pc;
 assign pred_o = pred;
 assign taken_o = taken;
@@ -53,15 +54,4 @@ branch_predictor branch_predictor(
     .taken_o    (taken)
 );
 
-/********
-Acces IC
-********/
-reg [31:0] fetched_inst;
-assign instr_o = fetched_inst;
-
-
-always @(negedge rsn_i)
-begin
-	fetched_inst = 32'b0;
-end
 endmodule
