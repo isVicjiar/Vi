@@ -16,6 +16,7 @@ input	[31:0]	exe_read_data_b_i,
 input	[31:0]	exe_instruction_i,
 input	[31:0]	exe_pc_i,
 output		tl_cache_enable_o,
+output		tl_store_o,
 output	[31:0]	tl_cache_addr_o,
 output	[4:0]	tl_write_addr_o,
 output		tl_int_write_enable_o,
@@ -30,6 +31,7 @@ output 	[31:0]	tl_pc_o
 
 reg [31:0] tl_cache_addr;
 reg tl_cache_enable;
+reg tl_store;
 reg [4:0] tl_write_addr;
 reg tl_int_write_enable;
 reg [31:0] tl_store_data;
@@ -40,6 +42,7 @@ reg [31:0] tl_read_data_b;
 reg [31:0] tl_instruction;
 reg [31:0] tl_pc;
 
+assign tl_store_o = exe_instruction_i[5];
 assign tl_cache_addr_o = tl_cache_addr;
 assign tl_write_addr_o = tl_write_addr;
 assign tl_int_write_enable_o = tl_int_write_enable;
@@ -55,6 +58,7 @@ assign tl_pc_o = tl_pc;
 always @(posedge clk_i)
 begin
 	if (!rsn_i || kill_i) begin
+		tl_cache_enable = 1'b0;
 		tl_cache_addr = 32'b0;
 		tl_write_addr = 5'b0;
 		tl_int_write_enable = 1'b0;

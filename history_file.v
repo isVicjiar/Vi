@@ -13,6 +13,7 @@ input 	[31:0] 	wb_exc_i,
 input 	[31:0] 	wb_miss_addr_i,
 output reg 	stall_decode_o,
 output reg 	kill_instr_o,
+output reg [31:0] kill_pc_o,
 output reg 	[31:0] 	rec_dest_reg_value_o,
 output reg 	[4:0] 	rec_dest_reg_o,
 output reg	rec_write_en_o,
@@ -21,8 +22,9 @@ output reg 	[31:0] exc_mtval_o,
 output reg 	[31:0] exc_mepc_o,
 output reg 	[31:0] exc_mcause_o
 );
-	
-reg [133:0] hf_queue [15:0]; // {1b Finished, 32b Exceptions bits, 32b @miss, 32b PC, 5b dec_dest_reg, 32b dec_dest_reg_value}
+//	([133] finished) + ([132:101] exc_bits) + ([100:69] @miss address)
+//	+ ([68:37] pc) + ([36:32] dec_dest_Reg) + ([31:0] dec_dest_reg_value)
+reg [133:0] hf_queue [15:0];
 reg [3:0] hf_head;
 reg [3:0] hf_tail;
 reg recovery_inflight;
@@ -73,6 +75,7 @@ always @ (posedge clk_i) begin //HF_QUEUE COULD NOT BE UPDATING CORRECTLY AS IM 
 				if (|wb_exc_i) begin // Exc occured with this instruction (head)
 					stall_decode_o = 1'b1;
 					kill_instr_o = 1'b1;
+					kill_pc_o = hf_queue[hf_head][68:37];
 					recovery_index = hf_tail;
 					recovery_inflight = 1'b1;
 				end
@@ -83,6 +86,7 @@ always @ (posedge clk_i) begin //HF_QUEUE COULD NOT BE UPDATING CORRECTLY AS IM 
 						if (|hf_queue[hf_head][132:101]) begin // Exc occured with this instruction (head)
 								stall_decode_o = 1'b1;
 								kill_instr_o = 1'b1;
+								kill_pc_o = hf_queue[hf_head][68:37];
 								recovery_index = hf_tail;
 								recovery_inflight = 1'b1;
 						end

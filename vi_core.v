@@ -45,6 +45,7 @@ wire [31:0] cache_instruction;
 wire [31:0] cache_pc;
 wire [31:0] wb_instruction;
 wire [31:0] wb_pc;
+wire [31:0] wb_exc_bits;
 
 // Mult delay
 wire [31:0] mult1_instruction;
@@ -136,6 +137,7 @@ wire [31:0] lw_int_write_data;
 
 // Latch - TL
 wire 	tl_cache_enable;
+wire	tl_store;
 wire	[31:0] tl_cache_addr;
 wire	[4:0]  tl_write_addr;
 wire	tl_write_enable;
@@ -192,8 +194,19 @@ assign write_data_mpriv = (iret) ? 1'b0 : ((exc_occured) ? 1'b1 : write_data_mpr
 fetch fetch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
-	.stall_core_i	(dec_stall_core),
-	.pc_o		(fetch_pc)
+	.dcsn_ok_i	(dcsn_ok),
+	.dcsn_i		(dcsn),
+	.restore_pc_i	(restore_pc),
+	.alu_pc_i	(el_int_data_out),
+	.stall_core_i	(dec_stall_core || tll_miss),
+	.iret_i		(iret),
+	.exc_return_pc_i (read_data_mepc),
+	.exc_occured_i	(exc_occured),
+	.pc_o		(fetch_pc),
+	.pred_o		(pc_predicted),
+	.taken_o	(pc_taken),
+	.pred_pc_o	(pred_pc),
+	.instr_o	(fetch_instruction)
 );
 
 tlb itlb(
@@ -203,7 +216,7 @@ tlb itlb(
     .v_addr_i       	(fetch_pc),
     .write_enable_i     (tl_tlbwrite && tl_idtlb),
     .new_physical_i     (tl_read_data_b[19:0]),
-    .new_virutal_i      (tl_read_data_a), 
+    .new_virtual_i      (tl_read_data_a), 
     .new_read_only_i    (0/*read only*/),
     .p_addr_o       	(f_instr_addr),
     .tlb_hit_o      	(f_itlb_hit),
@@ -226,7 +239,7 @@ instruction_cache   instruction_cache(
 fetch_dec_latch fetch_dec_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
-	.stall_core_i	(dec_stall_core),
+	.stall_core_i	(dec_stall_core || tll_miss),
 	.fetch_instr_i	(fetch_instruction),	
 	.dec_instr_o	(dec_instruction)
 );
@@ -326,6 +339,7 @@ history_file history_file(
 	.wb_miss_addr_i		(wb_miss_addr),
 	.stall_decode_o		(hf_stall_decode),
 	.kill_instr_o		(hf_kill_instr),
+	.kill_pc_o		(hf_kill_pc),
 	.rec_dest_reg_value_o	(rec_dest_reg_value),
 	.rec_dest_reg_o		(rec_dest_reg),
 	.rec_write_en_o		(rec_write_en),
@@ -339,7 +353,7 @@ dec_exe_latch dec_exe_latch(
 	.clk_i			(clk_i),
 	.rsn_i			(rsn_i),
 	.kill_i			(hf_kill_instr),
-	.stall_core_i		(dec_stall_core),
+	.stall_core_i		(dec_stall_core || tll_miss),
 	.dec_read_data_a_i	(dl_read_data_a),
 	.dec_read_data_b_i	(dl_read_data_b),
 	.dec_write_addr_i	(dl_write_addr),
@@ -372,7 +386,7 @@ exe_tl_latch exe_tl_latch (
 	.clk_i 				(clk_i),
 	.rsn_i				(rsn_i),
 	.kill_i				(hf_kill_instr),
-	.stall_core_i			(tl_stall_core),
+	.stall_core_i			(tl_stall_core || tll_miss),
 	.exe_cache_addr_i 		(el_int_data_out),
 	.exe_write_addr_i		(le_write_addr),
 	.exe_int_write_enable_i		(le_int_write_enable),
@@ -387,6 +401,7 @@ exe_tl_latch exe_tl_latch (
 	.tl_cache_addr_o		(tl_cache_addr),
 	.tl_write_addr_o		(tl_write_addr),
 	.tl_int_write_enable_o		(tl_write_enable),
+	.tl_store_o			(tl_store),
 	.tl_store_data_o		(tl_store_data),
 	.tl_tlbwrite_o			(tl_tlbwrite),
 	.tl_idtlb_o			(tl_idtlb),
@@ -418,7 +433,7 @@ lookup lookup(
     .write_addr_i       (sb_write_addr),
     .read_rqst_i        (tl_cache_enable & ~tl_write_enable),        
     .write_enable_i     (sb_write_enable),
-    .rqst_byte_i        (0/*tl_instruction[bit de STB o RDB]*/),   
+    .rqst_byte_i        (tl_instruction[13]),   
     .mem_data_ready_i   (mem_data_ready_i),
     .mem_addr_i         (mem_addr_i),
     .read_hit_way_o     (tll_hit_way),
@@ -437,14 +452,14 @@ store_buffer store_buffer(
     .addr_i             (tl_addr),
     .data_i             (tl_store_data),
     .write_pc_i         (tl_pc),
-    .write_enable_i     (0/*tl_instruction[codigo] == ST o STB*/),
-    .kill_i             (0/*bit kill instruction*/),
-    .kill_pc_i          (0/*instruction to kill*/),
+    .write_enable_i     (tl_store && tl_cache_enable),
+    .kill_i             (hf_kill_instr),
+    .kill_pc_i          (hf_kill_pc),
     .read_i             (tl_cache_enable & ~tl_write_enable),        
     .read_addr_i        (tl_addr),
-    .do_write_i         (0/*bit indicating is safe to commit write*/),
+    .do_write_i         (wb_instruction[6:0] == 7'b0100011 && !wb_exc_bits),
 
-    .full_o             (/*buffer is full, stall pipeline*/),
+    .full_o             (store_buffer_full),
     .data_in_buffer_o   (tll_buffer_hit),
     .data_read_o        (tll_buffer_data),
     .addr_to_mem_o      (sb_write_addr),
@@ -456,9 +471,9 @@ tl_cache_latch tl_cache_latch(
     .clk_i              (clk_i),
     .rsn_i              (rsn_i),
     .kill_i		(hf_kill_instr),
-    .stall_core_i       (lc_stall_core),
+    .stall_core_i       (lc_stall_core || tll_miss),
     .tl_addr_i          (tl_addr),
-    .tl_rqst_byte_i     (0/*tl_instruction[bit de STB o RDB]*/),
+    .tl_rqst_byte_i     (tl_instruction[13]),
     .tl_hit_way_i       (tll_hit_way),
     .tl_lru_way_i       (tll_lru_way),
     .tl_miss_i          (tll_miss),
@@ -495,19 +510,6 @@ cache cache(
     .write_hit_i        (w_write_hit),
     .read_miss_i        (lc_miss),
     .data_o             (c_data)
-);
-
-cache_write_latch cache_write_latch(
-    .clk_i              (clk_i),
-    .rsn_i              (rsn_i),
-    .stall_core_i       (dec_stall_core_i),
-    .kill_i             (hf_kill_instr),
-    .c_data_i             (cl_data),
-    .c_reg_write_enable_i (lc_write_enable),
-    .c_write_addr_i       (lc_write_addr),
-    .w_data_o             (lw_reg_write_data),
-    .w_reg_write_enable_o (lw_reg_write_enable),
-    .w_write_addr_o       (lw_write_addr)
 );
 	
 exe_mult1_latch exe_mult1_latch(
@@ -589,7 +591,7 @@ mult4_mult5_latch mult4_mult5_latch(
 	.mult5_instruction_o		(mult5_instruction),
 	.mult5_pc_o			(mult5_pc)
 );
-	
+
 exe_write_latch exe_write_latch(
 	.clk_i				(clk_i),
 	.rsn_i				(rsn_i),
