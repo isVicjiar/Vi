@@ -38,16 +38,14 @@ assign pred_o = pred;
 assign taken_o = taken;
 assign pred_pc_o = pred_pc;
 
-always @(negedge rsn_i)
-begin
-    pc = 32'h1000;
-end
+always @(posedge rsn_i) pc = 32'h1000;
 
 always @(posedge clk_i)
 begin
-	if (!stall_core_i && rsn_i) begin
+	if (!rsn_i) pc = 32'h1000;
+	else if (!stall_core_i) begin
 		if (iret_i) begin
-			pc = exc_return_pc_i + 4;
+			pc = exc_return_pc_i;
 		end
 		else begin
 			if (exc_occured_i) begin

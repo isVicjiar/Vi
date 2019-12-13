@@ -81,6 +81,7 @@ wire f_icache_hit;
 wire f_icache_miss;
 wire [31:0] restore_pc;
 wire [31:0] pred_pc;
+wire fetch_stall;
 
 // Decode
 wire [4:0] dec_read_addr_a;
@@ -208,7 +209,7 @@ fetch fetch(
 	.dcsn_i		(dcsn),
 	.restore_pc_i	(restore_pc),
 	.alu_pc_i	(el_int_data_out),
-	.stall_core_i	(1'b0/*dec_stall_core || tll_miss*/),
+	.stall_core_i	(1'b0 || fetch_stall /*dec_stall_core || tll_miss*/),
 	.iret_i		(iret),
 	.exc_return_pc_i (read_data_mepc),
 	.exc_occured_i	(exc_occured),
@@ -242,15 +243,18 @@ instruction_cache   instruction_cache(
     .data_o     (fetch_instruction),
     .rqst_to_mem_o      (i_mem_read),
     .addr_to_mem_o      (mem_read_addr_o),
-    .miss_o     (f_icache_miss)
+    .miss_o     (f_icache_miss),
+    .fetch_stall_o	(fetch_stall)
 );
 
 fetch_dec_latch fetch_dec_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
 	.stall_core_i	(dec_stall_core || tll_miss),
-	.fetch_instr_i	(fetch_instruction),	
-	.dec_instr_o	(dec_instruction)
+	.fetch_instr_i	(fetch_instruction),
+	.fetch_pc_i	(fetch_pc),
+	.dec_instr_o	(dec_instruction),
+	.dec_pc_o	(dec_pc)
 );
 
 decoder decoder(
@@ -346,7 +350,7 @@ history_file history_file(
 	.wb_dest_reg_i		(lw_write_addr),
 	.wb_exc_i		(lw_exc_bits),
 	.wb_miss_addr_i		(lw_miss_addr),
-	.stall_decode_o		(hf_stall_decode),
+	.stall_decode_o		(hf_stall_core),
 	.kill_instr_o		(hf_kill_instr),
 	.kill_pc_o		(hf_kill_pc),
 	.rec_dest_reg_value_o	(rec_dest_reg_value),
