@@ -7,7 +7,7 @@ module tlb(
     input   [31:0]  v_addr_i,
     input       write_enable_i,
     input   [19:0]  new_physical_i,
-    input   [31:0]  new_virutal_i,
+    input   [31:0]  new_virtual_i,
     input       new_read_only_i,
 
     output  [19:0]  p_addr_o,
@@ -24,7 +24,7 @@ wire [11:0] offset;
 assign offset = v_addr_i[11:0];
 
 wire [19:0] addr_tag;
-assign addr_tag = v_addr_i[19:0];
+assign addr_tag = v_addr_i[31:12];
 
 reg [7:0] page_num;
 reg hit;
@@ -62,7 +62,7 @@ always @(posedge clk_i) begin
         sub_bit = !valid_bit[0] ? 0 : 
                   !valid_bit[1] ? 1 : lru;
         physical_tags[sub_bit] = new_physical_i[19:12];
-        virtual_tags[sub_bit] = new_virutal_i[31:12];
+        virtual_tags[sub_bit] = new_virtual_i[31:12];
         read_only_array[sub_bit] = new_read_only_i;
         valid_bit[sub_bit] = 1;
         lru = ~sub_bit;

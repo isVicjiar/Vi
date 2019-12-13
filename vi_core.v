@@ -45,32 +45,31 @@ wire [31:0] cache_instruction;
 wire [31:0] cache_pc;
 wire [31:0] wb_instruction;
 wire [31:0] wb_pc;
-wire [31:0] wb_exc_bits;
 
 // Mult delay
 wire [31:0] mult1_instruction;
 wire [31:0] mult1_pc;
-wire [31:0] mult1_int_data_out;
+wire [31:0] mult1_int_write_data;
 wire [4:0] mult1_write_addr;
 wire mult1_int_write_enable;
 wire [31:0] mult2_instruction;
 wire [31:0] mult2_pc;
-wire [31:0] mult2_int_data_out;
+wire [31:0] mult2_int_write_data;
 wire [4:0] mult2_write_addr;
 wire mult2_int_write_enable;
 wire [31:0] mult3_instruction;
 wire [31:0] mult3_pc;
-wire [31:0] mult3_int_data_out;
+wire [31:0] mult3_int_write_data;
 wire [4:0] mult3_write_addr;
 wire mult3_int_write_enable;
 wire [31:0] mult4_instruction;
 wire [31:0] mult4_pc;
-wire [31:0] mult4_int_data_out;
+wire [31:0] mult4_int_write_data;
 wire [4:0] mult4_write_addr;
 wire mult4_int_write_enable;
 wire [31:0] mult5_instruction;
 wire [31:0] mult5_pc;
-wire [31:0] mult5_int_data_out;
+wire [31:0] mult5_int_write_data;
 wire [4:0] mult5_write_addr;
 wire mult5_int_write_enable;
 
@@ -80,6 +79,8 @@ wire f_itlb_hit;
 wire f_itlb_read_only;
 wire f_icache_hit;
 wire f_icache_miss;
+wire [31:0] restore_pc;
+wire [31:0] pred_pc;
 
 // Decode
 wire [4:0] dec_read_addr_a;
@@ -95,16 +96,23 @@ wire [31:0] bypass_data_a;
 wire [31:0] bypass_data_b;
 wire dec_stall_core;
 wire bypass_stall_core;
+wire [31:0] dec_dest_reg_value;
 wire hf_stall_core;
 wire hf_kill_instr;
+wire [31:0] hf_kill_pc;
 wire exc_occured;
+wire write_mpriv_en;
+wire [31:0] write_data_mpriv;
+wire [31:0] exc_mepc;
+wire [31:0] exc_mcause;
+wire [31:0] exc_mtval;
 wire [31:0] read_data_mpriv;
 wire [31:0] read_data_mcause;
 wire [31:0] read_data_mepc;
 wire [31:0] read_data_mtval;
 wire rec_write_en;
-wire rec_dest_reg;
-wire rec_dest_reg_value;
+wire [4:0] rec_dest_reg;
+wire [31:0] rec_dest_reg_value;
 wire [31:0] reg_write_data;
 wire [4:0] reg_write_addr;
 wire reg_write_enable;
@@ -119,8 +127,8 @@ wire        dl_tlbwrite;
 wire	    dl_idtlb_write;
 
 // Latch - Exe = LE
-wire [31:0] le_int_data_a;
-wire [31:0] le_int_data_b;
+wire [31:0] le_read_data_a;
+wire [31:0] le_read_data_b;
 wire [4:0]  le_write_addr;
 wire 	    le_int_write_enable;
 
@@ -134,6 +142,8 @@ wire [31:0] el_int_data_out;
 wire [4:0]  lw_write_addr;
 wire	    lw_int_write_enable;
 wire [31:0] lw_int_write_data;
+wire [31:0] lw_exc_bits;
+wire [31:0] lw_miss_addr;
 
 // Latch - TL
 wire 	tl_cache_enable;
@@ -169,7 +179,7 @@ wire        lc_miss;
 wire        lc_buffer_hit;
 wire [31:0] lc_buffer_data;
 wire        lc_write_enable;
-wire        lc_write_addr;
+wire [4:0]  lc_write_addr;
 wire        c_pc;
 wire [31:0] c_data;
 
@@ -198,26 +208,25 @@ fetch fetch(
 	.dcsn_i		(dcsn),
 	.restore_pc_i	(restore_pc),
 	.alu_pc_i	(el_int_data_out),
-	.stall_core_i	(dec_stall_core || tll_miss),
+	.stall_core_i	(1'b0/*dec_stall_core || tll_miss*/),
 	.iret_i		(iret),
 	.exc_return_pc_i (read_data_mepc),
 	.exc_occured_i	(exc_occured),
 	.pc_o		(fetch_pc),
 	.pred_o		(pc_predicted),
 	.taken_o	(pc_taken),
-	.pred_pc_o	(pred_pc),
-	.instr_o	(fetch_instruction)
+	.pred_pc_o	(pred_pc)
 );
 
 tlb itlb(
     .clk_i      	(clk_i),
     .rsn_i      	(rsn_i),
-    .supervisor_i   	(0/*bit supervisor*/),
+    .supervisor_i   	(read_data_mpriv[0]),
     .v_addr_i       	(fetch_pc),
     .write_enable_i     (tl_tlbwrite && tl_idtlb),
     .new_physical_i     (tl_read_data_b[19:0]),
     .new_virtual_i      (tl_read_data_a), 
-    .new_read_only_i    (0/*read only*/),
+    .new_read_only_i    (1'b0),
     .p_addr_o       	(f_instr_addr),
     .tlb_hit_o      	(f_itlb_hit),
     .tlb_protected_o    (f_itlb_read_only)
@@ -264,33 +273,33 @@ bypass_ctrl bypass_ctrl (
 	.rsn_i			(rsn_i),
 	.dec_read_addr_a_i	(dec_read_addr_a),
 	.dec_read_addr_b_i	(dec_read_addr_b),
-	.dec_wr_en_i		(dec_write_enable),
-	.dec_wr_addr_i		(dec_write_addr),
+	.dec_wr_en_i		(dl_int_write_enable),
+	.dec_wr_addr_i		(dl_write_addr),
 	.dec_instr_i		(dec_instruction),
 	.exe_data_i		(el_int_data_out),
 	.exe_addr_i		(le_write_addr),
 	.exe_wr_en_i		(le_int_write_enable),
 	.exe_instr_i		(exe_instruction),
-	.mult1_data_i		(mult1_int_data_out),
+	.mult1_data_i		(mult1_int_write_data),
 	.mult1_addr_i		(mult1_write_addr),
 	.mult1_wr_en_i		(mult1_int_write_enable),
-	.mult2_data_i		(mult2_int_data_out),
+	.mult2_data_i		(mult2_int_write_data),
 	.mult2_addr_i		(mult2_write_addr),
 	.mult2_wr_en_i		(mult2_int_write_enable),
-	.mult3_data_i		(mult3_int_data_out),
+	.mult3_data_i		(mult3_int_write_data),
 	.mult3_addr_i		(mult3_write_addr),
 	.mult3_wr_en_i		(mult3_int_write_enable),
-	.mult4_data_i		(mult4_int_data_out),
+	.mult4_data_i		(mult4_int_write_data),
 	.mult4_addr_i		(mult4_write_addr),
 	.mult4_wr_en_i		(mult4_int_write_enable),
-	.mult5_data_i		(mult5_int_data_out),
+	.mult5_data_i		(mult5_int_write_data),
 	.mult5_addr_i		(mult5_write_addr),
 	.mult5_wr_en_i		(mult5_int_write_enable),
 	.tl_addr_i		(tl_write_addr),
 	.tl_wr_en_i		(tl_int_write_enable),
-	.cache_data_i		(cache_data_out),
-	.cache_addr_i		(cache_write_addr),
-	.cache_wr_en_i		(cache_write_enable),
+	.cache_data_i		(c_data),
+	.cache_addr_i		(lc_write_addr),
+	.cache_wr_en_i		(lc_write_enable),
 	.cache_hit_i		(cache_hit),
 	.write_data_i		(lw_int_write_data),
 	.write_addr_i		(lw_write_addr),
@@ -334,9 +343,9 @@ history_file history_file(
 	.dec_dest_reg_value_i	(dec_dest_reg_value),
 	.dec_pc_i		(dec_pc),
 	.wb_pc_i		(wb_pc),
-	.wb_dest_reg_i		(wb_write_addr),
-	.wb_exc_i		(wb_exc_bits),
-	.wb_miss_addr_i		(wb_miss_addr),
+	.wb_dest_reg_i		(lw_write_addr),
+	.wb_exc_i		(lw_exc_bits),
+	.wb_miss_addr_i		(lw_miss_addr),
 	.stall_decode_o		(hf_stall_decode),
 	.kill_instr_o		(hf_kill_instr),
 	.kill_pc_o		(hf_kill_pc),
@@ -377,8 +386,8 @@ int_alu int_alu(
 	.rsn_i		(rsn_i),
 	.pc_i		(exe_pc),
 	.instr_i	(exe_instruction),
-	.data_a_i	(le_int_data_a),
-	.data_b_i	(le_int_data_b),
+	.data_a_i	(le_read_data_a),
+	.data_b_i	(le_read_data_b),
 	.data_out_o	(el_int_data_out)
 );
 
@@ -390,7 +399,7 @@ exe_tl_latch exe_tl_latch (
 	.exe_cache_addr_i 		(el_int_data_out),
 	.exe_write_addr_i		(le_write_addr),
 	.exe_int_write_enable_i		(le_int_write_enable),
-	.exe_store_data_i		(le_int_data_b),
+	.exe_store_data_i		(le_read_data_b),
 	.exe_tlbwrite_i			(le_tlbwrite),
 	.exe_idtlb_i			(le_idtlb),
 	.exe_read_data_a_i		(le_read_data_a),
@@ -414,12 +423,12 @@ exe_tl_latch exe_tl_latch (
 tlb dtlb(
     .clk_i      	(clk_i),
     .rsn_i      	(rsn_i),
-    .supervisor_i   	(1/*bit supervisor*/),
+    .supervisor_i   	(read_data_mpriv[0]),
     .v_addr_i       	(tl_cache_addr),
     .write_enable_i     (tl_tlbwrite && !tl_idtlb),
     .new_physical_i     (tl_read_data_b[19:0]),
-    .new_virutal_i      (tl_read_data_a), 
-    .new_read_only_i    (0/*read only*/),
+    .new_virtual_i      (tl_read_data_a), 
+    .new_read_only_i    (1'b0),
     .p_addr_o       	(tl_addr),
     .tlb_hit_o      	(tl_dtlb_hit),
     .tlb_protected_o    (tl_dtlb_read_only)
@@ -491,7 +500,7 @@ tl_cache_latch tl_cache_latch(
     .c_buffer_data_o    (lc_buffer_data),
     .c_int_write_enable_o    (lc_write_enable),
     .c_write_addr_o     (lc_write_addr),
-    .c_pc_o             (c_pc)
+    .c_pc_o             (cache_pc)
 );
 
 cache cache(
@@ -532,7 +541,7 @@ mult1_mult2_latch mult1_mult2_latch(
 	.clk_i				(clk_i),
 	.rsn_i				(rsn_i),
 	.kill_i				(hf_kill_instr),
-	.mult1_int_write_data_i		(mult1_int_data_out),
+	.mult1_int_write_data_i		(mult1_int_write_data),
 	.mult1_write_addr_i		(mult1_write_addr),
 	.mult1_int_write_enable_i	(mult1_int_write_enable),
 	.mult1_instruction_i		(mult1_instruction),
@@ -548,7 +557,7 @@ mult2_mult3_latch mult2_mult3_latch(
 	.clk_i				(clk_i),
 	.rsn_i				(rsn_i),
 	.kill_i				(hf_kill_instr),
-	.mult2_int_write_data_i		(mult2_int_data_out),
+	.mult2_int_write_data_i		(mult2_int_write_data),
 	.mult2_write_addr_i		(mult2_write_addr),
 	.mult2_int_write_enable_i	(mult2_int_write_enable),
 	.mult2_instruction_i		(mult2_instruction),
@@ -564,7 +573,7 @@ mult3_mult4_latch mult3_mult4_latch(
 	.clk_i				(clk_i),
 	.rsn_i				(rsn_i),
 	.kill_i				(hf_kill_instr),
-	.mult3_int_write_data_i		(mult3_int_data_out),
+	.mult3_int_write_data_i		(mult3_int_write_data),
 	.mult3_write_addr_i		(mult3_write_addr),
 	.mult3_int_write_enable_i	(mult3_int_write_enable),
 	.mult3_instruction_i		(mult3_instruction),
@@ -580,7 +589,7 @@ mult4_mult5_latch mult4_mult5_latch(
 	.clk_i				(clk_i),
 	.rsn_i				(rsn_i),
 	.kill_i				(hf_kill_instr),
-	.mult4_int_write_data_i		(mult4_int_data_out),
+	.mult4_int_write_data_i		(mult4_int_write_data),
 	.mult4_write_addr_i		(mult4_write_addr),
 	.mult4_int_write_enable_i	(mult4_int_write_enable),
 	.mult4_instruction_i		(mult4_instruction),
@@ -601,14 +610,14 @@ exe_write_latch exe_write_latch(
 	.exe_int_write_enable_i		(le_int_write_enable),
 	.exe_instruction_i		(exe_instruction),
 	.exe_pc_i			(exe_pc),
-	.mult5_int_write_data_i		(mult5_int_data_out),
+	.mult5_int_write_data_i		(mult5_int_write_data),
 	.mult5_write_addr_i		(mult5_write_addr),
 	.mult5_int_write_enable_i	(mult5_int_write_enable),
 	.mult5_instruction_i		(mult5_instruction),
 	.mult5_pc_i			(mult5_pc),
-	.cache_int_write_data_i		(cache_int_data_out),
-	.cache_write_addr_i		(cache_write_addr),
-	.cache_int_write_enable_i	(cache_int_write_enable),
+	.cache_int_write_data_i		(c_data),
+	.cache_write_addr_i		(lc_write_addr),
+	.cache_int_write_enable_i	(lc_write_enable),
 	.cache_instruction_i		(cache_instruction),
 	.cache_pc_i			(cache_pc),
 	.write_int_write_data_o		(lw_int_write_data),

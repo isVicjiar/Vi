@@ -67,7 +67,7 @@ end
 always @(negedge rsn_i)
 begin
     valid_bit = 0;
-    state = WAIT_STATE;
+    state = IDLE_STATE;
     rqst_to_mem = 0;
 end
 endmodule

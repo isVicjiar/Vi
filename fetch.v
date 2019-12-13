@@ -14,8 +14,7 @@ input		exc_occured_i,
 output	[31:0]	pc_o,
 output		pred_o,
 output		taken_o,
-output	[31:0]	pred_pc_o,
-output	[31:0]	instr_o);
+output	[31:0]	pred_pc_o);
 
 /************
 Next PC logic
@@ -32,7 +31,7 @@ wire pred;
 wire taken;
 
 assign pc_add_4 = pc + 4;
-assign next_pc = dcsn_ok_i ? ((pred & taken) ? pred_pc : pc_add_4) : (dcsn_i ? restore_pc_i : alu_pc_i);
+//assign next_pc = dcsn_ok_i ? ((pred & taken) ? pred_pc : pc_add_4) : (dcsn_i ? restore_pc_i : alu_pc_i);
 assign next_pc = pc_add_4;
 assign pc_o = pc;
 assign pred_o = pred;
@@ -46,7 +45,7 @@ end
 
 always @(posedge clk_i)
 begin
-	if (!stall_core_i) begin
+	if (!stall_core_i && rsn_i) begin
 		if (iret_i) begin
 			pc = exc_return_pc_i + 4;
 		end
