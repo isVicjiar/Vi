@@ -118,6 +118,7 @@ wire [31:0] reg_write_data;
 wire [4:0] reg_write_addr;
 wire reg_write_enable;
 wire iret;
+wire [31:0] pc_instr_addr;
 	
 // Decode - Latch = DL
 wire [31:0] dl_read_data_a;
@@ -201,7 +202,8 @@ assign reg_write_enable = (rec_write_en) ? 1'b1 : lw_int_write_enable;
 assign dec_stall_core = bypass_stall_core || hf_stall_core;
 assign write_mpriv_en = (iret || exc_occured) ? 1'b1 : 1'b0;
 assign write_data_mpriv = (iret) ? 1'b0 : ((exc_occured) ? 1'b1 : write_data_mpriv);
-	
+assign fetch_pc = (iret) ? read_data_mepc : pc_instr_addr;
+
 fetch fetch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
@@ -213,7 +215,7 @@ fetch fetch(
 	.iret_i		(iret),
 	.exc_return_pc_i (read_data_mepc),
 	.exc_occured_i	(exc_occured),
-	.pc_o		(fetch_pc),
+	.pc_o		(pc_instr_addr),
 	.pred_o		(pc_predicted),
 	.taken_o	(pc_taken),
 	.pred_pc_o	(pred_pc)
@@ -224,26 +226,26 @@ tlb itlb(
     .rsn_i      	(rsn_i),
     .supervisor_i   	(read_data_mpriv[0]),
     .v_addr_i       	(fetch_pc),
-    .write_enable_i     (tl_tlbwrite && tl_idtlb),
-    .new_physical_i     (tl_read_data_b[19:0]),
-    .new_virtual_i      (tl_read_data_a), 
-    .new_read_only_i    (1'b0),
+    .write_enable_i     (le_tlbwrite && !le_idtlb),
+    .new_physical_i     (le_read_data_b[19:0]),
+    .new_virtual_i      (le_read_data_a), 
+    .new_read_only_i    (le_tlbwrite && !le_idtlb),
     .p_addr_o       	(f_instr_addr),
     .tlb_hit_o      	(f_itlb_hit),
     .tlb_protected_o    (f_itlb_read_only)
 );
 
 instruction_cache   instruction_cache(
-    .clk_i      (clk_i),
-    .rsn_i      (rsn_i),
-    .addr_i     (f_instr_addr),
+    .clk_i      	(clk_i),
+    .rsn_i      	(rsn_i),
+    .addr_i     	(f_instr_addr),
     .mem_data_ready_i   (mem_data_ready_i),
     .mem_data_i         (mem_data_i),
     .mem_addr_i         (mem_addr_i),
-    .data_o     (fetch_instruction),
+    .data_o     	(fetch_instruction),
     .rqst_to_mem_o      (i_mem_read),
     .addr_to_mem_o      (mem_read_addr_o),
-    .miss_o     (f_icache_miss),
+    .miss_o     	(f_icache_miss),
     .fetch_stall_o	(fetch_stall)
 );
 
@@ -372,7 +374,7 @@ dec_exe_latch dec_exe_latch(
 	.dec_write_addr_i	(dl_write_addr),
 	.dec_int_write_enable_i	(dl_int_write_enable),
 	.dec_tlbwrite_i		(dl_tlbwrite),
-	.dec_idtlb_i		(dl_idtlb),
+	.dec_idtlb_i		(dl_idtlb_write),
 	.dec_instruction_i	(dec_instruction),
 	.dec_pc_i		(dec_pc),
 	.exe_read_data_a_o	(le_read_data_a),
@@ -429,9 +431,9 @@ tlb dtlb(
     .rsn_i      	(rsn_i),
     .supervisor_i   	(read_data_mpriv[0]),
     .v_addr_i       	(tl_cache_addr),
-    .write_enable_i     (tl_tlbwrite && !tl_idtlb),
-    .new_physical_i     (tl_read_data_b[19:0]),
-    .new_virtual_i      (tl_read_data_a), 
+    .write_enable_i     (le_tlbwrite && le_idtlb),
+    .new_physical_i     (le_read_data_b[19:0]),
+    .new_virtual_i      (le_read_data_a), 
     .new_read_only_i    (1'b0),
     .p_addr_o       	(tl_addr),
     .tlb_hit_o      	(tl_dtlb_hit),

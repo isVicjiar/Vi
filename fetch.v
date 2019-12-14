@@ -43,17 +43,13 @@ always @(posedge rsn_i) pc = 32'h1000;
 always @(posedge clk_i)
 begin
 	if (!rsn_i) pc = 32'h1000;
-	else if (!stall_core_i) begin
-		if (iret_i) begin
-			pc = exc_return_pc_i;
-		end
-		else begin
-			if (exc_occured_i) begin
-				pc = exc_pc;
-			end
-			else pc = next_pc;
-		end
+	else if (iret_i) begin
+			pc = exc_return_pc_i + 4;
 	end
+	else if (exc_occured_i) begin
+		pc = exc_pc;
+	end
+	else if (!stall_core_i) pc = next_pc;
 end
 
 branch_predictor branch_predictor(
