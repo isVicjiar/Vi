@@ -45,7 +45,9 @@ begin
 			endcase
 		end
 		3'b001: begin
+			case(funct7)
 			7'b0000000: result = data_a_i << data_b_i; // SLL
+			endcase
 		end
 		endcase
 	end

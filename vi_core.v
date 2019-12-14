@@ -82,6 +82,7 @@ wire f_icache_miss;
 wire [31:0] restore_pc;
 wire [31:0] pred_pc;
 wire fetch_stall;
+wire itlb_supervisor;
 
 // Decode
 wire [4:0] dec_read_addr_a;
@@ -203,6 +204,7 @@ assign dec_stall_core = bypass_stall_core || hf_stall_core;
 assign write_mpriv_en = (iret || exc_occured) ? 1'b1 : 1'b0;
 assign write_data_mpriv = (iret) ? 1'b0 : ((exc_occured) ? 1'b1 : write_data_mpriv);
 assign fetch_pc = (iret) ? read_data_mepc : pc_instr_addr;
+assign itlb_supervisor = (iret) ? 1'b0 : read_data_mpriv[0];
 
 fetch fetch(
 	.clk_i		(clk_i),
@@ -224,7 +226,7 @@ fetch fetch(
 tlb itlb(
     .clk_i      	(clk_i),
     .rsn_i      	(rsn_i),
-    .supervisor_i   	(read_data_mpriv[0]),
+    .supervisor_i   	(itlb_supervisor),
     .v_addr_i       	(fetch_pc),
     .write_enable_i     (le_tlbwrite && !le_idtlb),
     .new_physical_i     (le_read_data_b[19:0]),
@@ -309,7 +311,7 @@ bypass_ctrl bypass_ctrl (
 	.cache_hit_i		(cache_hit),
 	.write_data_i		(lw_int_write_data),
 	.write_addr_i		(lw_write_addr),
-	.write_en_i		(lw_int_wrie_enable),
+	.write_en_i		(lw_int_write_enable),
 	.bypass_a_en_o		(bypass_a_en),
 	.bypass_b_en_o		(bypass_b_en),
 	.bypass_data_a_o 	(bypass_data_a),

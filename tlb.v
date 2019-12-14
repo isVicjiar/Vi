@@ -34,8 +34,10 @@ reg sub_bit;
 reg hit_bit;
 reg lru;
 
+reg bypass_p_addr;
 
 always @(*) begin
+    bypass_p_addr = 1'b0;
     if(supervisor_i) begin
         page_num = addr_tag[7:0];
     end else begin
@@ -51,6 +53,7 @@ always @(*) begin
             read_only = read_only_array[1];
             lru = 0;
         end
+	else if (v_addr_i[31:12] == new_virtual_i[31:12]) bypass_p_addr = 1'b1;
         else begin
             hit = 0;
         end
@@ -58,19 +61,25 @@ always @(*) begin
 end
 
 always @(posedge clk_i) begin
-    if(write_enable_i) begin
-        sub_bit = !valid_bit[0] ? 0 : 
-                  !valid_bit[1] ? 1 : lru;
-        physical_tags[sub_bit] = new_physical_i[19:12];
-        virtual_tags[sub_bit] = new_virtual_i[31:12];
-        read_only_array[sub_bit] = new_read_only_i;
-        valid_bit[sub_bit] = 1;
-        lru = ~sub_bit;
-    end
+	if (!rsn_i) begin
+		valid_bit[0] = 1'b0;
+		valid_bit[1] = 1'b0;
+	end
+	else begin
+		if(write_enable_i) begin
+		sub_bit = !valid_bit[0] ? 0 : 
+			  !valid_bit[1] ? 1 : lru;
+		physical_tags[sub_bit] = new_physical_i[19:12];
+		virtual_tags[sub_bit] = new_virtual_i[31:12];
+		read_only_array[sub_bit] = new_read_only_i;
+		valid_bit[sub_bit] = 1;
+		lru = ~sub_bit;
+		end
+	end
 end
 
 
-assign p_addr_o = {page_num,offset};
+assign p_addr_o = (bypass_p_addr) ? {new_physical_i[19:12],offset} : {page_num,offset};
 assign tlb_hit_o = hit | supervisor_i;
 assign tlb_protected_o = read_only;
 endmodule

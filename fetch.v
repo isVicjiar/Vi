@@ -45,6 +45,7 @@ begin
 	if (!rsn_i) pc = 32'h1000;
 	else if (iret_i) begin
 			pc = exc_return_pc_i + 4;
+			if (stall_core_i) pc = exc_return_pc_i;
 	end
 	else if (exc_occured_i) begin
 		pc = exc_pc;

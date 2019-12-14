@@ -73,6 +73,8 @@ always @ (*) begin
         stall_core_w = 1'b0;
     end
     else begin
+	bypass_a_en_o = 1'b0;    
+	bypass_b_en_o = 1'b0;    
         stall_core_a = 1'b0;
         stall_core_b = 1'b0;
         stall_core_w = 1'b0;

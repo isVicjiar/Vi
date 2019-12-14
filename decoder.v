@@ -31,6 +31,7 @@ assign idtlb_write_o = instr_i[12];
 always @(*) begin
 	iret_o = 1'b0;
 	tlbwrite_o = 1'b0;
+	csr_read_en = 1'b0;
  	funct7 = instr_i[31:25];
 	funct3 = instr_i[14:12];
 	opcode = instr_i[6:0];
@@ -45,15 +46,13 @@ always @(*) begin
 			iret_o = 1'b1;	
 		end
 		//csrrs rs1 1010 rd 1110011 CSRRS
-		if (opcode == 7'b1110011 && funct3 == 3'b010) begin
+		else if (opcode == 7'b1110011 && funct3 == 3'b010) begin
 			csr_read_en = 1'b1;
 		end
-		else csr_read_en = 1'b0;
 		//tlbwrite i instr[12] = 0 / d instr[12] = 1
-		if (opcode == 7'b1110011 && (funct3 == 3'b000 || funct3 == 3'b001)) begin
+		else if (opcode == 7'b1110011 && (funct3 == 3'b000 || funct3 == 3'b001)) begin
 			tlbwrite_o = 1'b1;
 		end
-		else tlbwrite_o = 1'b0;
 	end
 end
 endmodule

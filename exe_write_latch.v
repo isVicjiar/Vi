@@ -56,20 +56,21 @@ begin
 			write_instruction = mult5_instruction_i;
 			write_pc = mult5_pc_i;			
 		end
-		if (cache_int_write_enable_i) begin
+		else if (cache_int_write_enable_i) begin
 			write_int_write_data = cache_int_write_data_i;
 			write_write_addr = cache_write_addr_i;
 			write_int_write_enable = cache_int_write_enable_i;
 			write_instruction = cache_instruction_i;
 			write_pc = cache_pc_i;			
 		end
-		if (exe_int_write_enable_i) begin
+		else if (exe_int_write_enable_i) begin
 			write_int_write_data = exe_int_write_data_i;
 			write_write_addr = exe_write_addr_i;
 			write_int_write_enable = exe_int_write_enable_i;
 			write_instruction = exe_instruction_i;
 			write_pc = exe_pc_i;
 		end
+		else write_int_write_enable = 1'b0;
 	end
 end
 endmodule	
