@@ -44,6 +44,9 @@ begin
 			7'b0000001: result = data_a_i * data_b_i; // Mul
 			endcase
 		end
+		3'b001: begin
+			7'b0000000: result = data_a_i << data_b_i; // SLL
+		end
 		endcase
 	end
 	7'b0010011: begin
