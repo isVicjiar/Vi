@@ -7,12 +7,14 @@ input [31:0] pc_i,
 input [31:0] instr_i,
 input [31:0] data_a_i,
 input [31:0] data_b_i,
-output [31:0] data_out_o);
+output [31:0] data_out_o,
+output	illegal_inst_o);
 
 wire	[6:0]	opcode;
 wire	[6:0]	funct7;
 wire	[2:0]	funct3;
-reg	[63:0]	result;
+reg	[31:0]	result;
+reg		illegal_inst;
 wire	[31:0]	unsigned_ext_imm;
 wire	[31:0]	ext_imm;
 wire	[31:0] jal_ext_imm;
@@ -31,9 +33,11 @@ assign  branch_ext_imm = { {19{instr_i[31]}}, instr_i[31], instr_i[7], instr_i[3
 assign  load_ext_imm = { {20{instr_i[31]}}, instr_i[31:25], instr_i[11:7] };
 assign  store_ext_imm = { {20{instr_i[31]}}, instr_i[31:20] };
 assign  data_out_o = result;
+assign  illegal_inst_o = illegal_inst;
 
 always@(*)
 begin
+	illegal_inst = 1'b0;
 	case (opcode)
 	7'b0110011: begin 
 		case (funct3)
@@ -72,6 +76,10 @@ begin
 	end
 	7'b1110011: begin
 		result = data_a_i;
+	end
+	default: begin
+		result = 32'b0;
+		illegal_inst = 1'b1;
 	end
 	endcase
 end

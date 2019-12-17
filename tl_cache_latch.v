@@ -12,6 +12,12 @@ input       	tl_buffer_hit_i,
 input  	[31:0] 	tl_buffer_data_i,
 input       	tl_int_write_enable_i,
 input  	[4:0] 	tl_write_addr_i,
+input		tl_misaligned_ld_i,
+input		tl_misaligned_st_i,
+input		tl_load_fault_exc_i,
+input		tl_store_fault_exc_i,
+input	[31:0]	tl_exc_bits_i,
+input	[31:0]	tl_instruction_i,
 input  	[31:0] 	tl_pc_i,
 output 	[19:0] 	c_addr_o,
 output     	c_rqst_byte_o,
@@ -22,19 +28,23 @@ output      	c_buffer_hit_o,
 output 	[31:0] 	c_buffer_data_o,
 output      	c_int_write_enable_o,
 output 	[4:0] 	c_write_addr_o,
+output	[31:0]	c_exc_bits_o,
+output	[31:0]	c_instruction_o,
 output 	[31:0] 	c_pc_o
 );
 
-reg   [19:0]  addr;
-reg       rqst_byte;
-reg   [1:0]   hit_way;
-reg   [1:0]   lru_way;
-reg      miss;
-reg          buffer_hit;
-reg  [31:0]  buffer_data;
-reg          int_write_enable;
-reg  [31:0]  write_addr;
-reg  [31:0]  pc;
+reg   [19:0]  	addr;
+reg       	rqst_byte;
+reg   [1:0]	hit_way;
+reg   [1:0]   	lru_way;
+reg      	miss;
+reg          	buffer_hit;
+reg  [31:0]  	buffer_data;
+reg          	int_write_enable;
+reg  [31:0]  	write_addr;
+reg  [31:0]	c_exc_bits;
+reg  [31:0]  	c_instruction;
+reg  [31:0]  	pc;
 
 assign c_addr_o = addr;
 assign c_rqst_byte_o = rqst_byte;
@@ -45,6 +55,8 @@ assign c_buffer_hit_o = buffer_hit;
 assign c_buffer_data_o = buffer_data;
 assign c_int_write_enable_o = int_write_enable;
 assign c_write_addr_o = write_addr;
+assign c_exc_bits_o = c_exc_bits;
+assign c_instruction_o = c_instruction;
 assign c_pc_o = pc;
 
 always @(posedge clk_i)
@@ -59,6 +71,8 @@ begin
         buffer_data <= 32'b0;
         int_write_enable <= 1'b0;
         write_addr  <= 32'b0;
+	c_exc_bits <= 32'b0;
+	c_instruction <= 32'b0;
         pc          <= 32'b0;
     end
     if(!stall_core_i)begin
@@ -71,7 +85,12 @@ begin
         buffer_data <= tl_buffer_data_i;
         int_write_enable <= tl_int_write_enable_i;
         write_addr  <= tl_write_addr_i;
+	c_instruction <= tl_instruction_i;
         pc          <= tl_pc_i;
+	c_exc_bits[4] <= tl_misaligned_ld_i;
+	c_exc_bits[6] <= tl_misaligned_st_i;
+	c_exc_bits[13] <= tl_load_fault_exc_i;
+	c_exc_bits[15] <= tl_store_fault_exc_i;
     end
 end
 

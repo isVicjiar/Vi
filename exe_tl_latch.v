@@ -13,6 +13,7 @@ input		exe_tlbwrite_i,
 input		exe_idtlb_i,
 input	[31:0]	exe_read_data_a_i,
 input	[31:0]	exe_read_data_b_i,
+input	[31:0]	exe_exc_bits_i,
 input	[31:0]	exe_instruction_i,
 input	[31:0]	exe_pc_i,
 output		tl_cache_enable_o,
@@ -25,6 +26,7 @@ output		tl_tlbwrite_o,
 output		tl_idtlb_o,
 output	[31:0]	tl_read_data_a_o,
 output	[31:0]	tl_read_data_b_o,
+output	[31:0]	tl_exc_bits_o,
 output	[31:0]	tl_instruction_o,
 output 	[31:0]	tl_pc_o
 );
@@ -39,6 +41,7 @@ reg tl_tlbwrite;
 reg tl_idtlb;
 reg [31:0] tl_read_data_a;
 reg [31:0] tl_read_data_b;
+reg [31:0] tl_exc_bits;
 reg [31:0] tl_instruction;
 reg [31:0] tl_pc;
 
@@ -51,6 +54,7 @@ assign tl_tlbwrite_o = tl_tlbwrite;
 assign tl_idtlb_o = tl_idtlb;
 assign tl_read_data_a_o = tl_read_data_a;
 assign tl_read_data_b_o = tl_read_data_b;
+assign tl_exc_bits_o = tl_exc_bits;
 assign tl_instruction_o = tl_instruction;
 assign tl_pc_o = tl_pc;
 	
@@ -67,6 +71,7 @@ begin
 		tl_idtlb = 1'b0;
 		tl_read_data_a = 32'b0;
 		tl_read_data_b = 32'b0;
+		tl_exc_bits = 32'b0;
 		tl_instruction = 32'b0;
 		tl_pc = 32'b0;
 	end
@@ -87,6 +92,7 @@ begin
 			tl_idtlb      = exe_idtlb_i;
 			tl_read_data_a = exe_read_data_a_i;
 			tl_read_data_b = exe_read_data_b_i;
+			tl_exc_bits = exe_exc_bits_i;
 			tl_instruction = exe_instruction_i;
 			tl_pc = exe_pc_i;
 		end

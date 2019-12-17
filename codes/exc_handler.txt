@@ -1,5 +1,18 @@
-store r5, [A] // 
-store r6, [B]
+//EXCEPTION HANDLER
+addi r1, r0, 0x1
+addi r2, r0, 0xB
+sll r1, r1, r2
+//INSTRUCTION MISALIGNED
+//INSTRUCTION PAGE FAULT
+//LOAD MISALIGNED
+//STORE MISALIGNED
+//INSTRUCTION PAGE FAULT
+//LOAD PAGE FAULT
+//STORE PAGE FAULT
+
+//TLBWRITE
+store r5, 0(r1) // 
+store r6, 4(r1)
 mov rm1, r5
 add r5, #8000, r6 // r6 represents the translation of r5
 tlbwrite r5, r6 //r5 virtual, r6 physical
