@@ -8,6 +8,7 @@ module cache(
     input       write_enable_i,
     input   [31:0]  write_data_i,
     input   [19:0]  write_addr_i,
+    input       write_byte_i,
     input       mem_data_ready_i,
     input   [127:0] mem_data_i,
     input   [1:0]   read_hit_way_i,
@@ -59,7 +60,7 @@ end
 always @(negedge clk_i)
 begin
     if(write_hit_i && write_enable_i) begin
-        if (rqst_byte_i) begin
+        if (write_byte_i) begin
             data_array[write_hit_way_i][write_addr_byte*8 +: 8] = write_data_i[7:0];
         end else begin
             data_array[write_hit_way_i][write_addr_word*32 +: 32] = write_data_i;

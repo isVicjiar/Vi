@@ -10,6 +10,7 @@ input   [19:0]  mem_addr_i,
 output      mem_read_o,
 output  [19:0]  mem_read_addr_o,
 output      mem_write_enable_o,
+output      mem_write_byte_o,
 output  [19:0]  mem_write_addr_o,
 output  [31:0]  mem_write_data_o
 );
@@ -25,12 +26,14 @@ assign mem_read_addr_o = i_mem_read ? i_mem_read_addr :
                                       d_mem_read_addr;
 
 wire     sb_write_enable;
+wire     sb_write_byte;
 wire  [19:0]  sb_write_addr;
 wire  [31:0]  sb_write_data;
 
 assign mem_write_enable_o = sb_write_enable;
 assign mem_write_addr_o = sb_write_addr;
 assign mem_write_data_o = sb_write_data;
+assign mem_write_byte_o = sb_write_byte;
 
 // Stage instructions-pc
 wire [31:0] fetch_instruction;
@@ -455,7 +458,6 @@ tlb dtlb(
     .tlb_protected_o    (tl_dtlb_read_only)
 );
 
-//MISSING!!
 lookup lookup(
     .clk_i              (clk_i),
     .rsn_i              (rsn_i),
@@ -483,10 +485,12 @@ store_buffer store_buffer(
     .data_i             (tl_store_data),
     .write_pc_i         (tl_pc),
     .write_enable_i     (tl_store && tl_cache_enable),
+    .write_byte_i       (tl_instruction[13]),   
     .kill_i             (hf_kill_instr),
     .kill_pc_i          (hf_kill_pc),
     .read_i             (tl_cache_enable & ~tl_write_enable),        
     .read_addr_i        (tl_addr),
+    .read_byte_i        (tl_instruction[13]),
     .do_write_i         (wb_instruction[6:0] == 7'b0100011 && !lw_exc_bits),
 
     .full_o             (store_buffer_full),
@@ -494,6 +498,7 @@ store_buffer store_buffer(
     .data_read_o        (tll_buffer_data),
     .addr_to_mem_o      (sb_write_addr),
     .data_to_mem_o      (sb_write_data),
+    .byte_to_mem_o      (sb_write_byte),
     .mem_write_o        (sb_write_enable)
 );
 
@@ -540,6 +545,7 @@ cache cache(
     .write_enable_i     (lc_rqst_write),
     .write_data_i       (sb_write_data),
     .write_addr_i       (sb_write_addr),
+    .write_byte_i       (sb_write_byte),
     .mem_data_ready_i   (mem_data_ready_i),
     .mem_data_i         (mem_data_i),
     .read_hit_way_i     (lc_hit_way),
