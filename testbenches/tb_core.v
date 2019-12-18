@@ -16,6 +16,7 @@ wire [19:0] mem_read_addr;
 wire mem_write_enable;
 wire [19:0] mem_write_addr;
 wire [31:0] mem_write_data;
+wire mem_write_byte;
 
 assign mem_data_ready = tmp_mem_data_ready;
 assign mem_data = tmp_mem_data;
@@ -30,6 +31,7 @@ vi_core vi_core(
 	.mem_read_o	  (mem_read),
 	.mem_read_addr_o  (mem_read_addr),
 	.mem_write_enable_o	(mem_write_enable),
+	.mem_write_byte_o	(mem_write_byte),
 	.mem_write_addr_o	(mem_write_addr),
 	.mem_write_data_o	(mem_write_data)
 );
@@ -45,7 +47,7 @@ sll  r2, r2, r3
 tlbwrite r1, r2
 iret
 // 0000000 rs2 rs1 000 rd 0110011 add/sll
-// imm[11:0] rs1 000 rd 0010011
+// imm[11:0] rs1 000 rd 0010011 addi
 // 0001001 rs2 rs1 000 00000 1110011 (itlbwrite invented as sfence.vma)
 // 0011000 00010 00000 000 00000 1110011 (mret)
 
@@ -57,6 +59,13 @@ therefore the code is
 // 0000 0000 1111 0000 0000 0001 1001 0011 0x00F00193 addi
 // 0000 0000 0011 0001 0001 0001 0011 0011 0x00311133 sll
 // 0001 0010 0010 0000 1000 0000 0111 0011 0x12208073 tlbwrite
+// 0011 0000 0010 0000 0000 0000 0111 0011 0x30200073 iret
+//
+EXC HANDLER
+addi r31, r0, 0xAA
+iret
+
+// 0000 1010 1010 0000 0000 1111 1001 0011 0x0AA00F93 addi
 // 0011 0000 0010 0000 0000 0000 0111 0011 0x30200073 iret
 
 USER CODE
@@ -82,9 +91,9 @@ initial begin
 	// Initialize memory with os 2 at 0x1010	// 0001 0000 0001 |0000 000
 	memory[25'h101] = {32'h00000000, 32'h00000000, 32'h30200073, 32'h12208073};
 	// Initialize exc handler at 0x2000	// 0010 0000 0|000 0000
-	//
+	memory[25'h200] = {32'h00000000, 32'h00000000, 32'h30200073, 32'h0AA00F93};
 	// Initialize USER CODE at 0x8000 // 1000 0000 0000 |0000 000
-	memory[25'h800] = {32'h00608313, 32'h00508293, 32'h00408213, 32'h00308193};
+	memory[25'h800] = {32'h00608313, 32'h00508293, 32'h00409213, 32'h00308193}; //now second instr gives ill instr
 //	0000 0000 0000 0000 1000 0000 0|000 0000
 	rsn = 1'b1;
 end

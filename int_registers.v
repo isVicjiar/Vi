@@ -66,7 +66,7 @@ begin
 	end
 	else begin
 		if (write_exc_en_i) begin
-			mepc = write_data_mepc_i;
+			mepc = (write_data_mcause_i[12] || write_data_mcause_i[13] || write_data_mcause_i[15]) ? write_data_mepc_i : (write_data_mepc_i + 32'h4);
 			mtval = write_data_mtval_i;
 			mcause = write_data_mcause_i;
 		end

@@ -60,6 +60,10 @@ begin
 		3'b000: begin
 			result = data_a_i + ext_imm; // Addi - NOP
 		end
+		default: begin
+			result = 32'b0;
+			illegal_inst = 1'b1;
+		end
 		endcase
 	end
 	7'b0000011: begin
