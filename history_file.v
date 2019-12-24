@@ -45,6 +45,8 @@ always @ (posedge clk_i) begin //HF_QUEUE COULD NOT BE UPDATING CORRECTLY AS IM 
 		stall_decode_o = 1'b0;
 		kill_instr_o = 1'b0;
 		exc_occured_o = 1'b0;
+		hf_head = 4'b0;
+		hf_tail = 4'b0;
 	end
 	else begin
 		if (!stall_decode_i) begin
