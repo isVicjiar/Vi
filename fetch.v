@@ -3,18 +3,12 @@
 module fetch(
 input		clk_i,
 input		rsn_i,
-input		dcsn_ok_i,
-input		dcsn_i,
-input	[31:0]	restore_pc_i,
 input	[31:0]	alu_pc_i,
 input		stall_core_i,
 input		iret_i,
 input	[31:0]	exc_return_pc_i,
 input		exc_occured_i,
-output	[31:0]	pc_o,
-output		pred_o,
-output		taken_o,
-output	[31:0]	pred_pc_o);
+output	[31:0]	pc_o);
 
 /************
 Next PC logic
@@ -55,13 +49,5 @@ begin
 	end
 	else if (!stall_core_i) pc = next_pc;
 end
-
-branch_predictor branch_predictor(
-    .pc_i   (pc),
-
-    .pred_pc_o  (pred_pc),
-    .pred_o     (pred),
-    .taken_o    (taken)
-);
 
 endmodule

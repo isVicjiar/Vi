@@ -82,8 +82,6 @@ wire f_itlb_hit;
 wire f_itlb_read_only;
 wire f_icache_hit;
 wire f_icache_miss;
-wire [31:0] restore_pc;
-wire [31:0] pred_pc;
 wire fetch_stall;
 wire itlb_supervisor;
 
@@ -217,18 +215,12 @@ assign itlb_supervisor = (iret) ? 1'b0 : read_data_mpriv[0];
 fetch fetch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
-	.dcsn_ok_i	(dcsn_ok),
-	.dcsn_i		(dcsn),
-	.restore_pc_i	(restore_pc),
 	.alu_pc_i	(el_int_data_out),
 	.stall_core_i	(fetch_stall || dec_stall_core || tll_miss),
 	.iret_i		(iret),
 	.exc_return_pc_i (read_data_mepc),
 	.exc_occured_i	(exc_occured),
 	.pc_o		(pc_instr_addr),
-	.pred_o		(pc_predicted),
-	.taken_o	(pc_taken),
-	.pred_pc_o	(pred_pc)
 );
 
 tlb itlb(

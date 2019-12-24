@@ -34,7 +34,6 @@ reg state;
 localparam IDLE_STATE = 0;
 localparam WAIT_STATE = 1;
 
-reg [127:0] data_array [3:0];
 reg [15:0]  tags_array [3:0];
 reg [3:0]   read_hit_array;
 reg [3:0]   write_hit_array;
