@@ -1,0 +1,18 @@
+addi r1, r0, 1 // R1 = 1
+addi r2, r0, 2 // R2 = 2
+add r3, r1, r2 // R3 = 3
+add r4, r2, r1 // R4 = 3
+sub r5, r2, r1 // R5 = 1
+sub r6, r1, r2 // R6 = -1
+mult r7, r2, r3 // R7 = 6
+mult r8, r2, r6 // R8 = -2
+sd r6, 0 (r31) // 0(r31) = -1
+sb r6, 4 (r31) // 0(r31) = 0x000000FF
+beq r1, r2, noloads // mustn't jump
+beq r3, r4, loads // must jump
+noloads: addi r12,r1,0xAA // IF AA IN R12, ERROR IN FIRST BEQ
+loads: ld r9, 0(r31) //R9 = 0x000000FF
+lb r10, 4(r31)  // R10 = 0x000000FF
+jal point
+addi r13,r0,0xBB // IF BB IN R13, ERROR IN JAL
+point : addi r11,r0,1 R11 = 1
