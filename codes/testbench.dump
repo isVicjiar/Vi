@@ -1,0 +1,31 @@
+
+testbench:     file format elf64-littleriscv
+
+
+Disassembly of section .text:
+
+0000000000010078 <_start>:
+   10078:	00100093          	li	ra,1
+   1007c:	00200113          	li	sp,2
+   10080:	002081b3          	add	gp,ra,sp
+   10084:	00110233          	add	tp,sp,ra
+   10088:	401102b3          	sub	t0,sp,ra
+   1008c:	40208333          	sub	t1,ra,sp
+   10090:	023103b3          	mul	t2,sp,gp
+   10094:	02610433          	mul	s0,sp,t1
+   10098:	006fb023          	sd	t1,0(t6)
+   1009c:	006f8223          	sb	t1,4(t6)
+   100a0:	00208463          	beq	ra,sp,100a8 <noloads>
+   100a4:	00418463          	beq	gp,tp,100ac <loads>
+
+00000000000100a8 <noloads>:
+   100a8:	0aa08613          	addi	a2,ra,170
+
+00000000000100ac <loads>:
+   100ac:	000fb483          	ld	s1,0(t6)
+   100b0:	004f8503          	lb	a0,4(t6)
+   100b4:	008000ef          	jal	ra,100bc <point>
+   100b8:	0bb00693          	li	a3,187
+
+00000000000100bc <point>:
+   100bc:	00100593          	li	a1,1
