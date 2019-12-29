@@ -3,12 +3,20 @@
 module fetch(
 input		clk_i,
 input		rsn_i,
-input	[31:0]	alu_pc_i,
 input		stall_core_i,
 input		iret_i,
 input	[31:0]	exc_return_pc_i,
 input		exc_occured_i,
-output	[31:0]	pc_o);
+input   [31:0]  bp_pred_pc_i,
+input       bp_prediction_i,      
+input       bp_taken_i,
+input       bp_error_i,
+input       alu_branch_i,
+input       alu_jumps_i,
+input	[31:0]	alu_pc_jmp_i,
+input	[31:0]	alu_pc_no_jmp_i,
+output	[31:0]	pc_o,
+output	[31:0]	next_pc_o);
 
 /************
 Next PC logic
@@ -19,18 +27,13 @@ reg [31:0] exc_pc;
 wire [31:0] next_pc;
 wire [31:0] pc_add_4;
 
-//Branch predictor wires
-wire [31:0] pred_pc;
-wire pred;
-wire taken;
 
 assign pc_add_4 = pc + 4;
-//assign next_pc = dcsn_ok_i ? ((pred & taken) ? pred_pc : pc_add_4) : (dcsn_i ? restore_pc_i : alu_pc_i);
-assign next_pc = pc_add_4;
+assign next_pc = bp_error_i ?
+                (alu_branch_i & alu_jumps_i ? alu_pc_jmp_i : alu_pc_no_jmp_i) :
+                (bp_prediction_i & bp_taken_i ? bp_pred_pc_i : pc_add_4);
 assign pc_o = pc;
-assign pred_o = pred;
-assign taken_o = taken;
-assign pred_pc_o = pred_pc;
+assign next_pc_o = next_pc;
 
 always @(posedge rsn_i) pc = 32'h1000;
 
