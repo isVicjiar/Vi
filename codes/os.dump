@@ -1,0 +1,13 @@
+
+os:     file format elf64-littleriscv
+
+
+Disassembly of section .text:
+
+0000000000010078 <_start>:
+   10078:	000080b3          	add	ra,ra,zero
+   1007c:	00108113          	addi	sp,ra,1
+   10080:	00f00193          	li	gp,15
+   10084:	00311133          	sll	sp,sp,gp
+   10088:	0001                	nop
+   1008a:	30200073          	mret
