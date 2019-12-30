@@ -14,12 +14,18 @@ input		dec_idtlb_i,
 input	[31:0]	dec_exc_bits_i,
 input	[31:0]	dec_instruction_i,
 input	[31:0]	dec_pc_i,
+input   [31:0]  dec_pred_pc_i,
+input       dec_prediction_i,
+input       dec_taken_i,
 output	[31:0]	exe_read_data_a_o,
 output	[31:0]	exe_read_data_b_o,
 output	[4:0]	exe_write_addr_o,
 output		exe_int_write_enable_o,
 output		exe_tlbwrite_o,
 output		exe_idtlb_o,
+output  [31:0] exe_pred_pc_o,
+output      exe_prediction_o,
+output      exe_taken_o,
 output	[31:0]	exe_exc_bits_o,
 output	[31:0]	exe_instruction_o,
 output	[31:0]	exe_pc_o);
@@ -30,6 +36,9 @@ reg	[31:0]	exe_write_addr;
 reg		exe_int_write_enable;
 reg		exe_tlbwrite;
 reg		exe_idtlb;
+reg	[31:0]	exe_pred_pc;
+reg     exe_prediction;
+reg     exe_taken;
 reg	[31:0]	exe_exc_bits;
 reg	[31:0]	exe_instruction;
 reg	[31:0]	exe_pc;
@@ -40,6 +49,9 @@ assign exe_write_addr_o = exe_write_addr;
 assign exe_int_write_enable_o = exe_int_write_enable;
 assign exe_tlbwrite_o = exe_tlbwrite;
 assign exe_idtlb_o = exe_idtlb;
+assign exe_prediction_o = exe_prediction;
+assign exe_pred_pc_o = exe_pred_pc;
+assign exe_taken_o = exe_taken;
 assign exe_exc_bits_o = exe_exc_bits;
 assign exe_instruction_o = exe_instruction;
 assign exe_pc_o = exe_pc;
@@ -54,6 +66,9 @@ begin
 		exe_int_write_enable = 1'b0;
 		exe_tlbwrite = 1'b0;
 		exe_idtlb = 1'b0;
+		exe_pred_pc = 32'b0;
+		exe_prediction = 1'b0;
+		exe_taken = 1'b0;
 		exe_exc_bits = 1'b0;
 		exe_instruction = 32'b0;
 		exe_pc = 32'b0;
@@ -66,6 +81,9 @@ begin
 			exe_int_write_enable = dec_int_write_enable_i;
 			exe_tlbwrite = dec_tlbwrite_i;
 			exe_idtlb = dec_idtlb_i;
+			exe_pred_pc = dec_pred_pc_i;
+			exe_prediction = dec_prediction_i;
+			exe_taken = dec_taken_i;
 			exe_exc_bits = dec_exc_bits_i;
 			exe_instruction = dec_instruction_i;
 			exe_pc = dec_pc_i;

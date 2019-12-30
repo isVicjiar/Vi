@@ -84,6 +84,13 @@ wire f_icache_hit;
 wire f_icache_miss;
 wire fetch_stall;
 wire itlb_supervisor;
+//Branch predictor
+wire [31:0] fbp_target_pc;
+wire [31:0] bp_pred_pc;
+wire bp_prediction;
+wire bp_taken;
+wire bp_error;
+
 
 // Decode
 wire [4:0] dec_read_addr_a;
@@ -134,6 +141,9 @@ wire [4:0]  dl_write_addr;
 wire	    dl_int_write_enable;
 wire        dl_tlbwrite;
 wire	    dl_idtlb_write;
+wire [31:0] dl_pred_pc;
+wire        dl_prediction;
+wire        dl_taken;
 
 // Latch - Exe = LE
 wire [31:0] le_read_data_a;
@@ -147,6 +157,11 @@ wire [4:0]  el_write_addr;
 wire	    el_int_write_enable;
 wire [31:0] el_int_write_data;
 wire [31:0] el_int_data_out;
+
+//Exe
+wire [31:0] exe_pred_pc;
+wire        exe_prediction;
+wire        exe_taken;
 	
 // Latch - Write back = LW
 wire [4:0]  lw_write_addr;
@@ -221,14 +236,39 @@ assign tll_miss_stall = tll_miss & tl_dtlb_hit && tl_cache_enable && tl_instruct
 fetch fetch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
-	.alu_pc_i	(el_int_data_out),
 	.stall_core_i	(fetch_stall || dec_stall_core || tll_miss_stall),
 	.iret_i		(iret),
 	.exc_return_pc_i (read_data_mepc),
 	.jal_i		(jal),
 	.jal_pc_i	(jal_pc),
 	.exc_occured_i	(exc_occured),
-	.pc_o		(pc_instr_addr)
+    .bp_pred_pc_i       (bp_pred_pc),
+    .bp_prediction_i    (bp_prediction),      
+    .bp_taken_i         (bp_taken),
+    .bp_error_i         (bp_error),
+    .alu_branch_i       (exe_instruction[6:0] == 7'b1100011),
+    .alu_jumps_i        (el_int_data_out != exe_pc),
+    .alu_pc_jmp_i       (el_int_data_out),
+    .alu_pc_no_jmp_i    (exe_pc+4),
+	.pc_o		(pc_instr_addr),
+	.next_pc_o  (fbp_target_pc)
+);
+
+branch_predictor branch_predictor(
+    .clk_i      (clk_i),
+    .rsn_i      (rsn_i),
+    .pc_i       (pc_instr_addr),
+    .target_pc_i    (fbp_target_pc),
+    .alu_branch_i   (exe_instruction[6:0] == 7'b1100011),
+    .alu_jumps_i    (el_int_data_out != exe_pc),
+    .alu_prediction_i   (exe_prediction),
+    .alu_taken_i        (exe_taken),
+    .alu_pc_ok_i        (exe_pred_pc == el_int_data_out),
+    .alu_branch_pc_i    (exe_pc),
+    .pred_pc_o      (bp_pred_pc),
+    .prediction_o   (bp_prediction),
+    .taken_o        (bp_taken),
+    .bp_error_o     (bp_error)
 );
 
 tlb itlb(
@@ -263,10 +303,18 @@ fetch_dec_latch fetch_dec_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
 	.stall_core_i	(dec_stall_core || tll_miss_stall),
+	.kill_i     (bp_error),
+	.stall_fetch_i (fetch_stall),
 	.fetch_misaligned_instr_exc_i (|fetch_pc[1:0]),
 	.fetch_instr_fault_exc_i (!f_itlb_hit),
 	.fetch_instr_i	(fetch_instruction),
 	.fetch_pc_i	(fetch_pc),
+	.fetch_pred_pc_i    (bp_pred_pc),
+	.fetch_prediction_i (bp_prediction),
+	.fetch_taken_i        (bp_taken),
+	.dec_pred_pc_o  (dl_pred_pc),
+	.dec_prediction_o (dl_prediction),
+	.dec_taken_o    (dl_taken),
 	.dec_exc_bits_o	(ld_exc_bits),
 	.dec_instr_o	(dec_instruction),
 	.dec_pc_o	(dec_pc)
@@ -383,8 +431,8 @@ history_file history_file(
 dec_exe_latch dec_exe_latch(
 	.clk_i			(clk_i),
 	.rsn_i			(rsn_i),
-	.kill_i			(hf_kill_instr),
 	.stall_core_i		(dec_stall_core || tll_miss_stall),
+	.kill_i			(hf_kill_instr || bp_error),
 	.dec_read_data_a_i	(dl_read_data_a),
 	.dec_read_data_b_i	(dl_read_data_b),
 	.dec_write_addr_i	(dl_write_addr),
@@ -394,12 +442,18 @@ dec_exe_latch dec_exe_latch(
 	.dec_exc_bits_i		(ld_exc_bits),
 	.dec_instruction_i	(dec_instruction),
 	.dec_pc_i		(dec_pc),
+	.dec_pred_pc_i      (dl_pred_pc),
+	.dec_prediction_i   (dl_prediction),
+	.dec_taken_i        (dl_taken),
 	.exe_read_data_a_o	(le_read_data_a),
 	.exe_read_data_b_o	(le_read_data_b),
 	.exe_write_addr_o	(le_write_addr),
 	.exe_int_write_enable_o	(le_int_write_enable),
 	.exe_tlbwrite_o		(le_tlbwrite),
 	.exe_idtlb_o		(le_idtlb),
+	.exe_pred_pc_o      (exe_pred_pc),
+	.exe_prediction_o   (exe_prediction),
+	.exe_taken_o        (exe_taken),
 	.exe_exc_bits_o		(le_exc_bits),
 	.exe_instruction_o	(exe_instruction),
 	.exe_pc_o		(exe_pc)
