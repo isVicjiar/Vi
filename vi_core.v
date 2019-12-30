@@ -177,6 +177,7 @@ wire tl_dtlb_read_only;
 wire [1:0]  tll_hit_way;
 wire [1:0]  tll_lru_way;
 wire        tll_misalign_exc;
+wire        tll_miss_stall;
 wire        tll_miss;
 wire        tll_buffer_hit;
 wire [31:0] tll_buffer_data;
@@ -191,6 +192,8 @@ wire        lc_buffer_hit;
 wire [31:0] lc_buffer_data;
 wire        lc_write_enable;
 wire [4:0]  lc_write_addr;
+wire	    lc_cache_enable;
+wire [31:0] lc_v_cache_addr;
 wire [31:0] lc_exc_bits;
 wire [31:0] c_data;
 
@@ -213,12 +216,13 @@ assign write_mpriv_en = (iret || exc_occured) ? 1'b1 : 1'b0;
 assign write_data_mpriv = (iret) ? 1'b0 : ((exc_occured) ? 1'b1 : write_data_mpriv);
 assign fetch_pc = (iret) ? read_data_mepc : ((jal) ? jal_pc : pc_instr_addr);
 assign itlb_supervisor = (iret) ? 1'b0 : read_data_mpriv[0];
+assign tll_miss_stall = tll_miss & tl_dtlb_hit && tl_cache_enable && tl_instruction[6:0]==7'b0000011;
 
 fetch fetch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
 	.alu_pc_i	(el_int_data_out),
-	.stall_core_i	(fetch_stall || dec_stall_core || tll_miss),
+	.stall_core_i	(fetch_stall || dec_stall_core || tll_miss_stall),
 	.iret_i		(iret),
 	.exc_return_pc_i (read_data_mepc),
 	.jal_i		(jal),
@@ -258,7 +262,7 @@ instruction_cache   instruction_cache(
 fetch_dec_latch fetch_dec_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
-	.stall_core_i	(dec_stall_core || tll_miss),
+	.stall_core_i	(dec_stall_core || tll_miss_stall),
 	.fetch_misaligned_instr_exc_i (|fetch_pc[1:0]),
 	.fetch_instr_fault_exc_i (!f_itlb_hit),
 	.fetch_instr_i	(fetch_instruction),
@@ -356,7 +360,7 @@ int_registers int_registers(
 history_file history_file(
 	.clk_i			(clk_i),
 	.rsn_i			(rsn_i),
-	.stall_decode_i		(dec_stall_core),
+	.stall_decode_i		(fetch_stall || dec_stall_core || tll_miss_stall),
 	.dec_dest_reg_i		(dl_write_addr),
 	.dec_dest_reg_value_i	(dec_dest_reg_value),
 	.dec_pc_i		(dec_pc),
@@ -380,7 +384,7 @@ dec_exe_latch dec_exe_latch(
 	.clk_i			(clk_i),
 	.rsn_i			(rsn_i),
 	.kill_i			(hf_kill_instr),
-	.stall_core_i		(dec_stall_core || tll_miss),
+	.stall_core_i		(dec_stall_core || tll_miss_stall),
 	.dec_read_data_a_i	(dl_read_data_a),
 	.dec_read_data_b_i	(dl_read_data_b),
 	.dec_write_addr_i	(dl_write_addr),
@@ -416,7 +420,7 @@ exe_tl_latch exe_tl_latch (
 	.clk_i 				(clk_i),
 	.rsn_i				(rsn_i),
 	.kill_i				(hf_kill_instr),
-	.stall_core_i			(tl_stall_core || tll_miss),
+	.stall_core_i			(tll_miss_stall),
 	.exe_cache_addr_i 		(el_int_data_out),
 	.exe_write_addr_i		(le_write_addr),
 	.exe_int_write_enable_i		(le_int_write_enable),
@@ -505,16 +509,18 @@ tl_cache_latch tl_cache_latch(
     .clk_i              (clk_i),
     .rsn_i              (rsn_i),
     .kill_i		(hf_kill_instr),
-    .stall_core_i       (lc_stall_core || tll_miss),
+    .stall_core_i       (tll_miss_stall),
     .tl_addr_i          (tl_addr),
     .tl_rqst_byte_i     (tl_instruction[13]),
     .tl_hit_way_i       (tll_hit_way),
     .tl_lru_way_i       (tll_lru_way),
-    .tl_miss_i          (tll_miss),
+    .tl_miss_i          (tll_miss_stall),
     .tl_buffer_hit_i    (tll_buffer_hit),
     .tl_buffer_data_i   (tll_buffer_data),
     .tl_int_write_enable_i    (tl_write_enable),
     .tl_write_addr_i    (tl_write_addr),
+    .tl_cache_enable_i	(tl_cache_enable),
+    .tl_v_cache_addr_i	(tl_cache_addr),
     .tl_misaligned_ld_i	(tl_instruction[6:0] == 7'b0000011 && tll_misalign_exc),
     .tl_misaligned_st_i	(tl_instruction[6:0] == 7'b0100011 && tll_misalign_exc),
     .tl_load_fault_exc_i(!tl_dtlb_hit && tl_instruction[6:0] == 7'b0000011),
@@ -531,6 +537,8 @@ tl_cache_latch tl_cache_latch(
     .c_buffer_data_o    (lc_buffer_data),
     .c_int_write_enable_o    (lc_write_enable),
     .c_write_addr_o     (lc_write_addr),
+    .c_cache_enable_o	(lc_cache_enable),
+    .c_v_cache_addr_o	(lc_v_cache_addr),
     .c_exc_bits_o	(lc_exc_bits),
     .c_instruction_o	(cache_instruction),
     .c_pc_o             (cache_pc)
@@ -654,13 +662,16 @@ exe_write_latch exe_write_latch(
 	.cache_int_write_data_i		(c_data),
 	.cache_write_addr_i		(lc_write_addr),
 	.cache_int_write_enable_i	(lc_write_enable),
+	.cache_cache_enable_i		(lc_cache_enable),
 	.cache_exc_bits_i		(lc_exc_bits),
+	.cache_miss_addr_i		(lc_v_cache_addr),
 	.cache_instruction_i		(cache_instruction),
 	.cache_pc_i			(cache_pc),
 	.write_int_write_data_o		(lw_int_write_data),
 	.write_write_addr_o		(lw_write_addr),
 	.write_int_write_enable_o	(lw_int_write_enable),
 	.write_exc_bits_o		(lw_exc_bits),
+	.write_miss_addr_o		(lw_miss_addr),
 	.write_instruction_o		(wb_instruction),
 	.write_pc_o			(wb_pc)
 );

@@ -12,6 +12,8 @@ input       	tl_buffer_hit_i,
 input  	[31:0] 	tl_buffer_data_i,
 input       	tl_int_write_enable_i,
 input  	[4:0] 	tl_write_addr_i,
+input		tl_cache_enable_i,
+input	[31:0]	tl_v_cache_addr_i,
 input		tl_misaligned_ld_i,
 input		tl_misaligned_st_i,
 input		tl_load_fault_exc_i,
@@ -28,6 +30,8 @@ output      	c_buffer_hit_o,
 output 	[31:0] 	c_buffer_data_o,
 output      	c_int_write_enable_o,
 output 	[4:0] 	c_write_addr_o,
+output		c_cache_enable_o,
+output	[31:0]	c_v_cache_addr_o,
 output	[31:0]	c_exc_bits_o,
 output	[31:0]	c_instruction_o,
 output 	[31:0] 	c_pc_o
@@ -42,6 +46,8 @@ reg          	buffer_hit;
 reg  [31:0]  	buffer_data;
 reg          	int_write_enable;
 reg  [31:0]  	write_addr;
+reg		c_cache_enable;
+reg  [31:0]	c_v_cache_addr;
 reg  [31:0]	c_exc_bits;
 reg  [31:0]  	c_instruction;
 reg  [31:0]  	pc;
@@ -55,6 +61,8 @@ assign c_buffer_hit_o = buffer_hit;
 assign c_buffer_data_o = buffer_data;
 assign c_int_write_enable_o = int_write_enable;
 assign c_write_addr_o = write_addr;
+assign c_cache_enable_o = c_cache_enable;
+assign c_v_cache_addr_o = c_v_cache_addr;
 assign c_exc_bits_o = c_exc_bits;
 assign c_instruction_o = c_instruction;
 assign c_pc_o = pc;
@@ -71,6 +79,8 @@ begin
         buffer_data <= 32'b0;
         int_write_enable <= 1'b0;
         write_addr  <= 32'b0;
+	c_cache_enable <= 1'b0;
+	c_v_cache_addr <= 32'b0;
 	c_exc_bits <= 32'b0;
 	c_instruction <= 32'b0;
         pc          <= 32'b0;
@@ -85,6 +95,8 @@ begin
         buffer_data <= tl_buffer_data_i;
         int_write_enable <= tl_int_write_enable_i;
         write_addr  <= tl_write_addr_i;
+	c_cache_enable <= tl_cache_enable_i;
+	c_v_cache_addr <= tl_v_cache_addr_i;
 	c_instruction <= tl_instruction_i;
         pc          <= tl_pc_i;
 	c_exc_bits[4] <= tl_misaligned_ld_i;

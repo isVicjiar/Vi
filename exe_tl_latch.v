@@ -55,6 +55,7 @@ assign tl_idtlb_o = tl_idtlb;
 assign tl_read_data_a_o = tl_read_data_a;
 assign tl_read_data_b_o = tl_read_data_b;
 assign tl_exc_bits_o = tl_exc_bits;
+assign tl_cache_enable_o = tl_cache_enable;
 assign tl_instruction_o = tl_instruction;
 assign tl_pc_o = tl_pc;
 	

@@ -32,7 +32,7 @@ reg [3:0] recovery_case;
 reg [3:0] recovery_index;
 integer i;	
 reg [4:0] hf_index;
-always @ (posedge clk_i) begin //HF_QUEUE COULD NOT BE UPDATING CORRECTLY AS IM CHANGING TWICE IN THE SAME BLOCK
+always @ (posedge clk_i) begin 
 	hf_index = 5'b10000;
 	rec_write_en_o = 1'b0;
 	stall_decode_o = 1'b0;
