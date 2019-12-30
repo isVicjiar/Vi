@@ -20,14 +20,14 @@ reg [31:0] branch_pc_array[15:0];
 reg [31:0] target_pc_array[15:0];
 reg [1:0]  taken_array[15:0];
 
-reg [31:0] pred_pc;
-reg taken;
-reg prediction;
+wire [31:0] pred_pc;
+wire taken;
+wire prediction;
 
 wire error;
 assign pred_pc_o = pred_pc;
 assign taken_o = taken;
-assign prediction_o = predictor;
+assign prediction_o = prediction;
 assign error = (!alu_branch_i & alu_prediction_i & alu_taken_i) |
                (alu_prediction_i & alu_taken_i & !alu_pc_ok_i)  |
                (alu_branch_i & alu_jumps_i & !alu_prediction_i) |
@@ -39,12 +39,9 @@ wire [3:0]  branch_pc_map;
 assign pc_map = pc_i[5:2];
 assign branch_pc_map = alu_branch_pc_i[5:2];
 
-always @(posedge clk_i)
-begin
-    taken <= (taken_array[pc_map] > 1);
-    prediction <= branch_pc_array[pc_map] == pc_i;
-    pred_pc <= target_pc_array[pc_map];
-end
+assign taken = rsn_i & (taken_array[pc_map] > 1);
+assign prediction = rsn_i & branch_pc_array[pc_map] == pc_i;
+assign pred_pc = rsn_i ? target_pc_array[pc_map] : 32'b0;
 
 wire [1:0]  taken_value;
 assign taken_value = taken_array[branch_pc_map];
@@ -53,29 +50,25 @@ assign taken_value = taken_array[branch_pc_map];
 integer i;
 always @(posedge clk_i)
 begin
-    if(!rsn_i)
-    begin
-        prediction <= 1'b0;
-        taken <= 1'b0;
-        pred_pc <= 32'b0;
+    if(!rsn_i) begin
         for(i = 0; i<16; i = i+1) begin
-            branch_pc_array[i] <= 32'b0;
-            target_pc_array[i] <= 32'b0;
-            taken_array[i] <= 32'b0;
+            branch_pc_array[i] = 32'b0;
+            target_pc_array[i] = 32'b0;
+            taken_array[i] = 32'b0;
         end
     end
-    if(error)
+    else if(error)
     begin
         if (branch_pc_array[branch_pc_map] == alu_branch_pc_i & target_pc_array[branch_pc_map] == target_pc_i) 
         begin
-            taken_array[branch_pc_map] <= alu_jumps_i ? 
+            taken_array[branch_pc_map] = alu_jumps_i ? 
                                           (taken_value == 2'b11 ? 2'b11 : taken_value + 1) : 
                                           (taken_value == 2'b00 ? 2'b00 : taken_value - 1);  
 
         end else begin
-            taken_array[branch_pc_map] <= 2'b10;
-            branch_pc_array[branch_pc_map] <= alu_branch_pc_i;
-            target_pc_array[branch_pc_map] <= target_pc_i;
+            taken_array[branch_pc_map] = 2'b10;
+            branch_pc_array[branch_pc_map] = alu_branch_pc_i;
+            target_pc_array[branch_pc_map] = target_pc_i;
         end
     end
 end

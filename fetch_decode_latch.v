@@ -5,6 +5,7 @@ input		clk_i,
 input		rsn_i,
 input       kill_i,
 input 		stall_core_i,
+input       stall_fetch_i,
 input		fetch_misaligned_instr_exc_i,
 input		fetch_instr_fault_exc_i,
 input	[31:0]	fetch_instr_i,
@@ -22,7 +23,7 @@ output reg [31:0]	dec_pc_o);
 // Latch 
 	always @(posedge clk_i)
 begin
-	if (!rsn_i || kill_i) begin
+	if (!rsn_i || kill_i || stall_fetch_i) begin
 		dec_pred_pc_o = 32'b0;
 		dec_prediction_o = 1'b0;
 		dec_taken_o = 1'b0;

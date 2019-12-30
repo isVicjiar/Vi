@@ -128,6 +128,8 @@ wire [4:0] reg_write_addr;
 wire reg_write_enable;
 wire iret;
 wire [31:0] pc_instr_addr;
+wire jal;
+wire [31:0] jal_pc;
 
 // Latch - Decode = LD
 wire [31:0]	    ld_exc_bits;
@@ -224,7 +226,7 @@ assign reg_write_enable = (rec_write_en) ? 1'b1 : lw_int_write_enable;
 assign dec_stall_core = bypass_stall_core || hf_stall_core;
 assign write_mpriv_en = (iret || exc_occured) ? 1'b1 : 1'b0;
 assign write_data_mpriv = (iret) ? 1'b0 : ((exc_occured) ? 1'b1 : write_data_mpriv);
-assign fetch_pc = (iret) ? read_data_mepc : pc_instr_addr;
+assign fetch_pc = (iret) ? read_data_mepc : ((jal) ? jal_pc : pc_instr_addr);
 assign itlb_supervisor = (iret) ? 1'b0 : read_data_mpriv[0];
 
 fetch fetch(
@@ -233,6 +235,8 @@ fetch fetch(
 	.stall_core_i	(fetch_stall || dec_stall_core || tll_miss),
 	.iret_i		(iret),
 	.exc_return_pc_i (read_data_mepc),
+	.jal_i		(jal),
+	.jal_pc_i	(jal_pc),
 	.exc_occured_i	(exc_occured),
     .bp_pred_pc_i       (bp_pred_pc),
     .bp_prediction_i    (bp_prediction),      
@@ -296,6 +300,7 @@ fetch_dec_latch fetch_dec_latch(
 	.rsn_i		(rsn_i),
 	.kill_i     (bp_error),
 	.stall_core_i	(dec_stall_core || tll_miss),
+	.stall_fetch_i (fetch_stall),
 	.fetch_misaligned_instr_exc_i (|fetch_pc[1:0]),
 	.fetch_instr_fault_exc_i (!f_itlb_hit),
 	.fetch_instr_i	(fetch_instruction),
@@ -315,6 +320,7 @@ decoder decoder(
 	.clk_i			(clk_i),
 	.rsn_i			(rsn_i),
 	.instr_i		(dec_instruction),
+	.pc_i			(dec_pc),
 	.read_addr_a_o		(dec_read_addr_a),
 	.read_addr_b_o		(dec_read_addr_b),
 	.write_addr_o		(dl_write_addr),
@@ -323,7 +329,9 @@ decoder decoder(
 	.idtlb_write_o		(dl_idtlb_write),
 	.csr_addr_o		(csr_addr),
 	.csr_read_en_o		(csr_read_en),
-	.iret_o			(iret)
+	.iret_o			(iret),
+	.jal_o			(jal),
+	.jal_pc_o		(jal_pc)
 );
 
 bypass_ctrl bypass_ctrl (
