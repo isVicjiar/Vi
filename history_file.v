@@ -28,10 +28,11 @@ reg [133:0] hf_queue [15:0];
 reg [3:0] hf_head;
 reg [3:0] hf_tail;
 reg recovery_inflight;
-reg [3:0] recovery_case;
 reg [3:0] recovery_index;
 integer i;	
 reg [4:0] hf_index;
+reg first;
+
 always @ (posedge clk_i) begin 
 	hf_index = 5'b10000;
 	rec_write_en_o = 1'b0;
@@ -47,24 +48,21 @@ always @ (posedge clk_i) begin
 		exc_occured_o = 1'b0;
 		hf_head = 4'b0;
 		hf_tail = 4'b0;
+		first = 1'b1;
 	end
 	else begin
-		if (!stall_decode_i) begin
-			hf_queue[hf_tail] = {1'b0, 32'b0, 32'b0, dec_pc_i, dec_dest_reg_i, dec_dest_reg_value_i};
-			if (hf_tail < 4'b1111) hf_tail = hf_tail + 1;
-			else hf_tail = 4'b0;
-		end
 		if (recovery_inflight) begin
 			rec_dest_reg_value_o = hf_queue[recovery_index][31:0];
 			rec_dest_reg_o = hf_queue[recovery_index][36:32];
 			rec_write_en_o = 1'b1;
 			stall_decode_o = 1'b1;
 			if (recovery_index != hf_head) begin
-				if (recovery_index < 4'b1111) recovery_index = recovery_index + 1;
-				else recovery_index = 4'b0;	
+				if (recovery_index > 4'b0000) recovery_index = recovery_index - 1;
+				else recovery_index = 4'b1111;	
 			end
 			else begin
 				recovery_inflight = 1'b0;
+				hf_tail = hf_head;
 				exc_mtval_o = hf_queue[recovery_index][100:69];
 				exc_mepc_o = hf_queue[recovery_index][68:37];
 				exc_mcause_o = hf_queue[recovery_index][132:101];
@@ -72,6 +70,12 @@ always @ (posedge clk_i) begin
 			end
 		end
 		else begin
+			if (!stall_decode_i && ((first && dec_pc_i == 32'b00000000) || (!first && dec_pc_i !=32'b00000000))) begin
+				hf_queue[hf_tail] = {1'b0, 32'b0, 32'b0, dec_pc_i, dec_dest_reg_i, dec_dest_reg_value_i};
+				if (hf_tail < 4'b1111) hf_tail = hf_tail + 1;
+				else hf_tail = 4'b0;
+				if (first) first = 1'b0;
+			end
 			for (i=0; i<16; i = i + 1) begin
 				if (hf_queue[i][68:37] == wb_pc_i && !hf_queue[i][133]) begin
 					hf_index = i;	
