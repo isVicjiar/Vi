@@ -80,7 +80,6 @@ wire mult5_int_write_enable;
 wire  [19:0] f_instr_addr;
 wire f_itlb_hit;
 wire f_itlb_read_only;
-wire f_icache_hit;
 wire f_icache_miss;
 wire fetch_stall;
 wire itlb_supervisor;
@@ -153,9 +152,6 @@ wire 	    le_int_write_enable;
 wire [31:0] le_exc_bits;
 
 // Exe - Latch = EL
-wire [4:0]  el_write_addr;
-wire	    el_int_write_enable;
-wire [31:0] el_int_write_data;
 wire [31:0] el_int_data_out;
 
 //Exe
@@ -294,7 +290,7 @@ instruction_cache   instruction_cache(
     .mem_addr_i         (mem_addr_i),
     .data_o     	(fetch_instruction),
     .rqst_to_mem_o      (i_mem_read),
-    .addr_to_mem_o      (mem_read_addr_o),
+    .addr_to_mem_o      (i_mem_read_addr),
     .miss_o     	(f_icache_miss),
     .fetch_stall_o	(fetch_stall)
 );
@@ -366,11 +362,11 @@ bypass_ctrl bypass_ctrl (
 	.mult5_addr_i		(mult5_write_addr),
 	.mult5_wr_en_i		(mult5_int_write_enable),
 	.tl_addr_i		(tl_write_addr),
-	.tl_wr_en_i		(tl_int_write_enable),
+	.tl_wr_en_i		(tl_write_enable),
 	.cache_data_i		(c_data),
 	.cache_addr_i		(lc_write_addr),
 	.cache_wr_en_i		(lc_write_enable),
-	.cache_hit_i		(cache_hit),
+	.cache_hit_i		(!lc_miss),
 	.write_data_i		(lw_int_write_data),
 	.write_addr_i		(lw_write_addr),
 	.write_en_i		(lw_int_write_enable),
