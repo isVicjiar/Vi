@@ -303,7 +303,7 @@ fetch_dec_latch fetch_dec_latch(
 	.clk_i		(clk_i),
 	.rsn_i		(rsn_i),
 	.stall_core_i	(dec_stall_core || tll_miss_stall),
-	.kill_i     (bp_error),
+	.kill_i     (bp_error || hf_kill_instr),
 	.stall_fetch_i (fetch_stall),
 	.fetch_misaligned_instr_exc_i (|fetch_pc[1:0]),
 	.fetch_instr_fault_exc_i (!f_itlb_hit),
