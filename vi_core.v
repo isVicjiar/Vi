@@ -523,6 +523,7 @@ lookup lookup(
     .rqst_byte_i        (tl_instruction[13]),   
     .mem_data_ready_i   (mem_data_ready_i),
     .mem_addr_i         (mem_addr_i),
+    .kill_i             (hf_kill_instr),
     .read_hit_way_o     (tll_hit_way),
     .write_hit_way_o    (w_hit_way),
     .lru_way_o          (tll_lru_way),

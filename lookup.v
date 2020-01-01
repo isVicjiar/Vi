@@ -19,6 +19,7 @@ module lookup(
     input       rqst_byte_i,
     input       mem_data_ready_i,
     input   [19:0]  mem_addr_i,
+    input       kill_i,
 
     output  [1:0] read_hit_way_o,
     output  [1:0] write_hit_way_o,
@@ -51,11 +52,13 @@ reg [3:0] lru_matrix [3:0];
 
 integer i;
 
-always @(posedge clk_i)
+always @(*)
 begin
-    for(i = 0; i<4; i = i + 1) begin
-        read_hit_array[i] = valid_bit[i] & (read_addr_i[19:4] == tags_array[i]);
-    end
+    read_hit_array[0] = valid_bit[0] & (read_addr_i[19:4] == tags_array[0]);
+    read_hit_array[1] = valid_bit[1] & (read_addr_i[19:4] == tags_array[1]);
+    read_hit_array[2] = valid_bit[2] & (read_addr_i[19:4] == tags_array[2]);
+    read_hit_array[3] = valid_bit[3] & (read_addr_i[19:4] == tags_array[3]);
+
     set_hit = read_hit_array[0] ? 0 : 
              (read_hit_array[1] ? 1 :
              (read_hit_array[2] ? 2 : 
@@ -63,6 +66,7 @@ begin
 
     case (state)
         IDLE_STATE: begin
+            rqst_to_mem = 0;
             if(read_rqst_i) begin
                 read_hit = (read_hit_array == 0) ? 0 : 1;
                 if (read_hit) begin 
@@ -74,20 +78,18 @@ begin
                     rqst_to_mem = 1;
                     state = WAIT_STATE;
                 end
-            end else begin 
-                read_hit = 1;
             end
         end
         WAIT_STATE: begin
             read_hit  = 0;
-            rqst_to_mem = 0;
-            if (!mem_data_ready_i) begin
-                for (i=0; i<4; i = i +1) begin
-                    if(lru_matrix[i][0] & lru_matrix[i][1] & lru_matrix[i][2] & lru_matrix[i][3]) begin
-                        set_lru = i;
-                    end
+            for (i=0; i<4; i = i +1) begin
+                if(lru_matrix[i][0] & lru_matrix[i][1] & lru_matrix[i][2] & lru_matrix[i][3]) begin
+                    set_lru = i;
                 end
-            end else if(mem_addr_i[19:4] == read_addr_i[19:4]) begin
+            end
+            if(kill_i) begin
+                state = IDLE_STATE;
+            end else if(mem_data_ready_i & mem_addr_i[19:4] == read_addr_i[19:4]) begin
                 state = IDLE_STATE;
                 tags_array[set_lru] = mem_addr_i[19:4];
                 valid_bit[set_lru]  = 1;
@@ -128,7 +130,7 @@ assign unalign_o = rqst_byte_i ? 0 :
                    &read_addr_i[1:0] ? 1 : 0;
 
 assign write_hit_o = write_hit;
-assign read_miss_o = ~read_hit;
+assign read_miss_o = ~read_hit & read_rqst_i;
 assign read_hit_way_o = set_hit;
 assign write_hit_way_o = set_write;
 assign lru_way_o = set_lru;
@@ -143,9 +145,9 @@ begin
     rqst_to_mem = 0;
     read_hit = 0;
     write_hit = 0;
-    lru_matrix[0] = 0;
-    lru_matrix[1] = 0;
-    lru_matrix[2] = 0;
-    lru_matrix[3] = 0;
+    lru_matrix[0] = 4'b1111;
+    lru_matrix[1] = 4'b1111;
+    lru_matrix[2] = 4'b1111;
+    lru_matrix[3] = 4'b1111;
 end
 endmodule
