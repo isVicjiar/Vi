@@ -38,75 +38,75 @@ Disassembly of section .text:
    100f0:	02508863          	beq	ra,t0,10120 <lmisaligned>
    100f4:	02608c63          	beq	ra,t1,1012c <smisaligned>
    100f8:	04708063          	beq	ra,t2,10138 <ipfault>
-   100fc:	04808f63          	beq	ra,s0,1015a <lpfault>
-   10100:	06908e63          	beq	ra,s1,1017c <spfault>
-   10104:	09a000ef          	jal	ra,1019e <excreturn>
+   100fc:	06808063          	beq	ra,s0,1015c <lpfault>
+   10100:	08908063          	beq	ra,s1,10180 <spfault>
+   10104:	0a0000ef          	jal	ra,101a4 <excreturn>
 
 0000000000010108 <imisaligned>:
    10108:	0aa00f13          	li	t5,170
    1010c:	00000f93          	li	t6,0
-   10110:	08e000ef          	jal	ra,1019e <excreturn>
+   10110:	094000ef          	jal	ra,101a4 <excreturn>
 
 0000000000010114 <illinstr>:
    10114:	0aa00f13          	li	t5,170
    10118:	00200f93          	li	t6,2
-   1011c:	082000ef          	jal	ra,1019e <excreturn>
+   1011c:	088000ef          	jal	ra,101a4 <excreturn>
 
 0000000000010120 <lmisaligned>:
    10120:	0aa00f13          	li	t5,170
    10124:	00400f93          	li	t6,4
-   10128:	076000ef          	jal	ra,1019e <excreturn>
+   10128:	07c000ef          	jal	ra,101a4 <excreturn>
 
 000000000001012c <smisaligned>:
    1012c:	0aa00f13          	li	t5,170
    10130:	00600f93          	li	t6,6
-   10134:	06a000ef          	jal	ra,1019e <excreturn>
+   10134:	070000ef          	jal	ra,101a4 <excreturn>
 
 0000000000010138 <ipfault>:
    10138:	341020f3          	csrr	ra,mepc
    1013c:	00100113          	li	sp,1
    10140:	00f00193          	li	gp,15
    10144:	00311133          	sll	sp,sp,gp
-   10148:	9106                	add	sp,sp,ra
-   1014a:	00000033          	add	zero,zero,zero
-   1014e:	0aa00f13          	li	t5,170
-   10152:	00c00f93          	li	t6,12
-   10156:	048000ef          	jal	ra,1019e <excreturn>
+   10148:	00208133          	add	sp,ra,sp
+   1014c:	00000033          	add	zero,zero,zero
+   10150:	0aa00f13          	li	t5,170
+   10154:	00c00f93          	li	t6,12
+   10158:	04c000ef          	jal	ra,101a4 <excreturn>
 
-000000000001015a <lpfault>:
-   1015a:	341020f3          	csrr	ra,mepc
-   1015e:	00100113          	li	sp,1
-   10162:	01000193          	li	gp,16
-   10166:	00311133          	sll	sp,sp,gp
-   1016a:	9106                	add	sp,sp,ra
-   1016c:	00000033          	add	zero,zero,zero
-   10170:	0aa00f13          	li	t5,170
-   10174:	00d00f93          	li	t6,13
-   10178:	026000ef          	jal	ra,1019e <excreturn>
+000000000001015c <lpfault>:
+   1015c:	341020f3          	csrr	ra,mepc
+   10160:	00100113          	li	sp,1
+   10164:	01000193          	li	gp,16
+   10168:	00311133          	sll	sp,sp,gp
+   1016c:	00208133          	add	sp,ra,sp
+   10170:	00000033          	add	zero,zero,zero
+   10174:	0aa00f13          	li	t5,170
+   10178:	00d00f93          	li	t6,13
+   1017c:	028000ef          	jal	ra,101a4 <excreturn>
 
-000000000001017c <spfault>:
-   1017c:	341020f3          	csrr	ra,mepc
-   10180:	00100113          	li	sp,1
-   10184:	01000193          	li	gp,16
-   10188:	00311133          	sll	sp,sp,gp
-   1018c:	9106                	add	sp,sp,ra
-   1018e:	00000033          	add	zero,zero,zero
-   10192:	0aa00f13          	li	t5,170
-   10196:	00f00f93          	li	t6,15
-   1019a:	004000ef          	jal	ra,1019e <excreturn>
+0000000000010180 <spfault>:
+   10180:	341020f3          	csrr	ra,mepc
+   10184:	00100113          	li	sp,1
+   10188:	01000193          	li	gp,16
+   1018c:	00311133          	sll	sp,sp,gp
+   10190:	00208133          	add	sp,ra,sp
+   10194:	00000033          	add	zero,zero,zero
+   10198:	0aa00f13          	li	t5,170
+   1019c:	00f00f93          	li	t6,15
+   101a0:	004000ef          	jal	ra,101a4 <excreturn>
 
-000000000001019e <excreturn>:
-   1019e:	00100513          	li	a0,1
-   101a2:	00b00493          	li	s1,11
-   101a6:	00951533          	sll	a0,a0,s1
-   101aa:	00053083          	ld	ra,0(a0)
-   101ae:	00453103          	ld	sp,4(a0)
-   101b2:	00853183          	ld	gp,8(a0)
-   101b6:	00c53203          	ld	tp,12(a0)
-   101ba:	01053283          	ld	t0,16(a0)
-   101be:	01453303          	ld	t1,20(a0)
-   101c2:	01853383          	ld	t2,24(a0)
-   101c6:	01c53403          	ld	s0,28(a0)
-   101ca:	7104                	ld	s1,32(a0)
-   101cc:	02453503          	ld	a0,36(a0)
-   101d0:	30200073          	mret
+00000000000101a4 <excreturn>:
+   101a4:	00100513          	li	a0,1
+   101a8:	00b00493          	li	s1,11
+   101ac:	00951533          	sll	a0,a0,s1
+   101b0:	00053083          	ld	ra,0(a0)
+   101b4:	00453103          	ld	sp,4(a0)
+   101b8:	00853183          	ld	gp,8(a0)
+   101bc:	00c53203          	ld	tp,12(a0)
+   101c0:	01053283          	ld	t0,16(a0)
+   101c4:	01453303          	ld	t1,20(a0)
+   101c8:	01853383          	ld	t2,24(a0)
+   101cc:	01c53403          	ld	s0,28(a0)
+   101d0:	02053483          	ld	s1,32(a0)
+   101d4:	02453503          	ld	a0,36(a0)
+   101d8:	30200073          	mret
