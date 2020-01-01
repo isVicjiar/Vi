@@ -36,7 +36,7 @@ localparam IDLE_STATE = 0;
 localparam WAIT_STATE = 1;
 
 reg [15:0]  tags_array [3:0];
-reg [3:0]   read_hit_array;
+wire [3:0]   read_hit_array;
 reg [3:0]   write_hit_array;
 reg [3:0]   valid_bit;
 
@@ -44,7 +44,7 @@ reg read_hit;
 reg write_hit;
 reg rqst_to_mem;
 
-reg [1:0] set_hit;
+wire [1:0] set_hit;
 reg [1:0] set_write;
 reg [1:0] set_lru;
 reg [3:0] lru_matrix [3:0];
@@ -52,17 +52,18 @@ reg [3:0] lru_matrix [3:0];
 
 integer i;
 
-always @(*)
-begin
-    read_hit_array[0] = valid_bit[0] & (read_addr_i[19:4] == tags_array[0]);
-    read_hit_array[1] = valid_bit[1] & (read_addr_i[19:4] == tags_array[1]);
-    read_hit_array[2] = valid_bit[2] & (read_addr_i[19:4] == tags_array[2]);
-    read_hit_array[3] = valid_bit[3] & (read_addr_i[19:4] == tags_array[3]);
-
-    set_hit = read_hit_array[0] ? 0 : 
+assign read_hit_array[0] = valid_bit[0] & (read_addr_i[19:4] == tags_array[0]);
+assign read_hit_array[1] = valid_bit[1] & (read_addr_i[19:4] == tags_array[1]);
+assign read_hit_array[2] = valid_bit[2] & (read_addr_i[19:4] == tags_array[2]);
+assign read_hit_array[3] = valid_bit[3] & (read_addr_i[19:4] == tags_array[3]);
+assign set_hit = read_hit_array[0] ? 0 : 
              (read_hit_array[1] ? 1 :
              (read_hit_array[2] ? 2 : 
                              3));
+
+always @(*)
+begin
+
 
     case (state)
         IDLE_STATE: begin
