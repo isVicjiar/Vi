@@ -29,9 +29,11 @@ input [4:0] mult5_addr_i,
 input mult5_wr_en_i,
 input [4:0] tl_addr_i,
 input tl_wr_en_i,
+input tl_cache_en_i,
 input [31:0] cache_data_i,
 input [4:0] cache_addr_i,
 input cache_wr_en_i,
+input cache_en_i,
 input cache_hit_i,
 input [31:0] write_data_i,
 input [4:0] write_addr_i,
@@ -78,26 +80,27 @@ always @ (*) begin
         stall_core_a = 1'b0;
         stall_core_b = 1'b0;
         stall_core_w = 1'b0;
-        if (dec_wr_en_i) begin
+        if (dec_wr_en_i) begin 
             case (wr_ens)
-                9'b100000000: stall_core_w = (exe_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
-                9'b010000000: stall_core_w = (mult1_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
-                9'b001000000: stall_core_w = (mult2_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
-                9'b000100000: stall_core_w = (mult3_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
-                9'b000010000: stall_core_w = (mult4_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
-                9'b000001000: stall_core_w = (mult5_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
-                9'b000000100: stall_core_w = (tl_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
-                9'b000000010: stall_core_w = (cache_addr_i == dec_wr_en_i) ? 1'b1 : 1'b0;
+                9'b100000000: stall_core_w = (exe_addr_i == dec_wr_addr_i) ? 1'b1 : 1'b0;
+                9'b010000000: stall_core_w = (mult1_addr_i == dec_wr_addr_i) ? 1'b1 : 1'b0;
+                9'b001000000: stall_core_w = (mult2_addr_i == dec_wr_addr_i) ? 1'b1 : 1'b0;
+                9'b000100000: stall_core_w = (mult3_addr_i == dec_wr_addr_i) ? 1'b1 : 1'b0;
+                9'b000010000: stall_core_w = (mult4_addr_i == dec_wr_addr_i) ? 1'b1 : 1'b0;
+                9'b000001000: stall_core_w = (mult5_addr_i == dec_wr_addr_i) ? 1'b1 : 1'b0;
+                9'b000000100: stall_core_w = (tl_addr_i == dec_wr_addr_i) ? 1'b1 : 1'b0;
+                9'b000000010: stall_core_w = (cache_addr_i == dec_wr_addr_i) ? 1'b1 : 1'b0;
                 default: stall_core_w = 1'b0;
             endcase
             case (dec_instr_i[6:0])
                 (7'b0110011): begin
                     if (exe_instr_i[31:25] != 7'b0000001) begin
-                        if (tl_wr_en_i || mult4_wr_en_i) stall_core_w = 1'b1;
+                        if (tl_cache_en_i || mult4_wr_en_i || (cache_en_i && !cache_hit_i)) stall_core_w = 1'b1;
                     end
                 end
                 (7'b0000011): if (mult2_wr_en_i) stall_core_w = 1'b1;
                 (7'b0100011): if (mult2_wr_en_i) stall_core_w = 1'b1;
+                default: stall_core_w = 1'b0;
             endcase
         end        
         if (exe_wr_en_i) begin
