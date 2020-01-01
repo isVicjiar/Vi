@@ -103,7 +103,7 @@ always @ (posedge clk) begin
 		tmp_mem_data_ready = 1'b1;
 	end
 	else if (mem_write_enable) begin
-		memory[mem_write_addr] = mem_write_data;
+		memory[mem_write_addr*8/128] = mem_write_data;
 	end
 	else tmp_mem_data_ready = 1'b0;
 end
