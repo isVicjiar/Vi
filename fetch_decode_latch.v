@@ -27,12 +27,12 @@ reg [31:0]	dec_exc_bits;
 reg [31:0]	dec_instr;
 reg [31:0]	dec_pc;
 
-assign dec_pred_pc_o = stall_core_i ? 0 : dec_pred_pc;
-assign dec_prediction_o = stall_core_i ? 0 : dec_prediction;
-assign dec_taken_o = stall_core_i ? 0 : dec_taken;
-assign dec_exc_bits_o = stall_core_i ? 0 : dec_exc_bits;
-assign dec_instr_o = stall_core_i ? 32'h033 : dec_instr;
-assign dec_pc_o = stall_core_i ? 0 : dec_pc;
+assign dec_pred_pc_o =  dec_pred_pc;
+assign dec_prediction_o =  dec_prediction;
+assign dec_taken_o =  dec_taken;
+assign dec_exc_bits_o =  dec_exc_bits;
+assign dec_instr_o =  dec_instr;
+assign dec_pc_o =  dec_pc;
 // Latch 
 always @(posedge clk_i)
 begin

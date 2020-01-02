@@ -70,39 +70,39 @@ assign c_pc_o = pc;
 always @(posedge clk_i)
 begin
     if(!rsn_i || kill_i) begin
-        addr        <= 20'b0;
-        rqst_byte   <=  1'b0;
-        hit_way     <=  2'b0;
-        lru_way     <=  2'b0;
-        miss        <=  1'b0;
-        buffer_hit  <=  1'b0;
-        buffer_data <= 32'b0;
-        int_write_enable <= 1'b0;
-        write_addr  <= 32'b0;
-	c_cache_enable <= 1'b0;
-	c_v_cache_addr <= 32'b0;
-	c_exc_bits <= 32'b0;
-	c_instruction <= 32'b0;
-        pc          <= 32'b0;
+        addr        = 20'b0;
+        rqst_byte   =  1'b0;
+        hit_way     =  2'b0;
+        lru_way     =  2'b0;
+        miss        =  1'b0;
+        buffer_hit  =  1'b0;
+        buffer_data = 32'b0;
+        int_write_enable = 1'b0;
+        write_addr  = 32'b0;
+        c_cache_enable = 1'b0;
+        c_v_cache_addr = 32'b0;
+        c_exc_bits = 32'b0;
+        c_instruction = 32'b0;
+        pc          = 32'b0;
     end
     if(!stall_core_i)begin
-        addr <= tl_addr_i;
-        rqst_byte <= tl_rqst_byte_i;
-        hit_way <= tl_hit_way_i;
-        lru_way <= tl_lru_way_i;
-        miss <= tl_miss_i;
-        buffer_hit  <=  tl_buffer_hit_i;
-        buffer_data <= tl_buffer_data_i;
-        int_write_enable <= tl_int_write_enable_i;
-        write_addr  <= tl_write_addr_i;
-	c_cache_enable <= tl_cache_enable_i;
-	c_v_cache_addr <= tl_v_cache_addr_i;
-	c_instruction <= tl_instruction_i;
-        pc          <= tl_pc_i;
-	c_exc_bits[4] <= tl_misaligned_ld_i;
-	c_exc_bits[6] <= tl_misaligned_st_i;
-	c_exc_bits[13] <= tl_load_fault_exc_i;
-	c_exc_bits[15] <= tl_store_fault_exc_i;
+        addr = tl_addr_i;
+        rqst_byte = tl_rqst_byte_i;
+        hit_way = tl_hit_way_i;
+        lru_way = tl_lru_way_i;
+        miss = tl_miss_i;
+        buffer_hit  =  tl_buffer_hit_i;
+        buffer_data = tl_buffer_data_i;
+        int_write_enable = tl_int_write_enable_i;
+        write_addr  = tl_write_addr_i;
+        c_cache_enable = tl_cache_enable_i;
+        c_v_cache_addr = tl_v_cache_addr_i;
+        c_instruction = tl_instruction_i;
+        pc          = tl_pc_i;
+        c_exc_bits[4] = tl_misaligned_ld_i;
+        c_exc_bits[6] = tl_misaligned_st_i;
+        c_exc_bits[13] = tl_load_fault_exc_i;
+        c_exc_bits[15] = tl_store_fault_exc_i;
     end
 end
 
