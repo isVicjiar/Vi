@@ -430,7 +430,7 @@ history_file history_file(
 dec_exe_latch dec_exe_latch(
 	.clk_i			(clk_i),
 	.rsn_i			(rsn_i),
-	.stall_core_i		(/*dec_stall_core || */tll_miss_stall),
+	.stall_core_i		(hf_stall_core || tll_miss_stall),
 	.kill_i			(hf_kill_instr || bp_error),
 	.dec_read_data_a_i	(dl_read_data_a),
 	.dec_read_data_b_i	(dl_read_data_b),

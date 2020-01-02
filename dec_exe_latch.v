@@ -43,18 +43,18 @@ reg	[31:0]	exe_exc_bits;
 reg	[31:0]	exe_instruction;
 reg	[31:0]	exe_pc;
 	
-assign exe_read_data_a_o = exe_read_data_a;
-assign exe_read_data_b_o = exe_read_data_b;
-assign exe_write_addr_o = exe_write_addr;
-assign exe_int_write_enable_o = exe_int_write_enable;
-assign exe_tlbwrite_o = exe_tlbwrite;
-assign exe_idtlb_o = exe_idtlb;
-assign exe_prediction_o = exe_prediction;
-assign exe_pred_pc_o = exe_pred_pc;
-assign exe_taken_o = exe_taken;
-assign exe_exc_bits_o = exe_exc_bits;
-assign exe_instruction_o = exe_instruction;
-assign exe_pc_o = exe_pc;
+assign exe_read_data_a_o = stall_core_i ? 0 : exe_read_data_a;
+assign exe_read_data_b_o = stall_core_i ? 0 : exe_read_data_b;
+assign exe_write_addr_o = stall_core_i ? 0 : exe_write_addr;
+assign exe_int_write_enable_o = stall_core_i ? 0 : exe_int_write_enable;
+assign exe_tlbwrite_o = stall_core_i ? 0 : exe_tlbwrite;
+assign exe_idtlb_o = stall_core_i ? 0 : exe_idtlb;
+assign exe_prediction_o = stall_core_i ? 0 : exe_prediction;
+assign exe_pred_pc_o = stall_core_i ? 0 : exe_pred_pc;
+assign exe_taken_o = stall_core_i ? 0 : exe_taken;
+assign exe_exc_bits_o = stall_core_i ? 0 : exe_exc_bits;
+assign exe_instruction_o = stall_core_i ? 32'h033 : exe_instruction;
+assign exe_pc_o = stall_core_i ? 0 : exe_pc;
 	
 // Latch 
 always @(posedge clk_i)
