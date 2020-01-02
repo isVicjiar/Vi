@@ -27,6 +27,7 @@ reg [31:0]	dec_exc_bits;
 reg [31:0]	dec_instr;
 reg [31:0]	dec_pc;
 
+reg sc;
 assign dec_pred_pc_o =  dec_pred_pc;
 assign dec_prediction_o =  dec_prediction;
 assign dec_taken_o =  dec_taken;
@@ -37,6 +38,7 @@ assign dec_pc_o =  dec_pc;
 always @(posedge clk_i)
 begin
 	if (!rsn_i || kill_i || (stall_fetch_i & !stall_core_i)) begin
+		sc = 0;
 		dec_pred_pc = 32'b0;
 		dec_prediction = 1'b0;
 		dec_taken = 1'b0;
@@ -53,6 +55,7 @@ begin
 			dec_instr = fetch_instr_i;
 			dec_pc = fetch_pc_i;
 		end
+		sc = stall_core_i;
 	end
 end
 endmodule	
