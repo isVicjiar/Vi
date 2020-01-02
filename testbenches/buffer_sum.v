@@ -122,14 +122,18 @@ end
 
 always @ (posedge clk) begin
 	if (mem_read) begin
-		tmp_mem_data = memory[mem_read_addr*8/128];
+		tmp_mem_data = memory[mem_read_addr[19:4]];
 		tmp_mem_addr = mem_read_addr;
 		tmp_mem_data_ready = 1'b1;
 	end
-	else if (mem_write_enable) begin
-		memory[mem_write_addr] = mem_write_data;
-	end
 	else tmp_mem_data_ready = 1'b0;
+	if (mem_write_enable) begin
+        if(mem_write_byte) begin
+            memory[mem_write_addr[19:4]][mem_write_addr[3:0]*8 +: 8] = mem_write_data[7:0];
+        end else begin
+            memory[mem_write_addr[19:4]][mem_write_addr[3:2]*32 +: 32] = mem_write_data[31:0];
+        end
+	end
 end
 
 endmodule

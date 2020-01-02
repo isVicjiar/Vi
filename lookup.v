@@ -28,12 +28,14 @@ module lookup(
     output  [19:0]  addr_to_mem_o,
     output      unalign_o,
     output      write_hit_o,
-    output      read_miss_o
+    output      read_miss_o,
+    output      update_cache_o
 );
 
 reg state;
 localparam IDLE_STATE = 0;
 localparam WAIT_STATE = 1;
+assign update_cache_o = mem_data_ready_i & mem_addr_i[19:4] == read_addr_i[19:4];
 
 reg [15:0]  tags_array [3:0];
 wire [3:0]   read_hit_array;
@@ -64,6 +66,11 @@ assign set_hit = read_hit_array[0] ? 0 :
 always @(*)
 begin
 
+    for (i=0; i<4; i = i +1) begin
+        if(lru_matrix[i][0] & lru_matrix[i][1] & lru_matrix[i][2] & lru_matrix[i][3]) begin
+            set_lru = i;
+        end
+    end
 
     case (state)
         IDLE_STATE: begin
@@ -83,11 +90,6 @@ begin
         end
         WAIT_STATE: begin
             read_hit  = 0;
-            for (i=0; i<4; i = i +1) begin
-                if(lru_matrix[i][0] & lru_matrix[i][1] & lru_matrix[i][2] & lru_matrix[i][3]) begin
-                    set_lru = i;
-                end
-            end
             if(kill_i) begin
                 state = IDLE_STATE;
             end else if(mem_data_ready_i & mem_addr_i[19:4] == read_addr_i[19:4]) begin

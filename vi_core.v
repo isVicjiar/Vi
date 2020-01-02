@@ -190,6 +190,7 @@ wire [1:0]  tll_lru_way;
 wire        tll_misalign_exc;
 wire        tll_miss_stall;
 wire        tll_miss;
+wire        tll_update_cache;
 wire        tll_buffer_hit;
 wire [31:0] tll_buffer_data;
 
@@ -531,7 +532,8 @@ lookup lookup(
     .addr_to_mem_o      (d_mem_read_addr),
     .unalign_o          (tll_misalign_exc),
     .write_hit_o        (w_write_hit),
-    .read_miss_o        (tll_miss)
+    .read_miss_o        (tll_miss),
+    .update_cache_o     (tll_update_cache)
 );
 
 store_buffer store_buffer(
@@ -540,7 +542,7 @@ store_buffer store_buffer(
     .addr_i             (tl_addr),
     .data_i             (tl_store_data),
     .write_pc_i         (tl_pc),
-    .write_enable_i     (tl_store && tl_cache_enable),
+    .write_enable_i     (tl_instruction[6:0] == 7'b0100011 && tl_cache_enable),
     .write_byte_i       (tl_instruction[13]),   
     .kill_i             (hf_kill_instr),
     .kill_pc_i          (hf_kill_pc),
@@ -567,7 +569,7 @@ tl_cache_latch tl_cache_latch(
     .tl_rqst_byte_i     (tl_instruction[13]),
     .tl_hit_way_i       (tll_hit_way),
     .tl_lru_way_i       (tll_lru_way),
-    .tl_miss_i          (tll_miss_stall),
+    .tl_miss_i          (tll_miss),
     .tl_buffer_hit_i    (tll_buffer_hit),
     .tl_buffer_data_i   (tll_buffer_data),
     .tl_int_write_enable_i    (tl_write_enable),
@@ -606,13 +608,13 @@ cache cache(
     .write_data_i       (sb_write_data),
     .write_addr_i       (sb_write_addr),
     .write_byte_i       (sb_write_byte),
-    .mem_data_ready_i   (mem_data_ready_i),
+    .mem_data_ready_i   (tll_update_cache),
     .mem_data_i         (mem_data_i),
     .read_hit_way_i     (lc_hit_way),
     .write_hit_way_i    (w_hit_way),
     .lru_way_i          (lc_lru_way),
     .write_hit_i        (w_write_hit),
-    .read_miss_i        (lc_miss),
+    .read_miss_i        (tll_miss),
     .data_o             (c_data)
 );
 	
