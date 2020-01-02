@@ -99,7 +99,7 @@ always @ (*) begin
 				if (tl_cache_en_i || mult4_wr_en_i) stall_core_w = 1'b1;
 			end
 			else begin
-				stall_core_w = 1'b1;
+				stall_core_w = 1'b0;
 			end
 		end
 		(7'b0000011): if (mult2_wr_en_i) stall_core_w = 1'b1;
