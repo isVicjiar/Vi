@@ -3,7 +3,7 @@ module buffer_sum;
 reg clk;
 reg rsn;
 
-reg [127:0] memory [25'hFFFF:0];
+reg [127:0] memory [25'h1FFF:0];
 reg tmp_mem_data_ready;
 reg [127:0] tmp_mem_data;
 reg [19:0] tmp_mem_addr;

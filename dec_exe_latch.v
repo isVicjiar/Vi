@@ -5,6 +5,7 @@ input		clk_i,
 input		rsn_i,
 input 		kill_i,
 input		stall_core_i,
+input       decode_stall_i,
 input	[31:0]	dec_read_data_a_i,
 input	[31:0]	dec_read_data_b_i,
 input	[4:0]	dec_write_addr_i,
@@ -59,7 +60,7 @@ assign exe_pc_o = stall_core_i ? 0 : exe_pc;
 // Latch 
 always @(posedge clk_i)
 begin
-	if (!rsn_i || kill_i) begin
+	if (!rsn_i || kill_i ||(decode_stall_i & !stall_core_i)) begin
 		exe_read_data_a = 5'b0;
 		exe_read_data_b = 5'b0;
 		exe_write_addr = 5'b0;
