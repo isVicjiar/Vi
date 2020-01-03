@@ -1,0 +1,38 @@
+
+mem_copy.o:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <_start>:
+   0:	00000093          	li	ra,0
+   4:	08000113          	li	sp,128
+   8:	00500193          	li	gp,5
+   c:	00000213          	li	tp,0
+  10:	20020293          	addi	t0,tp,512 # 200 <end2+0x1ac>
+  14:	00020313          	mv	t1,tp
+
+00000018 <loop1>:
+  18:	00208a63          	beq	ra,sp,2c <end1>
+  1c:	00332023          	sw	gp,0(t1)
+  20:	00430313          	addi	t1,t1,4
+  24:	00108093          	addi	ra,ra,1
+  28:	fe1088e3          	beq	ra,ra,18 <loop1>
+
+0000002c <end1>:
+  2c:	00020313          	mv	t1,tp
+  30:	00028393          	mv	t2,t0
+  34:	00000093          	li	ra,0
+
+00000038 <loop2>:
+  38:	00208e63          	beq	ra,sp,54 <end2>
+  3c:	00032183          	lw	gp,0(t1)
+  40:	0033a023          	sw	gp,0(t2)
+  44:	00430313          	addi	t1,t1,4
+  48:	00438393          	addi	t2,t2,4
+  4c:	00108093          	addi	ra,ra,1
+  50:	fe1084e3          	beq	ra,ra,38 <loop2>
+
+00000054 <end2>:
+  54:	00000013          	nop
+  58:	fe108ee3          	beq	ra,ra,54 <end2>
