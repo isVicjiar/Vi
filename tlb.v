@@ -53,7 +53,10 @@ always @(*) begin
             read_only = read_only_array[1];
             lru = 0;
         end
-	else if (v_addr_i[31:12] == new_virtual_i[31:12]) bypass_p_addr = 1'b1;
+        else if (write_enable_i & v_addr_i[31:12] == new_virtual_i[31:12]) begin
+            bypass_p_addr = 1'b1;
+            hit = 1;
+        end
         else begin
             hit = 0;
         end
@@ -66,15 +69,15 @@ always @(posedge clk_i) begin
 		valid_bit[1] = 1'b0;
 	end
 	else begin
-		if(write_enable_i) begin
-		sub_bit = !valid_bit[0] ? 0 : 
-			  !valid_bit[1] ? 1 : lru;
-		physical_tags[sub_bit] = new_physical_i[19:12];
-		virtual_tags[sub_bit] = new_virtual_i[31:12];
-		read_only_array[sub_bit] = new_read_only_i;
-		valid_bit[sub_bit] = 1;
-		lru = ~sub_bit;
-		end
+        if(write_enable_i) begin
+            sub_bit = !valid_bit[0] ? 0 : 
+                      !valid_bit[1] ? 1 : lru;
+            physical_tags[sub_bit] = new_physical_i[19:12];
+            virtual_tags[sub_bit] = new_virtual_i[31:12];
+            read_only_array[sub_bit] = new_read_only_i;
+            valid_bit[sub_bit] = 1;
+            lru = ~sub_bit;
+        end
 	end
 end
 
