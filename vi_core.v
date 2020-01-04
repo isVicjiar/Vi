@@ -313,6 +313,7 @@ fetch_dec_latch fetch_dec_latch(
 	.dec_prediction_o 	(dl_prediction),
 	.dec_taken_o    	(dl_taken),
 	.dec_exc_bits_o		(ld_exc_bits),
+	.dec_null_val_o     (ld_null_val),
 	.dec_instr_o		(dec_instruction),
 	.dec_pc_o		(dec_pc)
 );
@@ -407,7 +408,8 @@ int_registers int_registers(
 history_file history_file(
 	.clk_i			(clk_i),
 	.rsn_i			(rsn_i),
-	.stall_decode_i		(fetch_stall || dec_stall_core || tll_miss_stall),
+	.stall_decode_i		(dec_stall_core || tll_miss_stall),
+	.dec_null_val_i     (ld_null_val),
 	.dec_dest_reg_i		(dl_write_addr),
 	.dec_dest_reg_value_i	(dec_dest_reg_value),
 	.dec_pc_i		(dec_pc),

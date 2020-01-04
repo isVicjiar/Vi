@@ -45,15 +45,15 @@ begin
 		pc = 32'h1000;
 		exc_pc = 32'h2000;
 	end
-	else if (jal_i) begin
+	else if (jal_i & !bp_error_i) begin
 		pc = jal_pc_i + 4;
 		if (stall_core_i) pc = jal_pc_i;	
 	end
-	else if (iret_i) begin
+	else if (iret_i & !bp_error_i) begin
 		pc = exc_return_pc_i + 4;
 		if (stall_core_i) pc = exc_return_pc_i;
 	end
-	else if (exc_occured_i) begin
+	else if (exc_occured_i & !bp_error_i) begin
 		pc = exc_pc;
 	end
 	else if (!stall_core_i || bp_error_i) pc = next_pc;

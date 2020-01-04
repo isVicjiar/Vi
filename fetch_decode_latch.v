@@ -17,6 +17,7 @@ output [31:0]   dec_pred_pc_o,
 output  		dec_prediction_o,
 output  		dec_taken_o,
 output [31:0]	dec_exc_bits_o, 
+output          dec_null_val_o,
 output [31:0]	dec_instr_o,
 output [31:0]	dec_pc_o);
 
@@ -24,6 +25,7 @@ reg [31:0]	dec_pred_pc;
 reg  		dec_prediction;
 reg  		dec_taken;
 reg [31:0]	dec_exc_bits;
+reg         dec_null_val;
 reg [31:0]	dec_instr;
 reg [31:0]	dec_pc;
 
@@ -32,17 +34,20 @@ assign dec_pred_pc_o =  dec_pred_pc;
 assign dec_prediction_o =  dec_prediction;
 assign dec_taken_o =  dec_taken;
 assign dec_exc_bits_o =  dec_exc_bits;
+assign dec_null_val_o =  dec_null_val;
 assign dec_instr_o =  dec_instr;
 assign dec_pc_o =  dec_pc;
 // Latch 
 always @(posedge clk_i)
 begin
+    dec_null_val = (stall_fetch_i & !stall_core_i);
 	if (!rsn_i || kill_i || (stall_fetch_i & !stall_core_i)) begin
 		sc = 0;
 		dec_pred_pc = 32'b0;
 		dec_prediction = 1'b0;
 		dec_taken = 1'b0;
 		dec_exc_bits = 32'b0;
+        dec_null_val = 1'b1;
 		dec_pc = 32'b0;
 		dec_instr = 32'b0;
 	end

@@ -4,6 +4,7 @@ module history_file (
 input 		clk_i,
 input 		rsn_i,
 input 		stall_decode_i,
+input       dec_null_val_i,
 input 	[4:0] 	dec_dest_reg_i,
 input 	[31:0] 	dec_pc_i,
 input 	[31:0] 	dec_dest_reg_value_i,
@@ -31,7 +32,8 @@ reg recovery_inflight;
 reg [3:0] recovery_index;
 integer i;	
 reg [4:0] hf_index;
-reg first;
+
+assign dec_null_val = (dec_null_val_i===1'bx) ? 1 : dec_null_val_i;
 
 always @ (posedge clk_i) begin 
 	hf_index = 5'b10000;
@@ -48,7 +50,6 @@ always @ (posedge clk_i) begin
 		exc_occured_o = 1'b0;
 		hf_head = 4'b0;
 		hf_tail = 4'b0;
-		first = 1'b1;
 	end
 	else begin
 		if (recovery_inflight) begin
@@ -70,12 +71,11 @@ always @ (posedge clk_i) begin
 			end
 		end
 		else begin
-			if (!stall_decode_i && ((first && dec_pc_i == 32'b00000000) || (!first && dec_pc_i !=32'b00000000))) begin
+			if (!stall_decode_i && !dec_null_val) begin
 				hf_queue[hf_tail] = {1'b0, 32'b0, 32'b0, dec_pc_i, dec_dest_reg_i, dec_dest_reg_value_i};
 				if (hf_tail < 4'b1111) hf_tail = hf_tail + 1;
 				else hf_tail = 4'b0;
-				if (first) first = 1'b0;
-			end
+            end
 			for (i=0; i<16; i = i + 1) begin
 				if (hf_queue[i][68:37] == wb_pc_i && !hf_queue[i][133]) begin
 					hf_index = i;	
