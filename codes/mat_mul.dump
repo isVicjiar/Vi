@@ -1,0 +1,66 @@
+
+mat_mul:     file format elf64-littleriscv
+
+
+Disassembly of section .text:
+
+0000000000010078 <_start>:
+   10078:	00000093          	li	ra,0
+   1007c:	00000113          	li	sp,0
+   10080:	00000193          	li	gp,0
+   10084:	08000793          	li	a5,128
+   10088:	00000213          	li	tp,0
+   1008c:	00100293          	li	t0,1
+   10090:	01200513          	li	a0,18
+   10094:	00a292b3          	sll	t0,t0,a0
+   10098:	00100313          	li	t1,1
+   1009c:	00629333          	sll	t1,t0,t1
+
+00000000000100a0 <loop1>:
+   100a0:	08f08663          	beq	ra,a5,1012c <endloop1>
+   100a4:	00000113          	li	sp,0
+
+00000000000100a8 <loop2>:
+   100a8:	06f10e63          	beq	sp,a5,10124 <endloop2>
+   100ac:	00000193          	li	gp,0
+   100b0:	00000493          	li	s1,0
+   100b4:	02f086b3          	mul	a3,ra,a5
+   100b8:	00200813          	li	a6,2
+   100bc:	010696b3          	sll	a3,a3,a6
+   100c0:	010118b3          	sll	a7,sp,a6
+   100c4:	011686b3          	add	a3,a3,a7
+   100c8:	006686b3          	add	a3,a3,t1
+   100cc:	0096a023          	sw	s1,0(a3)
+
+00000000000100d0 <loop3>:
+   100d0:	04f18663          	beq	gp,a5,1011c <endloop3>
+   100d4:	02f085b3          	mul	a1,ra,a5
+   100d8:	010595b3          	sll	a1,a1,a6
+   100dc:	010198b3          	sll	a7,gp,a6
+   100e0:	011585b3          	add	a1,a1,a7
+   100e4:	004585b3          	add	a1,a1,tp
+   100e8:	02f18633          	mul	a2,gp,a5
+   100ec:	01061633          	sll	a2,a2,a6
+   100f0:	010118b3          	sll	a7,sp,a6
+   100f4:	01160633          	add	a2,a2,a7
+   100f8:	00560633          	add	a2,a2,t0
+   100fc:	0005a383          	lw	t2,0(a1)
+   10100:	00062403          	lw	s0,0(a2)
+   10104:	0006a483          	lw	s1,0(a3)
+   10108:	02838733          	mul	a4,t2,s0
+   1010c:	00e484b3          	add	s1,s1,a4
+   10110:	0096a023          	sw	s1,0(a3)
+   10114:	00118193          	addi	gp,gp,1 # 11935 <__global_pointer$+0x1>
+   10118:	fb9ff0ef          	jal	ra,100d0 <loop3>
+
+000000000001011c <endloop3>:
+   1011c:	00110113          	addi	sp,sp,1
+   10120:	f89ff0ef          	jal	ra,100a8 <loop2>
+
+0000000000010124 <endloop2>:
+   10124:	00108093          	addi	ra,ra,1
+   10128:	f79ff0ef          	jal	ra,100a0 <loop1>
+
+000000000001012c <endloop1>:
+   1012c:	00000013          	nop
+   10130:	fe108ee3          	beq	ra,ra,1012c <endloop1>
