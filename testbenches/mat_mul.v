@@ -1,4 +1,4 @@
-module mem_copy;
+module mat_mul;
 
 reg clk;
 reg rsn;
@@ -97,7 +97,7 @@ initial begin
 	memory[25'h808] = {32'h0006a483, 32'h00062403, 32'h0005a383, 32'h00560633};
 	memory[25'h809] = {32'h00118193, 32'h0096a023, 32'h00e484b3, 32'h02838733};
 	memory[25'h80a] = {32'h00108093, 32'hf89ff0ef, 32'h00110113, 32'hfb9ff0ef};
-	memory[25'h80b] = {32'h00000000, 32'hfe108ee3, 32'h00000013, 32'hf79ff0ef};
+	memory[25'h80b] = {32'h00000000, 32'h00000000, 32'h00000013, 32'hf79ff0ef};
 	//
 	rsn = 1'b1;
 end
@@ -105,7 +105,7 @@ end
 always @ (posedge clk) begin
 	if (mem_read) begin
 		if (mem_read_addr>=32'h00050000 && mem_read_addr<32'h00090000) tmp_mem_data = 32'h00000003;
-		else if (mem_read_addr>=32'h00010000 && mem_read_addrr<32'h0005000) tmp_mem_data = 32'h00000002;
+		else if (mem_read_addr>=32'h00010000 && mem_read_addr<32'h0005000) tmp_mem_data = 32'h00000002;
 		else tmp_mem_data = memory[mem_read_addr[19:4]];
 		tmp_mem_addr = mem_read_addr;
 		tmp_mem_data_ready = 1'b1;
