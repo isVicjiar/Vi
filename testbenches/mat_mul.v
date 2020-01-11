@@ -3,7 +3,7 @@ module mat_mul;
 reg clk;
 reg rsn;
 
-reg [127:0] memory [32'hFFFFFFFF:0];
+reg [127:0] memory [25'hFFFF:0];
 reg tmp_mem_data_ready;
 reg [127:0] tmp_mem_data;
 reg [19:0] tmp_mem_addr;
@@ -17,6 +17,9 @@ wire mem_write_enable;
 wire [19:0] mem_write_addr;
 wire [31:0] mem_write_data;
 wire mem_write_byte;
+
+integer i;
+integer j;
 
 assign mem_data_ready = tmp_mem_data_ready;
 assign mem_data = tmp_mem_data;
@@ -99,14 +102,20 @@ initial begin
 	memory[25'h80a] = {32'h00108093, 32'hf89ff0ef, 32'h00110113, 32'hfb9ff0ef};
 	memory[25'h80b] = {32'h00000000, 32'h00000000, 32'h00000013, 32'hf79ff0ef};
 	//
+    for (i = 25'h1000; i<25'h1400; i=i+1) begin
+        memory[i] = {32'h00000002, 32'h00000002, 32'h00000002, 32'h00000002};
+        j = i+ 25'h400;
+        memory[j] = {32'h00000003, 32'h00000003, 32'h00000003, 32'h00000003};
+    end
+	
 	rsn = 1'b1;
 end
 
 always @ (posedge clk) begin
 	if (mem_read) begin
-		if (mem_read_addr>=32'h00050000 && mem_read_addr<32'h00090000) tmp_mem_data = 32'h00000003;
-		else if (mem_read_addr>=32'h00010000 && mem_read_addr<32'h0005000) tmp_mem_data = 32'h00000002;
-		else tmp_mem_data = memory[mem_read_addr[19:4]];
+		/*if (mem_read_addr>=32'h00050000 && mem_read_addr<32'h00090000) tmp_mem_data = 32'h00000003;
+		else if (mem_read_addr>=32'h00010000 && mem_read_addrr<32'h0005000) tmp_mem_data = 32'h00000002;
+		else*/ tmp_mem_data = memory[mem_read_addr[19:4]];
 		tmp_mem_addr = mem_read_addr;
 		tmp_mem_data_ready = 1'b1;
 	end
