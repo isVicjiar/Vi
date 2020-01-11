@@ -289,6 +289,7 @@ instruction_cache   instruction_cache(
 	.mem_data_ready_i   	(mem_data_ready_i),
 	.mem_data_i         	(mem_data_i),
 	.mem_addr_i         	(mem_addr_i),
+	.cancel_wait_i      (bp_prediction & bp_taken),
 	.data_o     		(fetch_instruction),
 	.rqst_to_mem_o      	(i_mem_read),
 	.addr_to_mem_o      	(i_mem_read_addr),

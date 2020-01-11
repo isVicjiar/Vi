@@ -9,6 +9,7 @@ module instruction_cache(
     input       mem_data_ready_i,
     input   [127:0] mem_data_i,
     input   [19:0]  mem_addr_i,
+    input       cancel_wait_i,
 
     output  [31:0]  data_o,
     output      rqst_to_mem_o,
@@ -57,7 +58,8 @@ begin
         end
         WAIT_STATE: begin
             rqst_to_mem = 0;
-            if(mem_data_ready_i && mem_addr_i[19:6] == addr_tag) begin
+            if(cancel_wait_i) state = IDLE_STATE;
+            else if(mem_data_ready_i && mem_addr_i[19:6] == addr_tag) begin
                 data_array[addr_idx] = mem_data_i;
                 tags_array[addr_idx] = mem_addr_i[19:6];
                 valid_bit[addr_idx] = 1;
