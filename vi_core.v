@@ -228,7 +228,7 @@ assign write_mpriv_en = (iret || exc_occured) ? 1'b1 : 1'b0;
 assign write_data_mpriv = (iret) ? 1'b0 : ((exc_occured) ? 1'b1 : write_data_mpriv);
 assign fetch_pc = (iret) ? read_data_mepc : ((jal) ? jal_pc : pc_instr_addr);
 assign itlb_supervisor = (iret) ? 1'b0 : read_data_mpriv[0];
-assign tll_miss_stall = tll_miss & tl_dtlb_hit && tl_cache_enable && tl_instruction[6:0]==7'b0000011;
+assign tll_miss_stall = (tll_miss & !tll_buffer_hit)& tl_dtlb_hit && tl_cache_enable && tl_instruction[6:0]==7'b0000011;
 
 fetch fetch(
 	.clk_i			(clk_i),
@@ -367,7 +367,7 @@ bypass_ctrl bypass_ctrl (
 	.tl_addr_i		(tl_write_addr),
 	.tl_wr_en_i		(tl_write_enable),
 	.tl_cache_en_i		(tl_cache_enable),
-	.cache_data_i		(c_data),
+	.cache_data_i		(cl_data),
 	.cache_addr_i		(lc_write_addr),
 	.cache_wr_en_i		(lc_write_enable),
 	.cache_en_i		(lc_cache_enable),
@@ -718,7 +718,7 @@ exe_write_latch exe_write_latch(
 	.mult5_int_write_enable_i	(mult5_int_write_enable),
 	.mult5_instruction_i		(mult5_instruction),
 	.mult5_pc_i			(mult5_pc),
-	.cache_int_write_data_i		(c_data),
+	.cache_int_write_data_i		(cl_data),
 	.cache_write_addr_i		(lc_write_addr),
 	.cache_int_write_enable_i	(lc_write_enable),
 	.cache_cache_enable_i		(lc_cache_enable),
