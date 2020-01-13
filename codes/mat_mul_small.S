@@ -22,7 +22,7 @@ _start:
 	addi x15, x0, 2
 	addi x4,x0,0
 	addi x5,x0,1
-	addi x10,x0,18
+	addi x10,x0,16
 	sll x5,x5,x10
 	addi x6,x0,1
 	sll x6,x5,x6
