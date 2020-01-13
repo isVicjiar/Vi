@@ -8,6 +8,7 @@ input       dec_null_val_i,
 input 	[4:0] 	dec_dest_reg_i,
 input 	[31:0] 	dec_pc_i,
 input 	[31:0] 	dec_dest_reg_value_i,
+input		dec_int_write_enable_i,
 input 	[31:0] 	wb_pc_i,
 input 	[4:0] 	wb_dest_reg_i,
 input 	[31:0] 	wb_exc_i,
@@ -23,7 +24,7 @@ output reg 	[31:0] exc_mtval_o,
 output reg 	[31:0] exc_mepc_o,
 output reg 	[31:0] exc_mcause_o
 );
-//	([133] finished) + ([132:101] exc_bits) + ([100:69] @miss address)
+//	([134] write_en) + ([133] finished) + ([132:101] exc_bits) + ([100:69] @miss address)
 //	+ ([68:37] pc) + ([36:32] dec_dest_Reg) + ([31:0] dec_dest_reg_value)
 reg [133:0] hf_queue [15:0];
 reg [3:0] hf_head;
@@ -55,7 +56,7 @@ always @ (posedge clk_i) begin
 		if (recovery_inflight) begin
 			rec_dest_reg_value_o = hf_queue[recovery_index][31:0];
 			rec_dest_reg_o = hf_queue[recovery_index][36:32];
-			rec_write_en_o = 1'b1;
+			rec_write_en_o = (hf_queue[recovery_index][134]) ? 1'b1 : 1'b0;
 			stall_decode_o = 1'b1;
 			if (recovery_index != hf_head) begin
 				if (recovery_index > 4'b0000) recovery_index = recovery_index - 1;
@@ -72,10 +73,11 @@ always @ (posedge clk_i) begin
 		end
 		else begin
 			if (!stall_decode_i && !dec_null_val) begin
-				hf_queue[hf_tail] = {1'b0, 32'b0, 32'b0, dec_pc_i, dec_dest_reg_i, dec_dest_reg_value_i};
+				hf_queue[hf_tail] = {dec_int_write_enable_i, 1'b0, 32'b0, 32'b0, dec_pc_i, dec_dest_reg_i, dec_dest_reg_value_i};
 				if (hf_tail < 4'b1111) hf_tail = hf_tail + 1;
 				else hf_tail = 4'b0;
-            end
+				hf_queue[hf_tail] = 135'b0;
+            		end
 			for (i=0; i<16; i = i + 1) begin
 				if (hf_queue[i][68:37] == wb_pc_i && !hf_queue[i][133]) begin
 					hf_index = i;	
@@ -91,6 +93,7 @@ always @ (posedge clk_i) begin
 						stall_decode_o = 1'b1;
 						kill_instr_o = 1'b1;
 						kill_pc_o = hf_queue[hf_head][68:37];
+						//recovery_index = (hf_tail==4'b0000) ? 4'b1111 : hf_tail-1;
 						recovery_index = hf_tail;
 						recovery_inflight = 1'b1;
 					end
@@ -102,6 +105,7 @@ always @ (posedge clk_i) begin
 									stall_decode_o = 1'b1;
 									kill_instr_o = 1'b1;
 									kill_pc_o = hf_queue[hf_head][68:37];
+									//recovery_index = (hf_tail==4'b0000) ? 4'b1111 : hf_tail-1;
 									recovery_index = hf_tail;
 									recovery_inflight = 1'b1;
 							end
