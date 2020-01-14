@@ -50,15 +50,18 @@ always @(posedge clk_i)
 begin
     case(state)
         IDLE_STATE: begin
-            rqst_to_mem = 0;
+            if(!cancel_wait_i) begin
             if ((tags_array[addr_idx] != addr_tag) || ~valid_bit[addr_idx]) begin
                 rqst_to_mem = 1'b1;
                 state = WAIT_STATE;
                 fetch_stall = 1'b1;
             end
         end
+        end
         WAIT_STATE: begin
-            if(mem_data_ready_i && mem_addr_i[19:6] == addr_tag) begin
+            rqst_to_mem = 0;
+            if(cancel_wait_i) state = IDLE_STATE;
+            else if(mem_data_ready_i && mem_addr_i[19:6] == addr_tag) begin
                 data_array[addr_idx] = mem_data_i;
                 tags_array[addr_idx] = mem_addr_i[19:6];
                 valid_bit[addr_idx] = 1;

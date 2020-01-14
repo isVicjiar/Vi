@@ -16,24 +16,71 @@ output  [31:0]  mem_write_data_o
 );
 
 //Memmory related outputs
+localparam DELAY = 4;
 wire i_mem_read;
 wire d_mem_read;
 wire [19:0] i_mem_read_addr;
 wire [19:0] d_mem_read_addr;
 
-assign mem_read_o = i_mem_read | d_mem_read;
-assign mem_read_addr_o = i_mem_read ? i_mem_read_addr :
-                                      d_mem_read_addr;
+reg [DELAY-1:0] b_mem_read;
+reg [19:0] b_mem_read_addr [DELAY-1:0];
+assign mem_read_o = b_mem_read[DELAY-1];
+assign mem_read_addr_o = b_mem_read_addr[DELAY-1][19:0];
 
 wire     sb_write_enable;
 wire     sb_write_byte;
 wire  [19:0]  sb_write_addr;
 wire  [31:0]  sb_write_data;
+reg [DELAY-1:0] b_write_enable;
+reg [DELAY-1:0] b_write_byte;
+reg [19:0] b_write_addr [DELAY-1:0];
+reg [31:0] b_write_data [DELAY-1:0];
 
-assign mem_write_enable_o = sb_write_enable;
-assign mem_write_addr_o = sb_write_addr;
-assign mem_write_data_o = sb_write_data;
-assign mem_write_byte_o = sb_write_byte;
+assign mem_write_enable_o = b_write_enable[DELAY-1];
+assign mem_write_addr_o = b_write_addr[DELAY-1];
+assign mem_write_data_o = b_write_data[DELAY-1];
+assign mem_write_byte_o = b_write_byte[DELAY-1];
+
+reg [DELAY-1:0] b_mem_data_ready;
+reg [127:0]b_mem_data [DELAY-1:0];
+reg [19:0] b_mem_addr [DELAY-1:0];
+
+integer i;
+always @(posedge clk_i) begin
+    if(!rsn_i) begin
+        b_mem_read =0;
+        for(i = 0; i<DELAY; i= i+1) begin
+            b_mem_read_addr[i] =0;
+            b_write_addr[i] =0;
+            b_write_data[i] =0;
+            b_mem_addr[i] =0;
+            b_mem_data[i] =0;
+        end
+        b_write_enable = 0;
+        b_write_byte = 0;
+        b_mem_data_ready = 0;
+    end else begin
+        b_mem_read = {b_mem_read[DELAY-2:0],(i_mem_read | d_mem_read)};
+        for(i = DELAY-1; i>=0; i= i-1) begin
+            b_mem_read_addr[i] = b_mem_read_addr[i-1];
+            b_write_addr[i] = b_write_addr[i-1];
+            b_write_data[i] = b_write_data[i-1];
+            b_mem_addr[i] = b_mem_addr[i-1];
+            b_mem_data[i] = b_mem_data[i-1];
+        end
+
+        b_mem_read_addr[0] = (i_mem_read ? i_mem_read_addr : d_mem_read_addr);
+        b_write_addr[0] = sb_write_addr;
+        b_write_data[0] = sb_write_data;
+        b_mem_data[0] = mem_data_i;
+        b_mem_addr[0] = mem_addr_i;
+
+        b_write_enable[DELAY-1:0] = {b_write_enable[DELAY-2:0],sb_write_enable};
+        b_write_byte = {b_write_byte[DELAY-2:0],sb_write_byte};
+
+        b_mem_data_ready = {b_mem_data_ready[DELAY-2:0],mem_data_ready_i};
+    end
+end
 
 // Stage instructions-pc
 wire [31:0] fetch_instruction;
@@ -228,7 +275,7 @@ assign write_mpriv_en = (iret || exc_occured) ? 1'b1 : 1'b0;
 assign write_data_mpriv = (iret) ? 1'b0 : ((exc_occured) ? 1'b1 : write_data_mpriv);
 assign fetch_pc = (iret) ? read_data_mepc : ((jal) ? jal_pc : pc_instr_addr);
 assign itlb_supervisor = (iret) ? 1'b0 : read_data_mpriv[0];
-assign tll_miss_stall = (tll_miss & !tll_buffer_hit)& tl_dtlb_hit && tl_cache_enable && tl_instruction[6:0]==7'b0000011;
+assign tll_miss_stall = (tll_miss & !tll_buffer_hit) & tl_dtlb_hit && tl_cache_enable && tl_instruction[6:0]==7'b0000011;
 
 fetch fetch(
 	.clk_i			(clk_i),
@@ -286,10 +333,10 @@ instruction_cache   instruction_cache(
 	.clk_i      		(clk_i),
 	.rsn_i      		(rsn_i),
 	.addr_i     		(f_instr_addr),
-	.mem_data_ready_i   	(mem_data_ready_i),
-	.mem_data_i         	(mem_data_i),
-	.mem_addr_i         	(mem_addr_i),
-	.cancel_wait_i      (bp_error),
+	.mem_data_ready_i   	(b_mem_data_ready[DELAY-1]),
+	.mem_data_i         	(b_mem_data[DELAY-1]),
+	.mem_addr_i         	(b_mem_addr[DELAY-1]),
+	.cancel_wait_i      (bp_error || exc_occured),
 	.data_o     		(fetch_instruction),
 	.rqst_to_mem_o      	(i_mem_read),
 	.addr_to_mem_o      	(i_mem_read_addr),
@@ -526,8 +573,8 @@ lookup lookup(
     .read_rqst_i        (tl_cache_enable & tl_write_enable),        
     .write_enable_i     (sb_write_enable),
     .rqst_byte_i        (tl_instruction[12]),   
-    .mem_data_ready_i   (mem_data_ready_i),
-    .mem_addr_i         (mem_addr_i),
+    .mem_data_ready_i   (b_mem_data_ready[DELAY-1]),
+    .mem_addr_i         (b_mem_addr[DELAY-1]),
     .kill_i             (hf_kill_instr),
     .read_hit_way_o     (tll_hit_way),
     .write_hit_way_o    (w_hit_way),
@@ -613,7 +660,7 @@ cache cache(
     .write_addr_i       (sb_write_addr),
     .write_byte_i       (sb_write_byte),
     .mem_data_ready_i   (tll_update_cache),
-    .mem_data_i         (mem_data_i),
+    .mem_data_i         (b_mem_data[DELAY-1]),
     .read_hit_way_i     (lc_hit_way),
     .write_hit_way_i    (w_hit_way),
     .lru_way_i          (lc_lru_way),
