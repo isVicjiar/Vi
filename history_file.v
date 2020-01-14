@@ -26,7 +26,7 @@ output reg 	[31:0] exc_mcause_o
 );
 //	([134] write_en) + ([133] finished) + ([132:101] exc_bits) + ([100:69] @miss address)
 //	+ ([68:37] pc) + ([36:32] dec_dest_Reg) + ([31:0] dec_dest_reg_value)
-reg [133:0] hf_queue [15:0];
+reg [134:0] hf_queue [15:0];
 reg [3:0] hf_head;
 reg [3:0] hf_tail;
 reg recovery_inflight;
